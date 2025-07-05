@@ -5,12 +5,12 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.mhss.app.alarm.model.Alarm
-import com.mhss.app.alarm.use_case.UpsertAlarmUseCase
 import com.mhss.app.alarm.use_case.DeleteAlarmUseCase
-import com.mhss.app.util.Constants
+import com.mhss.app.alarm.use_case.UpsertAlarmUseCase
 import com.mhss.app.domain.model.TaskFrequency
 import com.mhss.app.domain.use_case.GetTaskByAlarmUseCase
 import com.mhss.app.domain.use_case.UpsertTaskUseCase
+import com.mhss.app.util.Constants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -34,16 +34,13 @@ class AlarmReceiver : BroadcastReceiver(), KoinComponent {
             val task =
                 intent?.getIntExtra(Constants.ALARM_ID_EXTRA, -1)?.let { getTaskByAlarm(it) }
                     ?: run {
-                        println("AlarmReceiver: task it null")
                         pendingResult.finish()
                         return@launch
                     }
-            println("AlarmReceiver: got task")
             val notificationJob = launch {
                 val manager =
                     context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                 manager.sendNotification(task, context, task.alarmId ?: return@launch)
-                println("AlarmReceiver: Notification sent for task with ID: ${task.id}")
                 if (!task.recurring) deleteAlarmUseCase(task.alarmId ?: return@launch)
             }
             val recurrenceJob = launch {

@@ -1,6 +1,9 @@
 ![Stars](https://img.shields.io/github/stars/mhss1/mybrain?style=social)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Crowdin](https://badges.crowdin.net/my-brain-app/localized.svg)](https://crowdin.com/project/my-brain-app)
+[![Bitcoin](https://img.shields.io/badge/bitcoin-F7931A?style=for-the-badge&logo=bitcoin&logoColor=white)](https://live.blockcypher.com/btc/address/bc1qmxz03wr9q95ydm2lxunsd6tmv9y0lcy63jvmpy)
+[![Monero](https://img.shields.io/badge/monero-FF6600?style=for-the-badge&logo=monero&logoColor=white)](https://github.com/user-attachments/assets/3c9bf0d1-7fe6-43dd-aebe-c8c368d925b0)
+
 
 <img align="left" width="80" height="80" src="https://user-images.githubusercontent.com/58703865/169863670-eee3c8f1-1308-4eb2-9aea-f7c0a47e6a31.png" alt="app icon">
 

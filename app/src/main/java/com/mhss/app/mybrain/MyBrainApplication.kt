@@ -17,7 +17,7 @@ import com.mhss.app.data.calendarDataModule
 import com.mhss.app.data.di.aiDataModule
 import com.mhss.app.data.diaryDataModule
 import com.mhss.app.data.noteDataModule
-import com.mhss.app.data.settingsDataModule
+import com.mhss.app.data.di.settingsDataModule
 import com.mhss.app.data.tasksDataModule
 import com.mhss.app.database.di.databaseModule
 import com.mhss.app.di.coroutinesModule

@@ -1,4 +1,4 @@
-package com.mhss.app.data
+package com.mhss.app.data.di
 
 import com.mhss.app.domain.di.SettingsDomainModule
 import org.koin.core.annotation.ComponentScan

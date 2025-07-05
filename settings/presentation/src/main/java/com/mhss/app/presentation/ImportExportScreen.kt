@@ -16,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.mhss.app.domain.model.BackupFormat
 import com.mhss.app.ui.R
 import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mohamedrejeb.calf.core.LocalPlatformContext
@@ -29,24 +30,13 @@ import org.koin.androidx.compose.koinViewModel
 fun ImportExportScreen(
     viewModel: SettingsViewModel = koinViewModel(),
 ) {
-    val encrypted by remember {
-        mutableStateOf(false)
-    }
-    val password by remember {
-        mutableStateOf("")
-    }
-    var exportNotes by remember {
-        mutableStateOf(true)
-    }
-    var exportTasks by remember {
-        mutableStateOf(true)
-    }
-    var exportDiary by remember {
-        mutableStateOf(true)
-    }
-    var exportBookmarks by remember {
-        mutableStateOf(true)
-    }
+    val encrypted by remember { mutableStateOf(false) }
+    val password by remember { mutableStateOf("") }
+
+    var exportNotes by remember { mutableStateOf(true) }
+    var exportTasks by remember { mutableStateOf(true) }
+    var exportDiary by remember { mutableStateOf(true) }
+    var exportBookmarks by remember { mutableStateOf(true) }
 
     val kmpContext = LocalPlatformContext.current
     val pickFileLauncher = rememberFilePickerLauncher(
@@ -54,7 +44,13 @@ fun ImportExportScreen(
         selectionMode = FilePickerSelectionMode.Single
     ) { files ->
         files.firstOrNull()?.getPath(kmpContext)?.let {
-            viewModel.onEvent(SettingsEvent.ImportData(it, encrypted, password))
+            viewModel.onEvent(
+                SettingsEvent.ImportData(
+                    it,
+                    BackupFormat.JSON,
+                    encrypted,
+                    password)
+            )
         }
     }
     val chooseDirectoryLauncher = rememberFilePickerLauncher(
@@ -69,6 +65,7 @@ fun ImportExportScreen(
                     exportTasks = exportTasks,
                     exportDiary = exportDiary,
                     exportBookmarks = exportBookmarks,
+                    format = BackupFormat.JSON,
                     encrypted = encrypted,
                     password = password
                 )

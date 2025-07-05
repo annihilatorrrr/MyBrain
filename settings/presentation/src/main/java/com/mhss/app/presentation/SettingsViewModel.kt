@@ -2,8 +2,9 @@ package com.mhss.app.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mhss.app.domain.use_case.ExportAllDataUseCase
-import com.mhss.app.domain.use_case.ImportAllDataUseCase
+import com.mhss.app.domain.model.BackupFormat
+import com.mhss.app.domain.use_case.ExportDataUseCase
+import com.mhss.app.domain.use_case.ImportDataUseCase
 import com.mhss.app.preferences.domain.model.PrefsKey
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import com.mhss.app.preferences.domain.use_case.SavePreferenceUseCase
@@ -18,8 +19,8 @@ import org.koin.android.annotation.KoinViewModel
 class SettingsViewModel(
     private val savePreference: SavePreferenceUseCase,
     private val getPreference: GetPreferenceUseCase,
-    private val exportData: ExportAllDataUseCase,
-    private val importData: ImportAllDataUseCase
+    private val exportData: ExportDataUseCase,
+    private val importData: ImportDataUseCase
 ) : ViewModel() {
 
     private val _backupResult = MutableStateFlow<BackupResult>(BackupResult.None)
@@ -39,6 +40,7 @@ class SettingsViewModel(
         when (event) {
             is SettingsEvent.ImportData -> importDatabase(
                 event.fileUri,
+                event.format,
                 event.encrypted,
                 event.password
             )
@@ -48,6 +50,7 @@ class SettingsViewModel(
                 exportNotes = event.exportNotes,
                 exportTasks = event.exportTasks,
                 exportDiary = event.exportDiary,
+                format = event.format,
                 exportBookmarks = event.exportBookmarks,
                 encrypted = event.encrypted,
                 password = event.password
@@ -57,13 +60,19 @@ class SettingsViewModel(
 
     private fun importDatabase(
         uri: String,
+        format: BackupFormat,
         encrypted: Boolean,
         password: String
     ) {
         viewModelScope.launch {
             _backupResult.update { BackupResult.Loading }
-            val result = importData(uri, encrypted, password)
-            if (result) {
+            val importSuccess = importData(
+                fileUri = uri,
+                format = format,
+                encrypted = encrypted,
+                password = password
+            )
+            if (importSuccess) {
                 _backupResult.update { BackupResult.ImportSuccess }
             } else {
                 _backupResult.update { BackupResult.ImportFailed }
@@ -74,9 +83,10 @@ class SettingsViewModel(
     private fun exportDatabase(
         uri: String,
         exportNotes: Boolean,
-        exportTasks: Boolean ,
+        exportTasks: Boolean,
         exportDiary: Boolean,
         exportBookmarks: Boolean,
+        format: BackupFormat,
         encrypted: Boolean,
         password: String
     ) {
@@ -88,6 +98,7 @@ class SettingsViewModel(
                 exportTasks = exportTasks,
                 exportDiary = exportDiary,
                 exportBookmarks = exportBookmarks,
+                format = format,
                 encrypted = encrypted,
                 password = password
             )

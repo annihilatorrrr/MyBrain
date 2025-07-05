@@ -23,7 +23,7 @@ class BookmarkDetailsViewModel(
     private val addBookmark: AddBookmarkUseCase,
     private val deleteBookmark: DeleteBookmarkUseCase,
     @Named("applicationScope") private val applicationScope: CoroutineScope,
-    bookmarkId: Int,
+    bookmarkId: String,
 ) : ViewModel() {
 
     var bookmarkDetailsUiState by mutableStateOf(BookmarkDetailsUiState())
@@ -31,7 +31,7 @@ class BookmarkDetailsViewModel(
 
     init {
         viewModelScope.launch {
-            val bookmark = if (bookmarkId != -1) getBookmark(bookmarkId) else null
+            val bookmark = if (bookmarkId.isNotBlank()) getBookmark(bookmarkId) else null
             bookmarkDetailsUiState = bookmarkDetailsUiState.copy(
                 bookmark = bookmark
             )
@@ -56,9 +56,9 @@ class BookmarkDetailsViewModel(
                                 createdDate = now(),
                                 updatedDate = now()
                             )
-                            val id = addBookmark(bookmark)
+                            addBookmark(bookmark)
                             bookmarkDetailsUiState =
-                                bookmarkDetailsUiState.copy(bookmark = bookmark.copy(id = id.toInt()))
+                                bookmarkDetailsUiState.copy(bookmark = bookmark)
                         }
                     } else if (bookmarkChanged(bookmarkDetailsUiState.bookmark!!, event.bookmark)) {
                         val newBookmark = bookmarkDetailsUiState.bookmark!!.copy(

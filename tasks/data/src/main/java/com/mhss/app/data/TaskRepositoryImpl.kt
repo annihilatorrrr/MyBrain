@@ -27,9 +27,15 @@ class TaskRepositoryImpl(
             }
     }
 
-    override suspend fun getTaskById(id: Int): Task {
+    override suspend fun getTaskById(id: String): Task {
         return withContext(ioDispatcher) {
             taskDao.getTask(id).toTask()
+        }
+    }
+
+    override suspend fun getTaskByAlarm(alarmId: Int): Task? {
+        return withContext(ioDispatcher) {
+            taskDao.getTaskByAlarm(alarmId)?.toTask()
         }
     }
 
@@ -41,9 +47,9 @@ class TaskRepositoryImpl(
         }
     }
 
-    override suspend fun insertTask(task: Task): Long {
+    override suspend fun upsertTask(task: Task) {
         return withContext(ioDispatcher) {
-            taskDao.insertTask(task.toTaskEntity())
+            taskDao.upsertTask(task.toTaskEntity())
         }
     }
 
@@ -53,7 +59,7 @@ class TaskRepositoryImpl(
         }
     }
 
-    override suspend fun completeTask(id: Int, completed: Boolean) {
+    override suspend fun completeTask(id: String, completed: Boolean) {
         withContext(ioDispatcher) {
             taskDao.updateCompleted(id, completed)
         }

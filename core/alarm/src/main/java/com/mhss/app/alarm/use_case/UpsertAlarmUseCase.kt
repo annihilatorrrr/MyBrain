@@ -6,16 +6,13 @@ import com.mhss.app.alarm.repository.AlarmScheduler
 import org.koin.core.annotation.Single
 
 @Single
-class AddAlarmUseCase(
+class UpsertAlarmUseCase(
     private val alarmRepository: AlarmRepository,
     private val alarmScheduler: AlarmScheduler
 ) {
-    suspend operator fun invoke(alarm: Alarm): Boolean {
-        if (!alarmScheduler.canScheduleExactAlarms()) return false
+    suspend operator fun invoke(alarm: Alarm): Long? {
+        if (!alarmScheduler.canScheduleExactAlarms()) return null
         alarmScheduler.scheduleAlarm(alarm)
-        alarmRepository.insertAlarm(alarm)
-        return true
+        return alarmRepository.upsertAlarm(alarm)
     }
-
-
 }

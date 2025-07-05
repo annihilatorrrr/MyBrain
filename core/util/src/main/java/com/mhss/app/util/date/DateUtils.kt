@@ -1,9 +1,9 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.mhss.app.util.date
 
 import android.content.Context
 import android.text.format.DateFormat
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.daysUntil
@@ -13,7 +13,10 @@ import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.yearsUntil
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 val Long.localDateTime
     get() = Instant.fromEpochMilliseconds(this).toLocalDateTime(
@@ -134,7 +137,7 @@ fun LocalDateTime.isToday(): Boolean {
     val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
     return today.year == year
             && today.month == month
-            && today.dayOfMonth == dayOfMonth
+            && today.day == day
 }
 
 val Long.hour: Int
@@ -145,13 +148,13 @@ val Long.minute: Int
 
 fun Long.at(hours: Int, minutes: Int): Long {
     val date = localDateTime
-    return LocalDateTime(
-        year = date.year,
+    return LocalDateTime(year = date.year,
         month = date.month,
-        dayOfMonth = date.dayOfMonth,
+        day = date.day,
         hour = hours,
         minute = minutes,
         second = 0,
+        nanosecond = 0
     ).toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
 }
 

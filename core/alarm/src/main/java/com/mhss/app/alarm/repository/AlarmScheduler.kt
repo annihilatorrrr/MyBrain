@@ -7,7 +7,7 @@ interface AlarmScheduler {
 
     fun scheduleAlarm(alarm: Alarm)
 
-    fun cancelAlarm(alarmId: Int)
+    fun cancelAlarm(schedulerId: Int)
 
     fun canScheduleExactAlarms(): Boolean
 }

@@ -333,7 +333,7 @@ private fun NoteAttachmentPreview() {
     MyBrainTheme {
         NoteAttachmentCard(
             note = Note(
-                id = 1,
+                id = "1",
                 title = "Test note Note Title".repeat(3),
                 content = "Note Content",
             ),
@@ -348,7 +348,7 @@ private fun TaskAttachmentPreview() {
     MyBrainTheme {
         TaskAttachmentCard(
             task = Task(
-                id = 1,
+                id = "1",
                 title = "Test task Task Title".repeat(3),
                 description = "Task Description",
                 isCompleted = false,

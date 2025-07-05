@@ -27,7 +27,6 @@ import org.koin.android.annotation.KoinViewModel
 @KoinViewModel
 class NotesViewModel(
     private val folderlessNotes: GetAllFolderlessNotesUseCase,
-    private val addNote: AddNoteUseCase,
     private val searchNotes: SearchNotesUseCase,
     private val getPreference: GetPreferenceUseCase,
     private val savePreference: SavePreferenceUseCase,
@@ -69,16 +68,6 @@ class NotesViewModel(
 
     fun onEvent(event: NoteEvent) {
         when (event) {
-            is NoteEvent.AddNote -> viewModelScope.launch {
-                if (event.note.title.isNotBlank() || event.note.content.isNotBlank()) {
-                    addNote(
-                        event.note.copy(
-                            createdDate = now(),
-                            updatedDate = now()
-                        )
-                    )
-                }
-            }
 
             is NoteEvent.SearchNotes -> viewModelScope.launch {
                 notesUiState = notesUiState.copy(searchNotes = searchNotes(event.query))
@@ -166,7 +155,7 @@ class NotesViewModel(
             }.launchIn(viewModelScope)
     }
 
-    private fun getNotesFromFolder(id: Int, order: Order) {
+    private fun getNotesFromFolder(id: String, order: Order) {
         getFolderNotesJob?.cancel()
         getFolderNotesJob = getFolderNotes(id, order)
             .onEach { notes ->

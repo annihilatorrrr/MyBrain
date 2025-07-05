@@ -15,19 +15,19 @@ interface NoteDao {
     suspend fun getAllNotes(): List<NoteEntity>
 
     @Query("SELECT * FROM notes WHERE id = :id")
-    suspend fun getNote(id: Int): NoteEntity
+    suspend fun getNote(id: String): NoteEntity
 
     @Query("SELECT title, SUBSTR(content, 1, 200) AS content, created_date, updated_date, pinned, folder_id, id FROM notes WHERE title LIKE '%' || :query || '%' OR content LIKE '%' || :query || '%'")
     suspend fun getNotesByTitle(query: String): List<NoteEntity>
 
     @Query("SELECT title, SUBSTR(content, 1, 200) AS content, created_date, updated_date, pinned, folder_id, id FROM notes WHERE folder_id = :folderId")
-    fun getNotesByFolder(folderId: Int): Flow<List<NoteEntity>>
+    fun getNotesByFolder(folderId: String): Flow<List<NoteEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertNote(note: NoteEntity): Long
+    @Upsert
+    suspend fun upsertNote(note: NoteEntity): Long
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertNotes(notes: List<NoteEntity>)
+    @Upsert
+    suspend fun upsertNotes(notes: List<NoteEntity>)
 
     @Update
     suspend fun updateNote(note: NoteEntity)
@@ -38,8 +38,8 @@ interface NoteDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertNoteFolder(folder: NoteFolderEntity)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertNoteFolders(folders: List<NoteFolderEntity>): List<Long>
+    @Upsert
+    suspend fun upsertNoteFolders(folders: List<NoteFolderEntity>)
 
     @Update
     suspend fun updateNoteFolder(folder: NoteFolderEntity)
@@ -51,5 +51,5 @@ interface NoteDao {
     fun getAllNoteFolders(): Flow<List<NoteFolderEntity>>
 
     @Query("SELECT * FROM note_folders WHERE id = :folderId")
-    fun getNoteFolder(folderId: Int): NoteFolderEntity?
+    fun getNoteFolder(folderId: String): NoteFolderEntity?
 }

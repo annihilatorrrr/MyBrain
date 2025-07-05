@@ -6,8 +6,8 @@ sealed interface AssistantEvent {
     data class SendMessage(val message: AiMessage): AssistantEvent
     data class SearchNotes(val query: String) : AssistantEvent
     data class SearchTasks(val query: String) : AssistantEvent
-    data class AddAttachmentNote(val id: Int): AssistantEvent
-    data class AddAttachmentTask(val id: Int): AssistantEvent
+    data class AddAttachmentNote(val id: String): AssistantEvent
+    data class AddAttachmentTask(val id: String): AssistantEvent
     data object AddAttachmentEvents: AssistantEvent
     data class RemoveAttachment(val index: Int): AssistantEvent
 }

@@ -192,7 +192,8 @@ fun TaskItemPreview() {
                     description = "Task 1 description",
                     dueDate = 1666999999999L,
                     priority = Priority.MEDIUM,
-                    isCompleted = false
+                    isCompleted = false,
+                    id = ""
                 ),
                 onComplete = {},
                 onClick = {}

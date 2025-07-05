@@ -8,6 +8,7 @@ import com.mhss.app.ui.R
 import com.mhss.app.domain.model.Bookmark
 import com.mhss.app.util.date.now
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import kotlin.uuid.Uuid
 
 class SaveBookmarkActivity : ComponentActivity() {
 
@@ -26,7 +27,8 @@ class SaveBookmarkActivity : ComponentActivity() {
                                     url = url.trim(),
                                     title = title ?: "",
                                     createdDate = now(),
-                                    updatedDate = now()
+                                    updatedDate = now(),
+                                    id = Uuid.random().toString()
                                 )
                             )
                         )

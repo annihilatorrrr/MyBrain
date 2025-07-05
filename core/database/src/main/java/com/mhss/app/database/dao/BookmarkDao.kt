@@ -11,10 +11,10 @@ interface BookmarkDao {
     fun getAllBookmarks(): Flow<List<BookmarkEntity>>
 
     @Query("SELECT * FROM bookmarks WHERE id = :id")
-    suspend fun getBookmark(id: Int): BookmarkEntity
+    suspend fun getBookmark(id: String): BookmarkEntity
 
     @Query("SELECT * FROM bookmarks WHERE title LIKE '%' || :query || '%' OR description LIKE '%' || :query || '%' OR url LIKE '%' || :query || '%'")
-    suspend fun getBookmark(query: String): List<BookmarkEntity>
+    suspend fun searchBookmarks(query: String): List<BookmarkEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBookmark(bookmark: BookmarkEntity): Long
@@ -25,7 +25,7 @@ interface BookmarkDao {
     @Delete
     suspend fun deleteBookmark(bookmark: BookmarkEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertBookmarks(bookmarks: List<BookmarkEntity>)
+    @Upsert
+    suspend fun upsertBookmarks(bookmarks: List<BookmarkEntity>)
 
 }

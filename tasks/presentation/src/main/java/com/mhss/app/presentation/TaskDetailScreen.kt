@@ -43,11 +43,12 @@ import com.mhss.app.util.date.now
 import com.mhss.app.util.permissions.rememberPermissionState
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.uuid.Uuid
 
 @Composable
 fun TaskDetailScreen(
     navController: NavHostController,
-    taskId: Int,
+    taskId: String,
     viewModel: TaskDetailsViewModel = koinViewModel(parameters = { parametersOf(taskId) }),
 ) {
     val alarmPermissionState = rememberPermissionState(Permission.SCHEDULE_ALARMS)
@@ -120,7 +121,8 @@ fun TaskDetailScreen(
                         subTasks = subTasks,
                         recurring = recurring,
                         frequency = frequency,
-                        frequencyAmount = frequencyAmount
+                        frequencyAmount = frequencyAmount,
+                        id = Uuid.random().toString()
                     )
                 )
             )

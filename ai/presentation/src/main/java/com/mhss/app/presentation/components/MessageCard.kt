@@ -193,7 +193,8 @@ fun MessageCardPreview() {
                                 Note(
                                     "This is a test tile for the note",
                                     "Description",
-                                    1111111111
+                                    1111111111,
+                                    id = "1"
                                 )
                             ),
                             AiMessageAttachment.CalenderEvents,

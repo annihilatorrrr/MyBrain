@@ -53,5 +53,5 @@ class CompleteTaskAction : ActionCallback {
     }
 }
 
-val taskId = ActionParameters.Key<Int>("taskId")
+val taskId = ActionParameters.Key<String>("taskId")
 val completed = ActionParameters.Key<Boolean>("completed")

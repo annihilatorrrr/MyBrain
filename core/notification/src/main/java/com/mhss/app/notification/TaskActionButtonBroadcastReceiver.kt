@@ -4,23 +4,39 @@ import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.mhss.app.domain.use_case.GetTaskByIdUseCase
 import com.mhss.app.util.Constants
 import com.mhss.app.domain.use_case.UpdateTaskCompletedUseCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.koin.core.annotation.Named
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.koin.core.qualifier.named
+import kotlin.coroutines.CoroutineContext
 
 class TaskActionButtonBroadcastReceiver : BroadcastReceiver(), KoinComponent {
 
     private val updateTaskCompleted: UpdateTaskCompletedUseCase by inject()
+    private val getTaskById: GetTaskByIdUseCase by inject()
+    private val ioDispatcher: CoroutineContext by inject(named("ioDispatcher"))
+    private val scope = CoroutineScope(ioDispatcher)
 
     override fun onReceive(context: Context, intent: Intent?) {
         if (intent?.action == Constants.ACTION_COMPLETE) {
-            runBlocking {
-                val taskId = intent.getIntExtra(Constants.TASK_ID_EXTRA, 0)
-                updateTaskCompleted(taskId, true)
-                val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                manager.cancel(taskId)
+            val pendingResult = goAsync()
+            scope.launch(ioDispatcher) {
+                try {
+                    val taskId = intent.getStringExtra(Constants.TASK_ID_EXTRA) ?: return@launch
+                    val task = getTaskById(taskId)
+                    updateTaskCompleted(task, true)
+                    val manager =
+                        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                    manager.cancel(task.alarmId ?: return@launch)
+                } finally {
+                    pendingResult.finish()
+                }
             }
         }
     }

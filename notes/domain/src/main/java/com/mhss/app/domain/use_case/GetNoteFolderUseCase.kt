@@ -7,5 +7,5 @@ import org.koin.core.annotation.Single
 class GetNoteFolderUseCase(
     private val repository: NoteRepository
 ) {
-    suspend operator fun invoke(folderId: Int) = repository.getNoteFolder(folderId)
+    suspend operator fun invoke(folderId: String) = repository.getNoteFolder(folderId)
 }

@@ -3,6 +3,7 @@ package com.mhss.app.database.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.mhss.app.database.converters.IdSerializer
 import com.mhss.app.domain.model.Bookmark
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -23,8 +24,9 @@ data class BookmarkEntity(
     @ColumnInfo(name = "updated_date")
     val updatedDate: Long = 0L,
     @SerialName("id")
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0
+    @PrimaryKey
+    @Serializable(IdSerializer::class)
+    val id: String
 )
 
 fun BookmarkEntity.toBookmark() = Bookmark(
@@ -44,5 +46,3 @@ fun Bookmark.toBookmarkEntity() = BookmarkEntity(
     updatedDate = updatedDate,
     id = id
 )
-
-fun List<BookmarkEntity>.withoutIds() = map { it.copy(id = 0) }

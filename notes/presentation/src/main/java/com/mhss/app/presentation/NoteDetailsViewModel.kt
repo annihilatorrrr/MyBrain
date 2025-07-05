@@ -11,7 +11,7 @@ import com.mhss.app.domain.correctSpellingNotePrompt
 import com.mhss.app.domain.model.Note
 import com.mhss.app.domain.model.NoteFolder
 import com.mhss.app.domain.summarizeNotePrompt
-import com.mhss.app.domain.use_case.AddNoteUseCase
+import com.mhss.app.domain.use_case.UpsertNoteUseCase
 import com.mhss.app.domain.use_case.DeleteNoteUseCase
 import com.mhss.app.domain.use_case.GetAllNoteFoldersUseCase
 import com.mhss.app.domain.use_case.GetNoteFolderUseCase
@@ -39,20 +39,21 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 import org.koin.core.annotation.Named
+import kotlin.uuid.Uuid
 
 @KoinViewModel
 class NoteDetailsViewModel(
     private val getNote: GetNoteUseCase,
     private val updateNote: UpdateNoteUseCase,
-    private val addNote: AddNoteUseCase,
+    private val addNote: UpsertNoteUseCase,
     private val deleteNote: DeleteNoteUseCase,
     private val getPreference: GetPreferenceUseCase,
     private val getAllFolders: GetAllNoteFoldersUseCase,
     private val getNoteFolder: GetNoteFolderUseCase,
     private val sendAiPrompt: SendAiPromptUseCase,
     @Named("applicationScope") private val applicationScope: CoroutineScope,
-    id: Int,
-    folderId: Int,
+    id: String,
+    folderId: String,
 ) : ViewModel() {
 
     var noteUiState by mutableStateOf(UiState())
@@ -118,7 +119,7 @@ class NoteDetailsViewModel(
 
     init {
         viewModelScope.launch {
-            val note: Note? = if (id != -1) getNote(id) else null
+            val note: Note? = if (id.isNotBlank()) getNote(id) else null
             val folder = getNoteFolder(note?.folderId ?: folderId)
             val folders = getAllFolders().first()
 
@@ -230,16 +231,18 @@ class NoteDetailsViewModel(
 
         if (noteUiState.note == null) {
             if (title.isNotBlank() || content.isNotBlank()) {
+                val noteId = Uuid.random().toString()
                 val note = Note(
                     title = title,
                     content = content,
                     folderId = folderId,
                     pinned = pinned,
                     createdDate = now(),
-                    updatedDate = now()
+                    updatedDate = now(),
+                    id = noteId
                 )
-                val id = addNote(note)
-                noteUiState = noteUiState.copy(note = note.copy(id = id.toInt()))
+                addNote(note)
+                noteUiState = noteUiState.copy(note = note.copy(id = noteId))
             }
         } else {
             val currentNote = noteUiState.note!!

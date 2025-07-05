@@ -4,8 +4,8 @@ import com.mhss.app.data.NetworkConstants.OPENAI_MESSAGE_MODEL_TYPE
 import com.mhss.app.data.NetworkConstants.OPENAI_MESSAGE_USER_TYPE
 import com.mhss.app.domain.model.AiMessage
 import com.mhss.app.domain.model.AiMessageType
-import kotlinx.datetime.Clock
 import kotlinx.serialization.Serializable
+import kotlin.time.Clock
 
 @Serializable
 data class OpenaiResponse(

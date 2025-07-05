@@ -45,7 +45,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun NoteFolderDetailsScreen(
     navController: NavHostController,
-    id: Int,
+    id: String,
     viewModel: NotesViewModel = koinViewModel()
 ) {
     val uiState = viewModel.notesUiState

@@ -29,7 +29,7 @@ class BookmarkRepositoryImpl(
             }
     }
 
-    override suspend fun getBookmark(id: Int): Bookmark {
+    override suspend fun getBookmark(id: String): Bookmark {
         return withContext(ioDispatcher) {
             bookmarkDao.getBookmark(id).toBookmark()
         }
@@ -37,7 +37,7 @@ class BookmarkRepositoryImpl(
 
     override suspend fun searchBookmarks(query: String): List<Bookmark> {
         return withContext(ioDispatcher) {
-            bookmarkDao.getBookmark(query).map { it.toBookmark() }
+            bookmarkDao.searchBookmarks(query).map { it.toBookmark() }
         }
     }
 

@@ -4,8 +4,8 @@ import com.mhss.app.domain.repository.TaskRepository
 import org.koin.core.annotation.Factory
 
 @Factory
-class GetTaskByIdUseCase(
+class GetTaskByAlarmUseCase(
     private val tasksRepository: TaskRepository
 ) {
-    suspend operator fun invoke(id: String) = tasksRepository.getTaskById(id)
+    suspend operator fun invoke(alarmId: Int) = tasksRepository.getTaskByAlarm(alarmId)
 }

@@ -7,7 +7,7 @@ interface BookmarkRepository {
 
     fun getAllBookmarks(): Flow<List<Bookmark>>
 
-    suspend fun getBookmark(id: Int): Bookmark
+    suspend fun getBookmark(id: String): Bookmark
 
     suspend fun searchBookmarks(query: String): List<Bookmark>
 

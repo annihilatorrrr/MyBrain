@@ -128,213 +128,211 @@ fun MyBrainApp(
             }
         }
     }
-    KoinContext {
-        MyBrainTheme(
-            darkTheme = isDarkMode,
-            useDynamicColors = useMaterialYou,
-            fontFamily = font.value.toFontFamily(),
-            fontSizeScale = fontSize.value.toFontSizeScale()
-        ) {
-            val navController = rememberNavController()
-            LaunchedEffect(Unit) {
-                when (val defaultScreen = viewModel.defaultStartUpScreen.first()) {
-                    StartUpScreenSettings.DASHBOARD.value -> startDestination = Screen.DashboardScreen
-                    StartUpScreenSettings.SPACES.value -> Unit
-                    else -> navController.navigate(defaultScreen.toStartUpScreen().screen)
-                }
+    MyBrainTheme(
+        darkTheme = isDarkMode,
+        useDynamicColors = useMaterialYou,
+        fontFamily = font.value.toFontFamily(),
+        fontSizeScale = fontSize.value.toFontSizeScale()
+    ) {
+        val navController = rememberNavController()
+        LaunchedEffect(Unit) {
+            when (val defaultScreen = viewModel.defaultStartUpScreen.first()) {
+                StartUpScreenSettings.DASHBOARD.value -> startDestination = Screen.DashboardScreen
+                StartUpScreenSettings.SPACES.value -> Unit
+                else -> navController.navigate(defaultScreen.toStartUpScreen().screen)
             }
-            Scaffold(
-                modifier = modifier.fillMaxSize(),
-                containerColor = MaterialTheme.colorScheme.background,
-                snackbarHost = { SnackbarHost(snackbarHostState) }
-            ) { paddingValues ->
-                NavHost(
-                    startDestination = Screen.Main,
-                    navController = navController,
-                ) {
-                    composable<Screen.Main> {
-                        MainScreen(
-                            startUpScreen = startDestination,
-                            mainNavController = navController,
-                            appLockManager = appLockManager,
-                            modifier = Modifier
-                                .consumeWindowInsets(WindowInsets.systemBars)
-                                .padding(paddingValues)
-                        )
-                    }
-                    composable<Screen.TasksScreen>(
-                        deepLinks =
+        }
+        Scaffold(
+            modifier = modifier.fillMaxSize(),
+            containerColor = MaterialTheme.colorScheme.background,
+            snackbarHost = { SnackbarHost(snackbarHostState) }
+        ) { paddingValues ->
+            NavHost(
+                startDestination = Screen.Main,
+                navController = navController,
+            ) {
+                composable<Screen.Main> {
+                    MainScreen(
+                        startUpScreen = startDestination,
+                        mainNavController = navController,
+                        appLockManager = appLockManager,
+                        modifier = Modifier
+                            .consumeWindowInsets(WindowInsets.systemBars)
+                            .padding(paddingValues)
+                    )
+                }
+                composable<Screen.TasksScreen>(
+                    deepLinks =
                         listOf(
                             navDeepLink {
                                 uriPattern =
                                     "${Constants.TASKS_SCREEN_URI}?${Constants.ADD_TASK_ARG}={${Constants.ADD_TASK_ARG}}"
                             }
                         ),
-                        enterTransition = { slideInTransition() },
-                        exitTransition = { slideOutTransition() },
-                    ) {
-                        val args = it.toRoute<Screen.TasksScreen>()
-                        TasksScreen(
-                            navController = navController,
-                            addTask = args.addTask
-                        )
-                    }
-                    composable<Screen.TaskDetailScreen>(
-                        deepLinks =
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    val args = it.toRoute<Screen.TasksScreen>()
+                    TasksScreen(
+                        navController = navController,
+                        addTask = args.addTask
+                    )
+                }
+                composable<Screen.TaskDetailScreen>(
+                    deepLinks =
                         listOf(
                             navDeepLink {
                                 uriPattern =
                                     "${Constants.TASK_DETAILS_URI}/{${Constants.TASK_ID_ARG}}"
                             }
                         ),
-                        enterTransition = { slideInTransition() },
-                        exitTransition = { slideOutTransition() },
-                    ) {
-                        val args = it.toRoute<Screen.TaskDetailScreen>()
-                        TaskDetailScreen(
-                            navController = navController,
-                            args.taskId
-                        )
-                    }
-                    composable<Screen.TaskSearchScreen>(
-                        enterTransition = { slideUpTransition() },
-                        exitTransition = { slideDownTransition() },
-                    ) {
-                        TasksSearchScreen(navController = navController)
-                    }
-                    composable<Screen.NotesScreen>(
-                        enterTransition = { slideInTransition() },
-                        exitTransition = { slideOutTransition() },
-                    ) {
-                        NotesScreen(navController = navController)
-                    }
-                    composable<Screen.NoteDetailsScreen>(
-                        enterTransition = { slideInTransition() },
-                        exitTransition = { slideOutTransition() },
-                    ) {
-                        val args = it.toRoute<Screen.NoteDetailsScreen>()
-                        NoteDetailsScreen(
-                            navController,
-                            args.noteId,
-                            args.folderId
-                        )
-                    }
-                    composable<Screen.NoteSearchScreen>(
-                        enterTransition = { slideUpTransition() },
-                        exitTransition = { slideDownTransition() },
-                    ) {
-                        NotesSearchScreen(navController = navController)
-                    }
-                    composable<Screen.DiaryScreen>(
-                        enterTransition = { slideInTransition() },
-                        exitTransition = { slideOutTransition() },
-                    ) {
-                        DiaryScreen(navController = navController)
-                    }
-                    composable<Screen.DiaryChartScreen>(
-                        enterTransition = { slideInTransition() },
-                        exitTransition = { slideOutTransition() },
-                    ) {
-                        DiaryChartScreen()
-                    }
-                    composable<Screen.DiarySearchScreen>(
-                        enterTransition = { slideUpTransition() },
-                        exitTransition = { slideDownTransition() },
-                    ) {
-                        DiarySearchScreen(navController = navController)
-                    }
-                    composable<Screen.DiaryDetailScreen>(
-                        enterTransition = { slideInTransition() },
-                        exitTransition = { slideOutTransition() },
-                    ) {
-                        val args = it.toRoute<Screen.DiaryDetailScreen>()
-                        DiaryEntryDetailsScreen(
-                            navController = navController,
-                            args.entryId
-                        )
-                    }
-                    composable<Screen.BookmarksScreen>(
-                        enterTransition = { slideInTransition() },
-                        exitTransition = { slideOutTransition() },
-                    ) {
-                        BookmarksScreen(navController = navController)
-                    }
-                    composable<Screen.BookmarkDetailScreen>(
-                        enterTransition = { slideInTransition() },
-                        exitTransition = { slideOutTransition() },
-                    ) {
-                        val args = it.toRoute<Screen.BookmarkDetailScreen>()
-                        BookmarkDetailsScreen(
-                            navController = navController,
-                            args.bookmarkId
-                        )
-                    }
-                    composable<Screen.BookmarkSearchScreen>(
-                        enterTransition = { slideInTransition() },
-                        exitTransition = { slideOutTransition() },
-                    ) {
-                        BookmarkSearchScreen(navController = navController)
-                    }
-                    composable<Screen.CalendarScreen>(
-                        deepLinks = listOf(
-                            navDeepLink {
-                                uriPattern = Constants.CALENDAR_SCREEN_URI
-                            }
-                        ),
-                        enterTransition = { slideInTransition() },
-                        exitTransition = { slideOutTransition() },
-                    ) {
-                        CalendarScreen(navController = navController)
-                    }
-                    composable<Screen.CalendarEventDetailsScreen>(
-                        deepLinks = listOf(
-                            navDeepLink {
-                                uriPattern =
-                                    "${Constants.CALENDAR_DETAILS_SCREEN_URI}?${Constants.CALENDAR_EVENT_ARG}={${Constants.CALENDAR_EVENT_ARG}}"
-                            }
-                        ),
-                        enterTransition = { slideInTransition() },
-                        exitTransition = { slideOutTransition() },
-                    ) {
-                        val args = it.toRoute<Screen.CalendarEventDetailsScreen>()
-                        CalendarEventDetailsScreen(
-                            navController = navController,
-                            eventJson = args.eventJson
-                        )
-                    }
-                    composable<Screen.NoteFolderDetailsScreen>(
-                        enterTransition = { slideInTransition() },
-                        exitTransition = { slideOutTransition() },
-                    ) {
-                        val args = it.toRoute<Screen.NoteFolderDetailsScreen>()
-                        NoteFolderDetailsScreen(
-                            navController = navController,
-                            args.folderId
-                        )
-                    }
-                    composable<Screen.ImportExportScreen>(
-                        enterTransition = { slideInTransition() },
-                        exitTransition = { slideOutTransition() },
-                    ) {
-                        ImportExportScreen()
-                    }
-                    composable<Screen.IntegrationsScreen>(
-                        enterTransition = { slideInTransition() },
-                        exitTransition = { slideOutTransition() },
-                    ) {
-                        IntegrationsScreen()
-                    }
-                    composable<Screen.AssistantScreen>(
-                        enterTransition = { slideInTransition() },
-                        exitTransition = { slideOutTransition() },
-                    ) {
-                        AssistantScreen()
-                    }
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    val args = it.toRoute<Screen.TaskDetailScreen>()
+                    TaskDetailScreen(
+                        navController = navController,
+                        args.taskId
+                    )
                 }
-                if (!appUnlocked) {
-                    AuthScreen {
-                        appLockManager.showAuthPrompt()
-                    }
+                composable<Screen.TaskSearchScreen>(
+                    enterTransition = { slideUpTransition() },
+                    exitTransition = { slideDownTransition() },
+                ) {
+                    TasksSearchScreen(navController = navController)
+                }
+                composable<Screen.NotesScreen>(
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    NotesScreen(navController = navController)
+                }
+                composable<Screen.NoteDetailsScreen>(
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    val args = it.toRoute<Screen.NoteDetailsScreen>()
+                    NoteDetailsScreen(
+                        navController,
+                        args.noteId,
+                        args.folderId
+                    )
+                }
+                composable<Screen.NoteSearchScreen>(
+                    enterTransition = { slideUpTransition() },
+                    exitTransition = { slideDownTransition() },
+                ) {
+                    NotesSearchScreen(navController = navController)
+                }
+                composable<Screen.DiaryScreen>(
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    DiaryScreen(navController = navController)
+                }
+                composable<Screen.DiaryChartScreen>(
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    DiaryChartScreen()
+                }
+                composable<Screen.DiarySearchScreen>(
+                    enterTransition = { slideUpTransition() },
+                    exitTransition = { slideDownTransition() },
+                ) {
+                    DiarySearchScreen(navController = navController)
+                }
+                composable<Screen.DiaryDetailScreen>(
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    val args = it.toRoute<Screen.DiaryDetailScreen>()
+                    DiaryEntryDetailsScreen(
+                        navController = navController,
+                        args.entryId
+                    )
+                }
+                composable<Screen.BookmarksScreen>(
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    BookmarksScreen(navController = navController)
+                }
+                composable<Screen.BookmarkDetailScreen>(
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    val args = it.toRoute<Screen.BookmarkDetailScreen>()
+                    BookmarkDetailsScreen(
+                        navController = navController,
+                        args.bookmarkId
+                    )
+                }
+                composable<Screen.BookmarkSearchScreen>(
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    BookmarkSearchScreen(navController = navController)
+                }
+                composable<Screen.CalendarScreen>(
+                    deepLinks = listOf(
+                        navDeepLink {
+                            uriPattern = Constants.CALENDAR_SCREEN_URI
+                        }
+                    ),
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    CalendarScreen(navController = navController)
+                }
+                composable<Screen.CalendarEventDetailsScreen>(
+                    deepLinks = listOf(
+                        navDeepLink {
+                            uriPattern =
+                                "${Constants.CALENDAR_DETAILS_SCREEN_URI}?${Constants.CALENDAR_EVENT_ARG}={${Constants.CALENDAR_EVENT_ARG}}"
+                        }
+                    ),
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    val args = it.toRoute<Screen.CalendarEventDetailsScreen>()
+                    CalendarEventDetailsScreen(
+                        navController = navController,
+                        eventJson = args.eventJson
+                    )
+                }
+                composable<Screen.NoteFolderDetailsScreen>(
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    val args = it.toRoute<Screen.NoteFolderDetailsScreen>()
+                    NoteFolderDetailsScreen(
+                        navController = navController,
+                        args.folderId
+                    )
+                }
+                composable<Screen.ImportExportScreen>(
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    ImportExportScreen()
+                }
+                composable<Screen.IntegrationsScreen>(
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    IntegrationsScreen()
+                }
+                composable<Screen.AssistantScreen>(
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    AssistantScreen()
+                }
+            }
+            if (!appUnlocked) {
+                AuthScreen {
+                    appLockManager.showAuthPrompt()
                 }
             }
         }

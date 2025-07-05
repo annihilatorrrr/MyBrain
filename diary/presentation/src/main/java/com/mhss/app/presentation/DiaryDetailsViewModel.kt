@@ -20,7 +20,7 @@ class DiaryDetailsViewModel(
     private val updateEntry: UpdateDiaryEntryUseCase,
     private val deleteEntry: DeleteDiaryEntryUseCase,
     @Named("applicationScope") private val applicationScope: CoroutineScope,
-    entryId: Int
+    entryId: String
 ) : ViewModel() {
 
     var uiState by mutableStateOf(UiState())
@@ -28,7 +28,7 @@ class DiaryDetailsViewModel(
 
     init {
         viewModelScope.launch {
-            if (entryId != -1) {
+            if (entryId.isNotBlank()) {
                 uiState = uiState.copy(
                     entry = getEntry(entryId),
                     readingMode = true
@@ -56,8 +56,8 @@ class DiaryDetailsViewModel(
                             val entry = event.currentEntry.copy(
                                 updatedDate = now()
                             )
-                            val id = addEntry(entry)
-                            uiState = uiState.copy(entry = entry.copy(id = id.toInt()))
+                            addEntry(entry)
+                            uiState = uiState.copy(entry = entry)
                         }
                     } else if (entryChanged(uiState.entry!!, event.currentEntry)) {
                         val newEntry = uiState.entry!!.copy(

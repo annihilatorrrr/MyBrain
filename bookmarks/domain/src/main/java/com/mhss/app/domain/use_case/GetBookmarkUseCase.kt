@@ -7,5 +7,5 @@ import org.koin.core.annotation.Single
 class GetBookmarkUseCase(
     private val bookmarkRepository: BookmarkRepository
 ) {
-    suspend operator fun invoke(id: Int) = bookmarkRepository.getBookmark(id)
+    suspend operator fun invoke(id: String) = bookmarkRepository.getBookmark(id)
 }

@@ -2,6 +2,7 @@ package com.mhss.app.database.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.mhss.app.database.converters.IdSerializer
 import com.mhss.app.domain.model.NoteFolder
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -14,8 +15,9 @@ data class NoteFolderEntity(
     @SerialName("name")
     val name: String = "",
     @SerialName("id")
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0
+    @PrimaryKey
+    @Serializable(IdSerializer::class)
+    val id: String
 )
 
 fun NoteFolderEntity.toNoteFolder(): NoteFolder {
@@ -31,5 +33,3 @@ fun NoteFolder.toNoteFolderEntity(): NoteFolderEntity {
         id = id,
     )
 }
-
-fun List<NoteFolderEntity>.withoutIds() = map { it.copy(id = 0) }

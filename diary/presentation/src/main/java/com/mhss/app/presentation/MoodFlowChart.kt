@@ -172,43 +172,43 @@ fun MoodFlowChartPreview() {
     MoodFlowChart(
         entries = listOf(
             DiaryEntry(
-                id = 1,
+                id = "1",
                 mood = Mood.AWESOME
             ),
             DiaryEntry(
-                id = 1,
+                id = "1",
                 mood = Mood.AWESOME
             ),
             DiaryEntry(
-                id = 2,
+                id = "2",
                 mood = Mood.GOOD,
             ),
             DiaryEntry(
-                id = 3,
+                id = "3",
                 mood = Mood.OKAY,
             ),
             DiaryEntry(
-                id = 4,
+                id = "4",
                 mood = Mood.GOOD,
             ),
             DiaryEntry(
-                id = 5,
+                id = "5",
                 mood = Mood.BAD,
             ),
             DiaryEntry(
-                id = 6,
+                id = "6",
                 mood = Mood.BAD,
             ),
             DiaryEntry(
-                id = 7,
+                id = "7",
                 mood = Mood.TERRIBLE,
             ),
             DiaryEntry(
-                id = 8,
+                id = "8",
                 mood = Mood.GOOD,
             ),
             DiaryEntry(
-                id = 8,
+                id = "8",
                 mood = Mood.BAD,
             )
         )

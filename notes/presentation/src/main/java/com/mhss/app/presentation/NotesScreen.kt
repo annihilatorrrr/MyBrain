@@ -40,6 +40,7 @@ import com.mhss.app.ui.components.notes.NoteCard
 import com.mhss.app.ui.navigation.Screen
 import com.mhss.app.ui.titleRes
 import org.koin.androidx.compose.koinViewModel
+import kotlin.uuid.Uuid
 
 @Composable
 fun NotesScreen(
@@ -222,7 +223,14 @@ fun NotesScreen(
                 if (openCreateFolderDialog)
                     CreateFolderDialog(
                         onCreate = {
-                            viewModel.onEvent(NoteEvent.CreateFolder(NoteFolder(it.trim())))
+                            viewModel.onEvent(
+                                NoteEvent.CreateFolder(
+                                    NoteFolder(
+                                        id = Uuid.random().toString(),
+                                        name = it.trim()
+                                    )
+                                )
+                            )
                             openCreateFolderDialog = false
                         },
                         onDismiss = {

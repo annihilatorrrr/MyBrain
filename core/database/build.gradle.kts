@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.mhss.app.database"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 26

@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.mhss.app.data"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 26
@@ -37,6 +37,8 @@ android {
 dependencies {
     implementation(project(":core:database"))
     implementation(project(":settings:domain"))
+    implementation(project(":tasks:domain"))
+    implementation(project(":diary:domain"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

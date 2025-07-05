@@ -55,10 +55,10 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun NoteDetailsScreen(
     navController: NavHostController,
-    noteId: Int,
-    folderId: Int,
+    noteId: String?,
+    folderId: String?,
     viewModel: NoteDetailsViewModel = koinViewModel(
-        parameters = { parametersOf(noteId, folderId) }
+        parameters = { parametersOf(noteId.orEmpty(), folderId.orEmpty()) }
     ),
 ) {
     val state = viewModel.noteUiState

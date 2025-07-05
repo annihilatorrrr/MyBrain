@@ -20,12 +20,13 @@ import com.mhss.app.ui.components.common.MyBrainAppBar
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.uuid.Uuid
 
 @Composable
 fun BookmarkDetailsScreen(
     navController: NavHostController,
-    bookmarkId: Int,
-    viewModel: BookmarkDetailsViewModel = koinViewModel(parameters = { parametersOf(bookmarkId) }),
+    bookmarkId: String?,
+    viewModel: BookmarkDetailsViewModel = koinViewModel(parameters = { parametersOf(bookmarkId.orEmpty()) }),
 ) {
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
@@ -64,7 +65,8 @@ fun BookmarkDetailsScreen(
                     Bookmark(
                         title = title,
                         description = description,
-                        url = url
+                        url = url,
+                        id = bookmarkId ?: Uuid.random().toString()
                     )
                 )
             )

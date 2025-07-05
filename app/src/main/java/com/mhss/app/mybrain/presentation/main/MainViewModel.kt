@@ -59,7 +59,7 @@ class MainViewModel(
                     getCalendarEvents()
             }
             is DashboardEvent.CompleteTask -> viewModelScope.launch {
-                completeTask(event.task.id, event.isCompleted)
+                completeTask(event.task, event.isCompleted)
             }
             DashboardEvent.InitAll -> collectDashboardData()
         }

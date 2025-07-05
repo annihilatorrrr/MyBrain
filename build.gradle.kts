@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     alias(libs.plugins.android.application) apply false
@@ -15,6 +16,13 @@ subprojects {
             lint {
                 disable += "NullSafeMutableLiveData"
             }
+        }
+    }
+
+    tasks.withType<KotlinCompile> {
+        compilerOptions {
+            freeCompilerArgs.add("-opt-in=kotlin.uuid.ExperimentalUuidApi")
+            freeCompilerArgs.add("-opt-in=kotlin.time.ExperimentalTime")
         }
     }
 }

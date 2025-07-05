@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.mhss.app.domain.model.Task
 import com.mhss.app.domain.use_case.DeleteTaskUseCase
 import com.mhss.app.domain.use_case.GetTaskByIdUseCase
-import com.mhss.app.domain.use_case.UpdateTaskUseCase
+import com.mhss.app.domain.use_case.UpsertTaskUseCase
 import com.mhss.app.util.date.now
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -18,10 +18,10 @@ import org.koin.core.annotation.Named
 @KoinViewModel
 class TaskDetailsViewModel(
     private val getTask: GetTaskByIdUseCase,
-    private val updateTask: UpdateTaskUseCase,
+    private val upsertTask: UpsertTaskUseCase,
     private val deleteTask: DeleteTaskUseCase,
     @Named("applicationScope") private val applicationScope: CoroutineScope,
-    taskId: Int
+    taskId: String
 ) : ViewModel() {
 
     var taskDetailsUiState by mutableStateOf(TaskDetailsUiState())
@@ -59,9 +59,9 @@ class TaskDetailsViewModel(
                             isCompleted = event.task.isCompleted,
                             updatedDate = now()
                         )
-                        updateTask(
-                            newTask,
-                            event.task.dueDate != taskDetailsUiState.task!!.dueDate
+                        upsertTask(
+                            task = newTask,
+                            previousTask = taskDetailsUiState.task
                         )
                         taskDetailsUiState = taskDetailsUiState.copy(task = newTask)
                     }

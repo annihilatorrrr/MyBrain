@@ -7,5 +7,5 @@ import org.koin.core.annotation.Single
 class GetNoteUseCase(
     private val notesRepository: NoteRepository
 ) {
-    suspend operator fun invoke(id: Int) = notesRepository.getNote(id)
+    suspend operator fun invoke(id: String) = notesRepository.getNote(id)
 }

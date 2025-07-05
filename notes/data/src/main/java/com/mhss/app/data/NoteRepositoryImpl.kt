@@ -32,7 +32,7 @@ class NoteRepositoryImpl(
             }
     }
 
-    override suspend fun getNote(id: Int): Note {
+    override suspend fun getNote(id: String): Note {
         return withContext(ioDispatcher) {
             noteDao.getNote(id).toNote()
         }
@@ -46,7 +46,7 @@ class NoteRepositoryImpl(
         }
     }
 
-    override fun getNotesByFolder(folderId: Int): Flow<List<Note>> {
+    override fun getNotesByFolder(folderId: String): Flow<List<Note>> {
         return noteDao.getNotesByFolder(folderId)
             .flowOn(ioDispatcher)
             .map { notes ->
@@ -54,9 +54,9 @@ class NoteRepositoryImpl(
         }
     }
 
-    override suspend fun addNote(note: Note): Long {
-        return withContext(ioDispatcher) {
-            noteDao.insertNote(note.toNoteEntity())
+    override suspend fun upsertNote(note: Note) {
+        withContext(ioDispatcher) {
+            noteDao.upsertNote(note.toNoteEntity())
         }
     }
 
@@ -98,7 +98,7 @@ class NoteRepositoryImpl(
         }
     }
 
-    override suspend fun getNoteFolder(folderId: Int): NoteFolder? {
+    override suspend fun getNoteFolder(folderId: String): NoteFolder? {
         return withContext(ioDispatcher) {
             noteDao.getNoteFolder(folderId)?.toNoteFolder()
         }

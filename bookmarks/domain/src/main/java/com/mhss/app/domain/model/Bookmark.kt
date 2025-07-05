@@ -9,5 +9,5 @@ data class Bookmark(
     val description: String = "",
     val createdDate: Long = 0L,
     val updatedDate: Long = 0L,
-    val id: Int = 0
+    val id: String
 )

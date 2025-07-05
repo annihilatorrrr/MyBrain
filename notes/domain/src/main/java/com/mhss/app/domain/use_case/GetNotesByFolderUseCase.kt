@@ -14,7 +14,7 @@ class GetNotesByFolderUseCase(
     private val notesRepository: NoteRepository,
     @Named("defaultDispatcher") private val defaultDispatcher: CoroutineDispatcher
 ) {
-    operator fun invoke(id: Int, order: Order) = notesRepository.getNotesByFolder(id).map { list ->
+    operator fun invoke(id: String, order: Order) = notesRepository.getNotesByFolder(id).map { list ->
         when (order.orderType) {
             is OrderType.ASC -> {
                 when (order) {

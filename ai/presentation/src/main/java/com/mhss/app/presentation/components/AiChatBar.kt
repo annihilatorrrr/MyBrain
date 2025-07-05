@@ -157,14 +157,14 @@ fun AiChatBarPreview() {
             attachments = listOf(
                 AiMessageAttachment.Note(
                     Note(
-                        id = 1,
+                        id = "1",
                         title = "This is a Note Title",
                         content = "Note Content",
                     )
                 ),
                 AiMessageAttachment.Task(
                     Task(
-                        id = 1,
+                        id = "1",
                         title = "This is a Task Title",
                         description = "Task Description",
                         isCompleted = false,

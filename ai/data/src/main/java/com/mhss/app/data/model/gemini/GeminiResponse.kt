@@ -4,8 +4,8 @@ import com.mhss.app.data.NetworkConstants.GEMINI_MESSAGE_MODEL_TYPE
 import com.mhss.app.data.NetworkConstants.GEMINI_MESSAGE_USER_TYPE
 import com.mhss.app.domain.model.AiMessage
 import com.mhss.app.domain.model.AiMessageType
-import kotlinx.datetime.Clock
 import kotlinx.serialization.Serializable
+import kotlin.time.Clock
 
 @Serializable
 data class GeminiResponse(

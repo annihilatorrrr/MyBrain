@@ -33,12 +33,13 @@ import com.mikepenz.markdown.m3.markdownColor
 import com.mikepenz.markdown.m3.markdownTypography
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.uuid.Uuid
 
 @Composable
 fun DiaryEntryDetailsScreen(
     navController: NavHostController,
-    entryId: Int,
-    viewModel: DiaryDetailsViewModel = koinViewModel(parameters = { parametersOf(entryId) })
+    entryId: String?,
+    viewModel: DiaryDetailsViewModel = koinViewModel(parameters = { parametersOf(entryId.orEmpty()) })
 ) {
     val state = viewModel.uiState
     val snackbarHostState = remember { SnackbarHostState() }
@@ -76,7 +77,8 @@ fun DiaryEntryDetailsScreen(
                         title = title,
                         content = content,
                         mood = mood,
-                        createdDate = date
+                        createdDate = date,
+                        id = entryId ?: Uuid.random().toString()
                     )
                 )
             )

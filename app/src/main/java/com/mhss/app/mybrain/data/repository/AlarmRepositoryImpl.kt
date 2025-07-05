@@ -22,9 +22,9 @@ class AlarmRepositoryImpl(
         }
     }
 
-    override suspend fun insertAlarm(alarm: Alarm) {
-        withContext(ioDispatcher) {
-            alarmDao.insert(alarm.toAlarmEntity())
+    override suspend fun upsertAlarm(alarm: Alarm): Long {
+        return withContext(ioDispatcher) {
+            alarmDao.upsert(alarm.toAlarmEntity())
         }
     }
 

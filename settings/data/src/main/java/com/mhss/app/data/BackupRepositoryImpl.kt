@@ -1,8 +1,8 @@
 package com.mhss.app.data
 
 import android.content.Context
-import android.util.Log
 import androidx.core.net.toUri
+import androidx.core.text.isDigitsOnly
 import androidx.documentfile.provider.DocumentFile
 import androidx.room.withTransaction
 import com.mhss.app.database.MyBrainDatabase
@@ -11,8 +11,9 @@ import com.mhss.app.database.entity.DiaryEntryEntity
 import com.mhss.app.database.entity.NoteEntity
 import com.mhss.app.database.entity.NoteFolderEntity
 import com.mhss.app.database.entity.TaskEntity
-import com.mhss.app.database.entity.withoutIds
+import com.mhss.app.database.entity.toTask
 import com.mhss.app.domain.repository.BackupRepository
+import com.mhss.app.domain.use_case.UpsertTaskUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -24,11 +25,13 @@ import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToStream
 import org.koin.core.annotation.Named
 import org.koin.core.annotation.Single
+import kotlin.uuid.Uuid
 
 @Single
 class BackupRepositoryImpl(
     private val context: Context,
     private val database: MyBrainDatabase,
+    private val upsertTaskUseCase: UpsertTaskUseCase,
     @Named("ioDispatcher") private val ioDispatcher: CoroutineDispatcher
 ) : BackupRepository {
 
@@ -49,10 +52,14 @@ class BackupRepositoryImpl(
                 val destination = pickedDir!!.createFile("application/json", fileName)
 
                 val notes = if (exportNotes) database.noteDao().getAllNotes() else emptyList()
-                val noteFolders = if (exportNotes) database.noteDao().getAllNoteFolders().first() else emptyList()
-                val tasks = if (exportTasks) database.taskDao().getAllTasks().first() else emptyList()
-                val diary = if (exportDiary) database.diaryDao().getAllEntries().first() else emptyList()
-                val bookmarks = if (exportBookmarks) database.bookmarkDao().getAllBookmarks().first() else emptyList()
+                val noteFolders =
+                    if (exportNotes) database.noteDao().getAllNoteFolders().first() else emptyList()
+                val tasks =
+                    if (exportTasks) database.taskDao().getAllTasks().first() else emptyList()
+                val diary =
+                    if (exportDiary) database.diaryDao().getAllEntries().first() else emptyList()
+                val bookmarks = if (exportBookmarks) database.bookmarkDao().getAllBookmarks()
+                    .first() else emptyList()
 
                 val backupData = BackupData(notes, noteFolders, tasks, diary, bookmarks)
 
@@ -87,34 +94,61 @@ class BackupRepositoryImpl(
                     json.decodeFromStream<BackupData>(it)
                 } ?: return@withContext false
 
-                val oldNoteFolderIdsMap = HashMap<Int, Int>()
-                for ((i, folder) in backupData.noteFolders.withIndex()) {
-                    oldNoteFolderIdsMap[folder.id] = i
-                }
-
                 database.withTransaction {
-                    val newNoteFolderIds = database.noteDao().insertNoteFolders(backupData.noteFolders.withoutIds())
-                    val notes = if (newNoteFolderIds.size != oldNoteFolderIdsMap.keys.size) {
-                        Log.d("BackupRepositoryImpl.importDatabase","New folder count (${newNoteFolderIds.size}) does not match old folder count. {${oldNoteFolderIdsMap.keys.size})")
-                        backupData.notes.withoutIds()
-                    } else backupData.notes.map { note ->
-                        note.copy(
-                            folderId = note.folderId?.let {
-                                newNoteFolderIds[oldNoteFolderIdsMap[it]!!].toInt()
-                            },
-                            id = 0
+                    val noteFolderIdMap = HashMap<String, String>()
+                    val updatedNoteFolders = backupData.noteFolders.map { folder ->
+                        val id = if (folder.id.isDigitsOnly()) {
+                            Uuid.random().toString().also { noteFolderIdMap[folder.id] = it }
+                        } else {
+                            folder.id
+                        }
+                        folder.copy(id = id)
+                    }
+                    database.noteDao().upsertNoteFolders(updatedNoteFolders)
+
+                    val updatedNotes = backupData.notes.map { note ->
+                        val newFolderId =
+                            if (note.folderId?.isDigitsOnly() == true) noteFolderIdMap[note.folderId]
+                            else note.folderId.takeIfNotNull()
+                        note.copy(folderId = newFolderId, id = note.id.toUuidIfNumber())
+                    }
+                    database.noteDao().upsertNotes(updatedNotes)
+
+                    backupData.tasks.forEach {
+                        upsertTaskUseCase(
+                            task = it.toTask().copy(id = it.id.toUuidIfNumber()),
+                            updateWidget = false
+
                         )
                     }
-                    database.noteDao().insertNotes(notes)
-                    database.taskDao().insertTasks(backupData.tasks.withoutIds())
-                    database.diaryDao().insertEntries(backupData.diary.withoutIds())
-                    database.bookmarkDao().insertBookmarks(backupData.bookmarks.withoutIds())
+
+                    val updatedDiaryEntries = backupData.diary.map { entry ->
+                        entry.copy(id = entry.id.toUuidIfNumber())
+                    }
+                    database.diaryDao().upsertEntries(updatedDiaryEntries)
+
+                    val updatedBookmarks = backupData.bookmarks.map { bookmark ->
+                        bookmark.copy(id = bookmark.id.toUuidIfNumber())
+                    }
+                    database.bookmarkDao().upsertBookmarks(updatedBookmarks)
                 }
                 true
             } catch (e: Exception) {
                 e.printStackTrace()
                 false
             }
+        }
+    }
+
+    private fun String?.takeIfNotNull(): String? {
+        return if (this == "null") null else this
+    }
+
+    private fun String.toUuidIfNumber(): String {
+        return if (this.isDigitsOnly()) {
+            Uuid.random().toString()
+        } else {
+            this
         }
     }
 

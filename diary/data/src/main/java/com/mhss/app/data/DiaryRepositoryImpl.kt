@@ -26,7 +26,7 @@ class DiaryRepositoryImpl(
             }
     }
 
-    override suspend fun getEntry(id: Int): DiaryEntry {
+    override suspend fun getEntry(id: String): DiaryEntry {
         return withContext(ioDispatcher) {
             diaryDao.getEntry(id).toDiaryEntry()
         }
@@ -38,7 +38,7 @@ class DiaryRepositoryImpl(
         }
     }
 
-    override suspend fun addEntry(diary: DiaryEntry): Long {
+    override suspend fun addEntry(diary: DiaryEntry) {
         return withContext(ioDispatcher) {
             diaryDao.insertEntry(diary.toDiaryEntryEntity())
         }

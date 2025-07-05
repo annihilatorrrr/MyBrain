@@ -24,7 +24,7 @@ import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class TasksViewModel(
-    private val addTask: AddTaskUseCase,
+    private val addTask: UpsertTaskUseCase,
     private val getAllTasks: GetAllTasksUseCase,
     private val completeTask: UpdateTaskCompletedUseCase,
     getPreference: GetPreferenceUseCase,
@@ -73,7 +73,7 @@ class TasksViewModel(
             }
 
             is TaskEvent.CompleteTask -> viewModelScope.launch {
-                completeTask(event.task.id, event.complete)
+                completeTask(event.task, event.complete)
             }
 
             TaskEvent.ErrorDisplayed -> {

@@ -23,7 +23,7 @@ sealed class Screen {
 
     @Serializable
     data class TaskDetailScreen(
-        val taskId: Int
+        val taskId: String
     ): Screen()
 
     @Serializable
@@ -34,8 +34,8 @@ sealed class Screen {
 
     @Serializable
     data class NoteDetailsScreen(
-        val noteId: Int = -1,
-        val folderId: Int = -1
+        val noteId: String? = null,
+        val folderId: String? = null
     ): Screen()
 
     @Serializable
@@ -46,7 +46,7 @@ sealed class Screen {
 
     @Serializable
     data class DiaryDetailScreen(
-        val entryId: Int = -1
+        val entryId: String? = null,
     ): Screen()
 
     @Serializable
@@ -60,7 +60,7 @@ sealed class Screen {
 
     @Serializable
     data class BookmarkDetailScreen(
-        val bookmarkId: Int = -1
+        val bookmarkId: String? = null,
     ): Screen()
 
     @Serializable
@@ -74,7 +74,7 @@ sealed class Screen {
     ) : Screen()
     @Serializable
     data class NoteFolderDetailsScreen(
-        val folderId: Int
+        val folderId: String
     ): Screen()
     @Serializable
     data object ImportExportScreen : Screen()

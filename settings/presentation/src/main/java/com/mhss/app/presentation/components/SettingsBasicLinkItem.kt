@@ -1,4 +1,4 @@
-package com.mhss.app.presentation
+package com.mhss.app.presentation.components
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes

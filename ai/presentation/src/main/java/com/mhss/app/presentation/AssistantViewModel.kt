@@ -41,7 +41,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.koin.android.annotation.KoinViewModel
 
@@ -192,7 +191,7 @@ class AssistantViewModel(
             }
 
             is AssistantEvent.AddAttachmentNote -> viewModelScope.launch {
-                val note = getNoteById(event.id)
+                val note = getNoteById(event.id) ?: return@launch
                 attachments.add(AiMessageAttachment.Note(note.copy(
                     title = note.title.ifBlank { "Untitled Note" }
                 )))

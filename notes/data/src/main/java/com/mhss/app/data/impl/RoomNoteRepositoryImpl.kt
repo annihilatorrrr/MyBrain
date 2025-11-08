@@ -1,4 +1,4 @@
-package com.mhss.app.data
+package com.mhss.app.data.impl
 
 import com.mhss.app.database.dao.NoteDao
 import com.mhss.app.database.entity.toNote
@@ -14,10 +14,9 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Named
-import org.koin.core.annotation.Single
+import kotlin.uuid.Uuid
 
-@Single
-class NoteRepositoryImpl(
+class RoomNoteRepositoryImpl(
     private val noteDao: NoteDao,
     @Named("ioDispatcher") private val ioDispatcher: CoroutineDispatcher
 ) : NoteRepository {
@@ -32,9 +31,9 @@ class NoteRepositoryImpl(
             }
     }
 
-    override suspend fun getNote(id: String): Note {
+    override suspend fun getNote(id: String): Note? {
         return withContext(ioDispatcher) {
-            noteDao.getNote(id).toNote()
+            noteDao.getNote(id)?.toNote()
         }
     }
 
@@ -54,15 +53,11 @@ class NoteRepositoryImpl(
         }
     }
 
-    override suspend fun upsertNote(note: Note) {
-        withContext(ioDispatcher) {
-            noteDao.upsertNote(note.toNoteEntity())
-        }
-    }
-
-    override suspend fun updateNote(note: Note) {
-        withContext(ioDispatcher) {
-            noteDao.updateNote(note.toNoteEntity())
+    override suspend fun upsertNote(note: Note, currentFolderId: String?): String {
+        return withContext(ioDispatcher) {
+            val id = note.id.ifBlank { Uuid.random().toString() }
+            noteDao.upsertNote(note.copy(id = id).toNoteEntity())
+            id
         }
     }
 

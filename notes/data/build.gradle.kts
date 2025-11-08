@@ -35,6 +35,8 @@ android {
 
 dependencies {
     implementation(project(":core:database"))
+    implementation(project(":core:preferences"))
+    implementation(project(":core:util"))
     implementation(project(":notes:domain"))
 
     testImplementation(libs.junit)
@@ -44,4 +46,6 @@ dependencies {
     implementation(libs.bundles.koin)
     implementation(libs.koin.android)
     ksp(libs.koin.ksp.compiler)
+
+    implementation(libs.androidx.documentfile)
 }

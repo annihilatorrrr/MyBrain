@@ -1,6 +1,12 @@
 package com.mhss.app.database.dao
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Update
+import androidx.room.Upsert
 import com.mhss.app.database.entity.NoteEntity
 import com.mhss.app.database.entity.NoteFolderEntity
 import kotlinx.coroutines.flow.Flow
@@ -15,7 +21,7 @@ interface NoteDao {
     suspend fun getAllNotes(): List<NoteEntity>
 
     @Query("SELECT * FROM notes WHERE id = :id")
-    suspend fun getNote(id: String): NoteEntity
+    suspend fun getNote(id: String): NoteEntity?
 
     @Query("SELECT title, SUBSTR(content, 1, 200) AS content, created_date, updated_date, pinned, folder_id, id FROM notes WHERE title LIKE '%' || :query || '%' OR content LIKE '%' || :query || '%'")
     suspend fun getNotesByTitle(query: String): List<NoteEntity>
@@ -24,13 +30,10 @@ interface NoteDao {
     fun getNotesByFolder(folderId: String): Flow<List<NoteEntity>>
 
     @Upsert
-    suspend fun upsertNote(note: NoteEntity): Long
+    suspend fun upsertNote(note: NoteEntity)
 
     @Upsert
     suspend fun upsertNotes(notes: List<NoteEntity>)
-
-    @Update
-    suspend fun updateNote(note: NoteEntity)
 
     @Delete
     suspend fun deleteNote(note: NoteEntity)

@@ -40,6 +40,8 @@ android {
 dependencies {
     implementation(project(":settings:domain"))
     implementation(project(":ai:domain"))
+    implementation(project(":notes:domain"))
+    implementation(project(":notes:data"))
 
     implementation(project(":core:ui"))
     implementation(project(":core:preferences"))

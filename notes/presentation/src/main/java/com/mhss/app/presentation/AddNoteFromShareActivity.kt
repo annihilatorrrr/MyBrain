@@ -5,16 +5,14 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
-import com.mhss.app.ui.R
 import com.mhss.app.domain.model.Note
 import com.mhss.app.domain.use_case.UpsertNoteUseCase
+import com.mhss.app.ui.R
 import com.mhss.app.util.date.now
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
-import kotlin.uuid.Uuid
 
 class AddNoteFromShareActivity : ComponentActivity() {
 
@@ -35,7 +33,6 @@ class AddNoteFromShareActivity : ComponentActivity() {
                                     content = content,
                                     createdDate = now(),
                                     updatedDate = now(),
-                                    id = Uuid.random().toString()
                                 )
                             )
                         }

@@ -24,8 +24,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyBrain"
-        android:usesCleartextTraffic="true"
-        >
+        android:usesCleartextTraffic="true">
         <activity
             android:name=".presentation.main.MainActivity"
             android:exported="true"
@@ -38,13 +37,15 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:scheme="app"/>
-                <data android:host="com.mhss.app.mybrain.task_details"/>
-                <data android:host="com.mhss.app.mybrain.tasks"/>
-                <data android:host="com.mhss.app.mybrain.calendar"/>
-                <data android:host="com.mhss.app.mybrain.calendar_event_details"/>
+
+                <data android:scheme="app" />
+                <data android:host="com.mhss.app.mybrain.task_details" />
+                <data android:host="com.mhss.app.mybrain.tasks" />
+                <data android:host="com.mhss.app.mybrain.calendar" />
+                <data android:host="com.mhss.app.mybrain.calendar_event_details" />
             </intent-filter>
 
         </activity>

@@ -6,10 +6,10 @@ import com.mhss.app.preferences.domain.model.OrderType
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Named
-import org.koin.core.annotation.Single
 
-@Single
+@Factory
 class GetNotesByFolderUseCase(
     private val notesRepository: NoteRepository,
     @Named("defaultDispatcher") private val defaultDispatcher: CoroutineDispatcher

@@ -203,4 +203,24 @@
     <string name="font_size_extra_large">كبير جداً</string>
     <string name="plain_text">نص عادي</string>
     <string name="share_note">مشاركة الملاحظة</string>
+    <string name="external_notes">ملاحظات خارجية</string>
+    <string name="external_notes_description">تخزين وإدارة الملاحظات كملفات Markdown في مجلد على الجهاز.</string>
+    <string name="external_notes_warning">・ ليست كل ميزات وخصائص الملاحظات ستكون متاحة\n・ ملاحظات التطبيق الحالية لن يتم حذفها ولكنها لن تظهر طالما كان هذا الإعداد مفعلاً</string>
+    <string name="source_folder">مجلد المصدر</string>
+    <string name="select_source_folder_for_notes">اختر مجلد مصدر للملاحظات</string>
+    <string name="experimental">تجريبي</string>
+    <string name="error_note_file_not_found">الملف غير موجود</string>
+    <string name="error_note_create_file_failed">فشل إنشاء الملف</string>
+    <string name="error_note_file_with_same_name_exists">ملف بنفس الاسم موجود بالفعل</string>
+    <string name="error_note_write_file_failed">فشلت الكتابة إلى الملف</string>
+    <string name="error_note_rename_file_failed">فشل إعادة تسمية الملف</string>
+    <string name="error_note_move_file_failed">فشل نقل الملف</string>
+    <string name="error_note_delete_file_failed">فشل حذف الملف</string>
+    <string name="error_note_create_folder_failed">فشل إنشاء المجلد</string>
+    <string name="error_note_rename_folder_failed">فشل إعادة تسمية المجلد</string>
+    <string name="error_note_delete_folder_failed">فشل حذف المجلد</string>
+    <string name="error_note_invalid_uri">موقع المجلد غير صالح</string>
+    <string name="error_note_permission_denied">تم رفض الإذن</string>
+    <string name="error_note_unknown_error">حدث خطأ غير معروف</string>
+    <string name="error_note_invalid_file_name">اسم الملف غير صالح. تجنب الرموز: \\ / : * ? &quot; &lt; &gt; | ولا تبدأ أو تنتهي بنقاط أو مسافات</string>
 </resources>

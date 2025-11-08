@@ -8,15 +8,13 @@ interface NoteRepository {
 
     fun getAllFolderlessNotes(): Flow<List<Note>>
 
-    suspend fun getNote(id: String): Note
+    suspend fun getNote(id: String): Note?
 
     suspend fun searchNotes(query: String): List<Note>
 
     fun getNotesByFolder(folderId: String): Flow<List<Note>>
 
-    suspend fun upsertNote(note: Note)
-
-    suspend fun updateNote(note: Note)
+    suspend fun upsertNote(note: Note, currentFolderId: String? = null): String
 
     suspend fun deleteNote(note: Note)
 

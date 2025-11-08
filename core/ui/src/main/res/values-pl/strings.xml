@@ -202,4 +202,24 @@
     <string name="font_size_extra_large">Extra Large</string>
     <string name="plain_text">Plain Text</string>
     <string name="share_note">Share Note</string>
+    <string name="external_notes">External Notes</string>
+    <string name="external_notes_description">Store and manage notes as Markdown files in a device folder.</string>
+    <string name="external_notes_warning">・ Not all note features and attributes will be available\n・ Current app notes will not be deleted but will not show as long as this setting is enabled</string>
+    <string name="source_folder">Source Folder</string>
+    <string name="select_source_folder_for_notes">Select source folder for notes</string>
+    <string name="experimental">Experimental</string>
+    <string name="error_note_file_not_found">File not found</string>
+    <string name="error_note_create_file_failed">Failed to create file</string>
+    <string name="error_note_file_with_same_name_exists">File with same name already exists</string>
+    <string name="error_note_write_file_failed">Failed to write to file</string>
+    <string name="error_note_rename_file_failed">Failed to rename file</string>
+    <string name="error_note_move_file_failed">Failed to move file</string>
+    <string name="error_note_delete_file_failed">Failed to delete file</string>
+    <string name="error_note_create_folder_failed">Failed to create folder</string>
+    <string name="error_note_rename_folder_failed">Failed to rename folder</string>
+    <string name="error_note_delete_folder_failed">Failed to delete folder</string>
+    <string name="error_note_invalid_uri">Invalid folder location</string>
+    <string name="error_note_permission_denied">Permission denied</string>
+    <string name="error_note_unknown_error">An unknown error occurred while saving note</string>
+    <string name="error_note_invalid_file_name">Invalid file name. Avoid characters: \\ / : * ? &quot; &lt; &gt; | and don&apos;t start or end with dots or spaces</string>
 </resources>

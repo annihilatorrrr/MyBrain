@@ -9,5 +9,5 @@ import org.koin.dsl.module
 val coroutinesModule = module {
     single(named("defaultDispatcher")) { Dispatchers.Default }
     single(named("ioDispatcher")) { Dispatchers.IO }
-    single(named("applicationScope")) { CoroutineScope(SupervisorJob()) }
+    single(named("applicationScope")) { CoroutineScope(Dispatchers.IO + SupervisorJob()) }
 }

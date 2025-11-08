@@ -5,10 +5,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mhss.app.domain.model.Note
+import com.mhss.app.domain.model.NoteFolder
+import com.mhss.app.domain.use_case.AddNoteFolderUseCase
+import com.mhss.app.domain.use_case.DeleteNoteFolderUseCase
+import com.mhss.app.domain.use_case.GetAllFolderlessNotesUseCase
+import com.mhss.app.domain.use_case.GetAllNoteFoldersUseCase
+import com.mhss.app.domain.use_case.GetNoteFolderUseCase
+import com.mhss.app.domain.use_case.GetNotesByFolderUseCase
+import com.mhss.app.domain.use_case.SearchNotesUseCase
+import com.mhss.app.domain.use_case.UpdateNoteFolderUseCase
 import com.mhss.app.preferences.PrefsConstants
-import com.mhss.app.ui.R
-import com.mhss.app.domain.model.*
-import com.mhss.app.domain.use_case.*
 import com.mhss.app.preferences.domain.model.Order
 import com.mhss.app.preferences.domain.model.OrderType
 import com.mhss.app.preferences.domain.model.intPreferencesKey
@@ -17,10 +24,13 @@ import com.mhss.app.preferences.domain.model.toOrder
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import com.mhss.app.preferences.domain.use_case.SavePreferenceUseCase
 import com.mhss.app.ui.ItemView
+import com.mhss.app.ui.R
 import com.mhss.app.ui.toNotesView
-import com.mhss.app.util.date.now
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
@@ -164,6 +174,7 @@ class NotesViewModel(
                     folderNotes = notes,
                     folder = noteFolder
                 )
-            }.launchIn(viewModelScope)
+            }
+            .launchIn(viewModelScope)
     }
 }

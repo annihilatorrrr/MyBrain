@@ -1,13 +1,24 @@
-package com.mhss.app.presentation
+package com.mhss.app.presentation.backup
 
+import android.content.Intent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,6 +27,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mhss.app.domain.model.BackupFormat
 import com.mhss.app.ui.R
 import com.mhss.app.ui.components.common.MyBrainAppBar
@@ -28,11 +41,12 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ImportExportScreen(
-    viewModel: SettingsViewModel = koinViewModel(),
+    viewModel: BackupViewModel = koinViewModel(),
 ) {
+    val backupResult by viewModel.backupResult.collectAsStateWithLifecycle()
+
     val encrypted by remember { mutableStateOf(false) }
     val password by remember { mutableStateOf("") }
-
     var exportNotes by remember { mutableStateOf(true) }
     var exportTasks by remember { mutableStateOf(true) }
     var exportDiary by remember { mutableStateOf(true) }
@@ -45,11 +59,12 @@ fun ImportExportScreen(
     ) { files ->
         files.firstOrNull()?.getPath(kmpContext)?.let {
             viewModel.onEvent(
-                SettingsEvent.ImportData(
+                BackupEvent.ImportData(
                     it,
                     BackupFormat.JSON,
                     encrypted,
-                    password)
+                    password
+                )
             )
         }
     }
@@ -59,7 +74,7 @@ fun ImportExportScreen(
     ) { files ->
         files.firstOrNull()?.getPath(kmpContext)?.let {
             viewModel.onEvent(
-                SettingsEvent.ExportData(
+                BackupEvent.ExportData(
                     directoryUri = it,
                     exportNotes = exportNotes,
                     exportTasks = exportTasks,
@@ -70,9 +85,15 @@ fun ImportExportScreen(
                     password = password
                 )
             )
+            val contentResolver = kmpContext.contentResolver
+
+            val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+
+            contentResolver.takePersistableUriPermission(it.toUri(), takeFlags)
         }
     }
-    val backupResult by viewModel.backupResult.collectAsState()
+
     Scaffold(
         topBar = { MyBrainAppBar(stringResource(R.string.export_import)) }
     ) { paddingValues ->
@@ -121,9 +142,7 @@ fun ImportExportScreen(
                     tint = Color.White
                 )
                 Text(
-                    text = stringResource(
-                        R.string.export
-                    ),
+                    text = stringResource(R.string.export),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(12.dp),
                     color = Color.White
@@ -150,7 +169,7 @@ fun ImportExportScreen(
                 onCheckedChange = { exportBookmarks = it },
             )
 
-            if (backupResult == SettingsViewModel.BackupResult.ExportFailed) {
+            if (backupResult == BackupResult.ExportFailed) {
                 Text(
                     text = stringResource(R.string.export_failed),
                     modifier = Modifier.fillMaxWidth(),
@@ -159,7 +178,7 @@ fun ImportExportScreen(
                     color = MaterialTheme.colorScheme.error
                 )
             }
-            if (backupResult == SettingsViewModel.BackupResult.ExportSuccess) {
+            if (backupResult == BackupResult.ExportSuccess) {
                 Text(
                     text = stringResource(R.string.export_success),
                     modifier = Modifier.fillMaxWidth(),
@@ -191,8 +210,7 @@ fun ImportExportScreen(
                 )
             }
 
-
-            if (backupResult == SettingsViewModel.BackupResult.ImportFailed) {
+            if (backupResult == BackupResult.ImportFailed) {
                 Text(
                     text = stringResource(R.string.import_failed),
                     modifier = Modifier
@@ -203,7 +221,7 @@ fun ImportExportScreen(
                     color = MaterialTheme.colorScheme.error
                 )
             }
-            if (backupResult == SettingsViewModel.BackupResult.ImportSuccess) {
+            if (backupResult == BackupResult.ImportSuccess) {
                 Text(
                     text = stringResource(R.string.import_success),
                     modifier = Modifier
@@ -213,14 +231,13 @@ fun ImportExportScreen(
                     textAlign = TextAlign.Center
                 )
             }
-            if (backupResult == SettingsViewModel.BackupResult.Loading) {
+            if (backupResult == BackupResult.Loading) {
                 CircularProgressIndicator(
                     Modifier
                         .align(Alignment.CenterHorizontally)
                         .padding(12.dp)
                 )
             }
-
         }
     }
 }

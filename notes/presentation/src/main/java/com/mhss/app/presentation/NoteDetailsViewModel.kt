@@ -1,5 +1,6 @@
 package com.mhss.app.presentation
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,20 +12,22 @@ import com.mhss.app.domain.correctSpellingNotePrompt
 import com.mhss.app.domain.model.Note
 import com.mhss.app.domain.model.NoteFolder
 import com.mhss.app.domain.summarizeNotePrompt
-import com.mhss.app.domain.use_case.UpsertNoteUseCase
 import com.mhss.app.domain.use_case.DeleteNoteUseCase
 import com.mhss.app.domain.use_case.GetAllNoteFoldersUseCase
 import com.mhss.app.domain.use_case.GetNoteFolderUseCase
 import com.mhss.app.domain.use_case.GetNoteUseCase
 import com.mhss.app.domain.use_case.SendAiPromptUseCase
-import com.mhss.app.domain.use_case.UpdateNoteUseCase
+import com.mhss.app.domain.use_case.UpsertNoteUseCase
 import com.mhss.app.network.NetworkResult
 import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.domain.model.AiProvider
 import com.mhss.app.preferences.domain.model.intPreferencesKey
 import com.mhss.app.preferences.domain.model.stringPreferencesKey
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
+import com.mhss.app.ui.errors.toSnackbarError
 import com.mhss.app.util.date.now
+import com.mhss.app.util.errors.NoteException
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -37,15 +40,15 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.koin.android.annotation.KoinViewModel
 import org.koin.core.annotation.Named
-import kotlin.uuid.Uuid
 
 @KoinViewModel
 class NoteDetailsViewModel(
     private val getNote: GetNoteUseCase,
-    private val updateNote: UpdateNoteUseCase,
-    private val addNote: UpsertNoteUseCase,
+    private val upsertNote: UpsertNoteUseCase,
     private val deleteNote: DeleteNoteUseCase,
     private val getPreference: GetPreferenceUseCase,
     private val getAllFolders: GetAllNoteFoldersUseCase,
@@ -64,8 +67,14 @@ class NoteDetailsViewModel(
     var content by mutableStateOf("")
         private set
 
+    private val exceptionHandler = CoroutineExceptionHandler { _, ex ->
+        viewModelScope.launch {
+            val exception = ex as? NoteException ?: NoteException.UnknownError
+            noteUiState.snackbarHostState.showSnackbar(exception.toSnackbarError())
+        }
+    }
     private var autoSaveJob: Job? = null
-    private val debounceTime = 2000L
+    private val saveMutex = Mutex()
 
     private lateinit var aiKey: String
     private lateinit var aiModel: String
@@ -118,9 +127,10 @@ class NoteDetailsViewModel(
             }.stateIn(viewModelScope, SharingStarted.Eagerly, AiProvider.None)
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             val note: Note? = if (id.isNotBlank()) getNote(id) else null
-            val folder = getNoteFolder(note?.folderId ?: folderId)
+            val folderId = folderId.ifBlank { null }
+            val folder = folderId?.let { getNoteFolder(it) }
             val folders = getAllFolders().first()
 
             if (note != null) {
@@ -129,7 +139,7 @@ class NoteDetailsViewModel(
             }
 
             noteUiState = noteUiState.copy(
-                note = note,
+                note = note?.copy(folderId = folderId ?: note.folderId),
                 folder = folder,
                 folders = folders,
                 readingMode = note != null,
@@ -140,11 +150,8 @@ class NoteDetailsViewModel(
 
     fun onEvent(event: NoteDetailsEvent) {
         when (event) {
-            is NoteDetailsEvent.ScreenOnStop -> applicationScope.launch {
-                if (!noteUiState.navigateUp) {
-                    autoSaveJob?.cancel()
-                    saveNote()
-                }
+            is NoteDetailsEvent.ScreenOnStop -> applicationScope.launch(exceptionHandler) {
+                if (!noteUiState.navigateUp) forceSaveNote()
             }
 
             is NoteDetailsEvent.DeleteNote -> viewModelScope.launch {
@@ -157,22 +164,24 @@ class NoteDetailsViewModel(
 
             is NoteDetailsEvent.UpdateTitle -> {
                 title = event.title
-                saveNoteWithDebounce()
+                autoSaveNote()
             }
 
             is NoteDetailsEvent.UpdateContent -> {
                 content = event.content
-                saveNoteWithDebounce()
+                autoSaveNote()
             }
 
             is NoteDetailsEvent.UpdateFolder -> {
                 noteUiState = noteUiState.copy(folder = event.folder)
-                saveNoteWithDebounce()
+                viewModelScope.launch(exceptionHandler) {
+                    forceSaveNote()
+                }
             }
 
             is NoteDetailsEvent.UpdatePinned -> {
                 noteUiState = noteUiState.copy(pinned = event.pinned)
-                saveNoteWithDebounce()
+                autoSaveNote()
             }
 
             is AiAction -> aiActionJob = viewModelScope.launch {
@@ -215,12 +224,19 @@ class NoteDetailsViewModel(
         openaiURL
     )
 
-    private fun saveNoteWithDebounce() {
+    private fun autoSaveNote() {
         autoSaveJob?.cancel()
-        autoSaveJob = viewModelScope.launch {
-            delay(debounceTime)
-            saveNote()
+        autoSaveJob = applicationScope.launch(exceptionHandler) {
+            delay(2000L)
+            saveMutex.withLock {
+                saveNote()
+            }
         }
+    }
+
+    private suspend fun forceSaveNote() {
+        autoSaveJob?.cancel()
+        saveMutex.withLock { saveNote() }
     }
 
     private suspend fun saveNote() {
@@ -231,18 +247,22 @@ class NoteDetailsViewModel(
 
         if (noteUiState.note == null) {
             if (title.isNotBlank() || content.isNotBlank()) {
-                val noteId = Uuid.random().toString()
                 val note = Note(
                     title = title,
                     content = content,
                     folderId = folderId,
                     pinned = pinned,
                     createdDate = now(),
-                    updatedDate = now(),
-                    id = noteId
+                    updatedDate = now()
                 )
-                addNote(note)
-                noteUiState = noteUiState.copy(note = note.copy(id = noteId))
+                val noteId = upsertNote(note, null)
+                noteUiState = noteUiState.copy(
+                    note = note.copy(
+                        id = noteId,
+                        title = title,
+                        content = content
+                    )
+                )
             }
         } else {
             val currentNote = noteUiState.note!!
@@ -258,8 +278,10 @@ class NoteDetailsViewModel(
                     pinned = pinned,
                     updatedDate = now()
                 )
-                updateNote(newNote)
-                noteUiState = noteUiState.copy(note = newNote)
+                val noteId = upsertNote(newNote, currentNote.folderId)
+                noteUiState = noteUiState.copy(
+                    note = newNote.copy(id = noteId)
+                )
             }
         }
     }
@@ -270,7 +292,8 @@ class NoteDetailsViewModel(
         val readingMode: Boolean = false,
         val folders: List<NoteFolder> = emptyList(),
         val folder: NoteFolder? = null,
-        val pinned: Boolean = false
+        val pinned: Boolean = false,
+        val snackbarHostState: SnackbarHostState = SnackbarHostState()
     )
 
     data class AiState(

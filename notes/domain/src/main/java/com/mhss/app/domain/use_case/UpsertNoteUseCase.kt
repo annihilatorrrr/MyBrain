@@ -8,5 +8,5 @@ import org.koin.core.annotation.Factory
 class UpsertNoteUseCase(
     private val notesRepository: NoteRepository
 ) {
-    suspend operator fun invoke(note: Note) = notesRepository.upsertNote(note)
+    suspend operator fun invoke(note: Note, currentFolderId: String? = null) = notesRepository.upsertNote(note, currentFolderId)
 }

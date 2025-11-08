@@ -1,4 +1,4 @@
-package com.mhss.app.presentation.integrations
+package com.mhss.app.presentation.integrations.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke

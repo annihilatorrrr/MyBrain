@@ -223,4 +223,6 @@
     <string name="error_note_permission_denied">تم رفض الإذن</string>
     <string name="error_note_unknown_error">حدث خطأ غير معروف</string>
     <string name="error_note_invalid_file_name">اسم الملف غير صالح. تجنب الرموز: \\ / : * ? &quot; &lt; &gt; | ولا تبدأ أو تنتهي بنقاط أو مسافات</string>
+    <string name="import_confirmation_title">استيراد البيانات؟</string>
+    <string name="import_confirmation_message">البيانات المستوردة التي لها نفس المعرف (ID) ستستبدل البيانات الموجودة حالياً في التطبيق. هل تريد المتابعة؟</string>
 </resources>

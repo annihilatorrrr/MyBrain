@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
@@ -14,10 +15,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,6 +54,8 @@ fun ImportExportScreen(
     var exportTasks by remember { mutableStateOf(true) }
     var exportDiary by remember { mutableStateOf(true) }
     var exportBookmarks by remember { mutableStateOf(true) }
+    var openImportDialog by rememberSaveable { mutableStateOf(false) }
+    var pendingImportPath by remember { mutableStateOf<String?>(null) }
 
     val kmpContext = LocalPlatformContext.current
     val pickFileLauncher = rememberFilePickerLauncher(
@@ -58,14 +63,8 @@ fun ImportExportScreen(
         selectionMode = FilePickerSelectionMode.Single
     ) { files ->
         files.firstOrNull()?.getPath(kmpContext)?.let {
-            viewModel.onEvent(
-                BackupEvent.ImportData(
-                    it,
-                    BackupFormat.JSON,
-                    encrypted,
-                    password
-                )
-            )
+            pendingImportPath = it
+            openImportDialog = true
         }
     }
     val chooseDirectoryLauncher = rememberFilePickerLauncher(
@@ -239,6 +238,48 @@ fun ImportExportScreen(
                 )
             }
         }
+        if (openImportDialog)
+            AlertDialog(
+                shape = RoundedCornerShape(25.dp),
+                onDismissRequest = { 
+                    openImportDialog = false
+                    pendingImportPath = null
+                },
+                title = { Text(stringResource(R.string.import_confirmation_title)) },
+                text = {
+                    Text(stringResource(R.string.import_confirmation_message))
+                },
+                confirmButton = {
+                    Button(
+                        shape = RoundedCornerShape(25.dp),
+                        onClick = {
+                            pendingImportPath?.let { path ->
+                                viewModel.onEvent(
+                                    BackupEvent.ImportData(
+                                        path,
+                                        BackupFormat.JSON,
+                                        encrypted,
+                                        password
+                                    )
+                                )
+                            }
+                            openImportDialog = false
+                            pendingImportPath = null
+                        },
+                    ) {
+                        Text(stringResource(R.string.import_data), color = Color.White)
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            openImportDialog = false
+                            pendingImportPath = null
+                        }) {
+                        Text(stringResource(R.string.cancel))
+                    }
+                }
+            )
     }
 }
 

@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.mhss.app.domain.model.DiaryEntry
+import com.mhss.app.ui.components.common.defaultMarkdownTypography
 import com.mhss.app.util.date.fullDate
 import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.m3.markdownColor
@@ -62,20 +63,7 @@ fun LazyItemScope.DiaryEntryItem(
             if (entry.content.isNotBlank()){
                 Markdown(
                     content = entry.content,
-                    colors = markdownColor(
-                        linkText = Color.Blue
-                    ),
-                    typography = markdownTypography(
-                        text = MaterialTheme.typography.bodyMedium,
-                        h1 = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                        h2 = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        h3 = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        h4 = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        h5 = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                        h6 = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                        code = MaterialTheme.typography.bodySmall,
-                        paragraph = MaterialTheme.typography.bodyMedium,
-                    )
+                    typography = defaultMarkdownTypography()
                 )
                 Spacer(Modifier.height(8.dp))
             }

@@ -57,6 +57,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleStartEffect
@@ -67,6 +68,7 @@ import com.mhss.app.presentation.components.GradientIconButton
 import com.mhss.app.presentation.components.ShareNoteAsPlainTextOption
 import com.mhss.app.ui.R
 import com.mhss.app.ui.components.common.MyBrainAppBar
+import com.mhss.app.ui.components.common.defaultMarkdownTypography
 import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
 import com.mhss.app.ui.theme.Orange
 import com.mhss.app.ui.toUserMessage
@@ -270,18 +272,7 @@ fun NoteDetailsScreen(
                         .padding(vertical = 6.dp)
                         .padding(8.dp),
                     imageTransformer = Coil2ImageTransformerImpl,
-                    colors = markdownColor(
-                        linkText = Color.Blue
-                    ),
-                    typography = markdownTypography(
-                        text = MaterialTheme.typography.bodyMedium,
-                        h1 = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
-                        h2 = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                        h3 = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                        h4 = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        h5 = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        h6 = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
-                    )
+                    typography = defaultMarkdownTypography()
                 )
             else
                 OutlinedTextField(

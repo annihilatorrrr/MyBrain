@@ -41,6 +41,7 @@ import com.mhss.app.domain.model.AiMessageAttachment
 import com.mhss.app.domain.model.AiMessageType
 import com.mhss.app.domain.model.Note
 import com.mhss.app.ui.R
+import com.mhss.app.ui.components.common.defaultMarkdownTypography
 import com.mhss.app.ui.gradientBrushColor
 import com.mhss.app.ui.theme.MyBrainTheme
 import com.mhss.app.ui.theme.SecondaryColor
@@ -121,17 +122,8 @@ fun LazyItemScope.MessageCard(
                     imageTransformer = Coil2ImageTransformerImpl,
                     colors = markdownColor(
                         text = if (isUser) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
-                        linkText = Color.Blue
                     ),
-                    typography = markdownTypography(
-                        text = MaterialTheme.typography.bodyMedium,
-                        h1 = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
-                        h2 = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                        h3 = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                        h4 = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        h5 = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        h6 = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
-                    )
+                    typography = defaultMarkdownTypography()
                 )
                 if (message.attachments.isNotEmpty()) {
                     AiAttachmentsSection(

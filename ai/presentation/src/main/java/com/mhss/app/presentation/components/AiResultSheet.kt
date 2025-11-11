@@ -43,7 +43,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -53,14 +52,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.mhss.app.ui.R
+import com.mhss.app.ui.components.common.defaultMarkdownTypography
 import com.mhss.app.ui.theme.Blue
+import com.mhss.app.ui.theme.DarkOrange
 import com.mhss.app.ui.theme.LightPurple
 import com.mhss.app.ui.theme.MyBrainTheme
-import com.mhss.app.ui.theme.DarkOrange
 import com.mikepenz.markdown.coil2.Coil2ImageTransformerImpl
 import com.mikepenz.markdown.m3.Markdown
-import com.mikepenz.markdown.m3.markdownColor
-import com.mikepenz.markdown.m3.markdownTypography
 import sv.lib.squircleshape.CornerSmoothing
 import sv.lib.squircleshape.SquircleShape
 
@@ -90,30 +88,32 @@ fun AiResultSheet(
         initialValue = 0f,
         targetValue = 1f,
         animationSpec =
-        infiniteRepeatable(
-            animation = tween(2900, easing = EaseInOut),
-            repeatMode = RepeatMode.Reverse
-        ),
+            infiniteRepeatable(
+                animation = tween(2900, easing = EaseInOut),
+                repeatMode = RepeatMode.Reverse
+            ),
         label = "x Multiplier"
     )
     val yMul by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 0.9f,
         animationSpec =
-        infiniteRepeatable(
-            animation = tween(1900, easing = EaseInOut),
-            repeatMode = RepeatMode.Reverse
-        ),
+            infiniteRepeatable(
+                animation = tween(1900, easing = EaseInOut),
+                repeatMode = RepeatMode.Reverse
+            ),
         label = "y Multiplier"
     )
 
     val surfaceVariant = MaterialTheme.colorScheme.surfaceVariant
     Box(
-        Modifier.wrapContentHeight().offset {
-            if (loading) {
-                IntOffset(0, offset)
-            } else IntOffset.Zero
-        }
+        Modifier
+            .wrapContentHeight()
+            .offset {
+                if (loading) {
+                    IntOffset(0, offset)
+                } else IntOffset.Zero
+            }
     ) {
         GlowingBorder(
             modifier = Modifier.matchParentSize(),
@@ -132,7 +132,7 @@ fun AiResultSheet(
                 .clickable(enabled = false) {},
             shape = SquircleShape(
                 radius = 42.dp,
-                cornerSmoothing = CornerSmoothing.Medium
+                smoothing = CornerSmoothing.Medium
             ),
             elevation = CardDefaults.cardElevation(10.dp)
         ) {
@@ -190,18 +190,7 @@ fun AiResultSheet(
                                 .fillMaxWidth()
                                 .padding(top = 24.dp, start = 24.dp, end = 24.dp),
                             imageTransformer = Coil2ImageTransformerImpl,
-                            colors = markdownColor(
-                                linkText = Color.Blue
-                            ),
-                            typography = markdownTypography(
-                                text = MaterialTheme.typography.bodyMedium,
-                                h1 = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
-                                h2 = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                                h3 = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                                h4 = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                                h5 = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                h6 = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
-                            )
+                            typography = defaultMarkdownTypography()
                         )
                     }
                     Spacer(Modifier.height(12.dp))

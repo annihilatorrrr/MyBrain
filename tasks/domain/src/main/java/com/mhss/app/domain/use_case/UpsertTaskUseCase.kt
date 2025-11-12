@@ -1,6 +1,5 @@
 package com.mhss.app.domain.use_case
 
-import com.mhss.app.alarm.model.Alarm
 import com.mhss.app.alarm.use_case.DeleteAlarmUseCase
 import com.mhss.app.alarm.use_case.UpsertAlarmUseCase
 import com.mhss.app.domain.model.Task
@@ -25,8 +24,8 @@ class UpsertTaskUseCase(
         val finalTask = when {
             task.dueDate != 0L && task.dueDate > nowMillis -> {
                 // Valid future due date, create/update alarm
-                val alarmId = upsertAlarm(Alarm(task.alarmId ?: 0, task.dueDate))
-                task.copy(alarmId = alarmId?.toInt())
+                val alarmId = upsertAlarm(task.alarmId ?: 0, task.dueDate)
+                task.copy(alarmId = alarmId)
             }
 
             // Due date removed (=0) or past due, delete existing alarm if it exists

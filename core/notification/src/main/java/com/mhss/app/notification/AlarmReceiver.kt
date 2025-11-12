@@ -4,7 +4,6 @@ import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.mhss.app.alarm.model.Alarm
 import com.mhss.app.alarm.use_case.DeleteAlarmUseCase
 import com.mhss.app.alarm.use_case.UpsertAlarmUseCase
 import com.mhss.app.domain.model.TaskFrequency
@@ -58,7 +57,7 @@ class AlarmReceiver : BroadcastReceiver(), KoinComponent {
                         dueDate = calendar.timeInMillis,
                     )
                     upsertTask(task = newTask, previousTask = task)
-                    upsertAlarmUseCase(Alarm(newTask.alarmId ?: return@launch, newTask.dueDate))
+                    upsertAlarmUseCase(newTask.alarmId ?: return@launch, newTask.dueDate)
                 }
             }
 

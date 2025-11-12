@@ -138,7 +138,7 @@ class Migration4to5(private val alarmScheduler: AlarmScheduler) : Migration(4, 5
             // Map old ID to new ID
             alarmIdMapping[oldAlarmId] = newAlarmId
             // Schedule the alarm using the new ID
-            alarmScheduler.scheduleAlarm(Alarm(newAlarmId, time))
+            runCatching { alarmScheduler.scheduleAlarm(Alarm(newAlarmId, time)) }
         }
         alarmsCursor.close()
 

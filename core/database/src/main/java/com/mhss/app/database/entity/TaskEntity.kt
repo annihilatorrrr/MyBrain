@@ -77,5 +77,6 @@ fun Task.toTaskEntity() = TaskEntity(
     recurring = recurring,
     frequency = frequency.value,
     frequencyAmount = frequencyAmount,
+    alarmId = alarmId,
     id = id
 )

@@ -228,7 +228,8 @@ fun TasksSettingsSection(
             Order.DueDate(),
             Order.DateCreated(),
             Order.Alphabetical(),
-            Order.Priority()
+            Order.Priority(),
+            Order.Done()
         )
     }
     val orderTypes = remember {

@@ -40,6 +40,7 @@
     <string name="alphabetical">वर्णानुक्रमक</string>
     <string name="date_created">निर्माण की तिथि</string>
     <string name="date_modified">परिवर्तन की तिथि</string>
+    <string name="done">Done</string>
     <string name="ascending">आरोही</string>
     <string name="descending">अवरोही</string>
     <string name="show_completed_tasks">पूर्ण किए गए कार्य दिखाएं</string>

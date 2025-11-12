@@ -40,6 +40,7 @@
     <string name="alphabetical">Alphabetical</string>
     <string name="date_created">Date created</string>
     <string name="date_modified">Date modified</string>
+    <string name="done">Done</string>
     <string name="ascending">Ascending</string>
     <string name="descending">Descending</string>
     <string name="show_completed_tasks">Show completed tasks</string>

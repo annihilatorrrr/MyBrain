@@ -40,6 +40,7 @@
     <string name="alphabetical">По алфавиту</string>
     <string name="date_created">По дате создания</string>
     <string name="date_modified">По последнему изменению</string>
+    <string name="done">Done</string>
     <string name="ascending">По возрастанию</string>
     <string name="descending">По убыванию</string>
     <string name="show_completed_tasks">Показать выполненные задачи</string>

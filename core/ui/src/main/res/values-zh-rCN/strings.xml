@@ -40,6 +40,7 @@
     <string name="alphabetical">名称</string>
     <string name="date_created">创建日期</string>
     <string name="date_modified">修改日期d</string>
+    <string name="done">Done</string>
     <string name="ascending">升序</string>
     <string name="descending">降序</string>
     <string name="show_completed_tasks">显示已完成事项</string>

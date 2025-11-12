@@ -40,6 +40,7 @@
     <string name="alphabetical">Alfabetik</string>
     <string name="date_created">Oluşturulma tarihi</string>
     <string name="date_modified">Güncellenme tarihi</string>
+    <string name="done">Done</string>
     <string name="ascending">Artan</string>
     <string name="descending">Azalan</string>
     <string name="show_completed_tasks">Tamamlanmış görevleri göster</string>

@@ -113,6 +113,7 @@ val Order.titleRes: Int
         is Order.DateModified -> R.string.date_modified
         is Order.Priority -> R.string.priority
         is Order.DueDate -> R.string.due_date
+        is Order.Done -> R.string.done
     }
 
 val OrderType.titleRes: Int

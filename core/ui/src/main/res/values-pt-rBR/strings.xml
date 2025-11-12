@@ -40,6 +40,7 @@
     <string name="alphabetical">Alfabética</string>
     <string name="date_created">Data de criação</string>
     <string name="date_modified">Data de modificação</string>
+    <string name="done">Done</string>
     <string name="ascending">Crescente</string>
     <string name="descending">Decrescente</string>
     <string name="show_completed_tasks">Mostrar tarefas concluídas</string>

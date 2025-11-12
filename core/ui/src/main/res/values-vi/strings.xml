@@ -40,6 +40,7 @@
     <string name="alphabetical">Bảng chữ cái</string>
     <string name="date_created">Ngày tạo</string>
     <string name="date_modified">Ngày sửa đổi</string>
+    <string name="done">Done</string>
     <string name="ascending">Tăng dần</string>
     <string name="descending">Giảm dần</string>
     <string name="show_completed_tasks">Hiển thị các nhiệm vụ đã hoàn thành</string>

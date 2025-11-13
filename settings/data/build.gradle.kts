@@ -36,6 +36,7 @@ android {
 
 dependencies {
     implementation(project(":core:database"))
+    implementation(project(":core:preferences"))
     implementation(project(":settings:domain"))
     implementation(project(":tasks:domain"))
     implementation(project(":diary:domain"))
@@ -46,9 +47,11 @@ dependencies {
     implementation(platform(libs.koin.bom))
     implementation(libs.bundles.koin)
     implementation(libs.koin.android)
+    implementation(libs.koin.android.workmanager)
     ksp(libs.koin.ksp.compiler)
 
     implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.androidx.documentfile)
+    implementation(libs.androidx.work.runtime.ktx)
 }

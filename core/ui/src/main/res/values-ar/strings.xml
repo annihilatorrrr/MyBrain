@@ -226,4 +226,9 @@
     <string name="error_note_invalid_file_name">اسم الملف غير صالح. تجنب الرموز: \\ / : * ? &quot; &lt; &gt; | ولا تبدأ أو تنتهي بنقاط أو مسافات</string>
     <string name="import_confirmation_title">استيراد البيانات؟</string>
     <string name="import_confirmation_message">البيانات المستوردة التي لها نفس المعرف (ID) ستستبدل البيانات الموجودة حالياً في التطبيق. هل تريد المتابعة؟</string>
+    <string name="auto_backup">النسخ الاحتياطي التلقائي</string>
+    <string name="auto_backup_description">تمكين النسخ الاحتياطي التلقائي لحفظ بيانات التطبيق بشكل دوري.</string>
+    <string name="backup_frequency">تكرار النسخ الاحتياطي</string>
+    <string name="backup_folder">مجلد النسخ الاحتياطي</string>
+    <string name="select_backup_folder">اختر مجلد النسخ الاحتياطي</string>
 </resources>

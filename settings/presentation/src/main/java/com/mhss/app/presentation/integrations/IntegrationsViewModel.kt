@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.mhss.app.data.noteMarkdownModule
 import com.mhss.app.data.noteRoomModule
 import com.mhss.app.domain.AiConstants
+import com.mhss.app.domain.repository.FileUtilsRepository
 import com.mhss.app.domain.use_case.UpdateExternalNotesFolderUseCase
 import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.domain.model.AiProvider
@@ -27,7 +28,8 @@ import org.koin.core.context.GlobalContext.unloadKoinModules
 class IntegrationsViewModel(
     private val savePreference: SavePreferenceUseCase,
     private val getPreference: GetPreferenceUseCase,
-    private val updateExternalNotesFolder: UpdateExternalNotesFolderUseCase
+    private val updateExternalNotesFolder: UpdateExternalNotesFolderUseCase,
+    private val fileUtilsRepository: FileUtilsRepository
 ) : ViewModel() {
 
     fun <T> getSettings(key: PrefsKey<T>, defaultValue: T): Flow<T> {
@@ -38,6 +40,16 @@ class IntegrationsViewModel(
         PrefsKey.IntKey(PrefsConstants.AI_PROVIDER_KEY),
         AiProvider.None.ordinal
     ).map { AiProvider.entries.first { entry -> entry.id == it } }
+
+    fun getExternalNotesFolderPath(): Flow<String?> {
+        return getPreference(
+            stringPreferencesKey(PrefsConstants.EXTERNAL_NOTES_FOLDER_URI),
+            ""
+        ).map { uri ->
+            if (uri.isBlank()) null
+            else fileUtilsRepository.getPathFromUri(uri)
+        }
+    }
 
     fun onEvent(event: IntegrationsEvent) {
         when (event) {
@@ -110,6 +122,7 @@ class IntegrationsViewModel(
                     loadKoinModules(noteMarkdownModule(event.folderUri))
                 }
             }
+
             is IntegrationsEvent.SetExternalNotesEnabled -> {
                 saveSettings(
                     BooleanKey(PrefsConstants.EXTERNAL_NOTES_ENABLED),

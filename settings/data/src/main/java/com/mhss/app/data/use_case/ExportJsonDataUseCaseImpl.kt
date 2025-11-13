@@ -34,18 +34,18 @@ class ExportJsonDataUseCaseImpl(
         return withContext(ioDispatcher) {
             try {
                 val fileName = "MyBrain_Backup_${System.currentTimeMillis()}.json"
-                val pickedDir = DocumentFile.fromTreeUri(context, directoryUri.toUri())
-                val destination = pickedDir!!.createFile("application/json", fileName)
+                val pickedDir = DocumentFile.fromTreeUri(context, directoryUri.toUri()) ?: return@withContext false
+                val destination = pickedDir.createFile("application/json", fileName)
 
-                val notes = if (exportNotes) database.noteDao().getAllNotes() else emptyList()
+                val notes = if (exportNotes) database.noteDao().getAllFullNotes() else emptyList()
                 val noteFolders =
                     if (exportNotes) database.noteDao().getAllNoteFolders().first() else emptyList()
                 val tasks =
-                    if (exportTasks) database.taskDao().getAllTasks().first() else emptyList()
+                    if (exportTasks) database.taskDao().getAllFullTasks() else emptyList()
                 val diary =
-                    if (exportDiary) database.diaryDao().getAllEntries().first() else emptyList()
-                val bookmarks = if (exportBookmarks) database.bookmarkDao().getAllBookmarks()
-                    .first() else emptyList()
+                    if (exportDiary) database.diaryDao().getAllFullEntries() else emptyList()
+                val bookmarks = if (exportBookmarks) database.bookmarkDao().getAllFullBookmarks()
+                    else emptyList()
 
                 val backupData = JsonBackupData(notes, noteFolders, tasks, diary, bookmarks)
 
@@ -53,7 +53,7 @@ class ExportJsonDataUseCaseImpl(
                         ?: return@withContext false
 
                 outputStream.use {
-                    Json.encodeToStream(backupData, outputStream)
+                    Json.encodeToStream(backupData, it)
                 }
                 true
             } catch (e: Exception) {

@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
+import com.mhss.app.domain.model.BackupFrequency
 import com.mhss.app.domain.model.Priority
 import com.mhss.app.domain.model.TaskFrequency
 import com.mhss.app.network.NetworkResult
@@ -130,6 +131,14 @@ val TaskFrequency.titleRes: Int
         TaskFrequency.WEEKLY -> R.string.every_week
         TaskFrequency.MONTHLY -> R.string.every_month
         TaskFrequency.ANNUAL -> R.string.every_year
+    }
+
+val BackupFrequency.titleRes: Int
+    get() = when (this) {
+        BackupFrequency.HOURLY -> R.string.every_hour
+        BackupFrequency.DAILY -> R.string.every_day
+        BackupFrequency.WEEKLY -> R.string.every_week
+        BackupFrequency.MONTHLY -> R.string.every_month
     }
 
 val Priority.titleRes: Int

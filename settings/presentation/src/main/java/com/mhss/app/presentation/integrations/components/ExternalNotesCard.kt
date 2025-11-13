@@ -25,8 +25,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mhss.app.presentation.components.ExperimentalBadge
 import com.mhss.app.ui.R
-import com.mohamedrejeb.calf.core.LocalPlatformContext
-import com.mohamedrejeb.calf.io.getPath
 import com.mohamedrejeb.calf.picker.FilePickerFileType
 import com.mohamedrejeb.calf.picker.FilePickerSelectionMode
 import com.mohamedrejeb.calf.picker.rememberFilePickerLauncher
@@ -96,13 +94,12 @@ private fun SourceFolderCard(
     onFolderSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val kmpContext = LocalPlatformContext.current
     val chooseDirectoryLauncher = rememberFilePickerLauncher(
         FilePickerFileType.Folder,
         selectionMode = FilePickerSelectionMode.Single
     ) { files ->
-        files.firstOrNull()?.getPath(kmpContext)?.let {
-            onFolderSelected(it)
+        files.firstOrNull()?.let { file ->
+            onFolderSelected(file.uri.toString())
         }
     }
     Column(

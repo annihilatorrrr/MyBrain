@@ -30,4 +30,9 @@ object PrefsConstants {
     const val EXTERNAL_NOTES_ENABLED = "external_notes_enabled"
     const val EXTERNAL_NOTES_FOLDER_URI = "markdown_note_folder_uri"
     const val EXTERNAL_NOTES_FOLDER_PATH = "markdown_note_folder_path"
+
+    const val AUTO_BACKUP_ENABLED = "auto_backup_enabled"
+    const val AUTO_BACKUP_FOLDER_URI = "auto_backup_folder_uri"
+    const val AUTO_BACKUP_FREQUENCY = "auto_backup_frequency"
+    const val AUTO_BACKUP_FREQUENCY_AMOUNT = "auto_backup_frequency_amount"
 }

@@ -1,4 +1,4 @@
-package com.mhss.app.presentation
+package com.mhss.app.ui.components.common
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

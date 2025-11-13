@@ -1,6 +1,7 @@
 package com.mhss.app.presentation.backup
 
 import com.mhss.app.domain.model.BackupFormat
+import com.mhss.app.domain.model.BackupFrequency
 
 sealed class BackupEvent {
     data class ImportData(
@@ -21,4 +22,16 @@ sealed class BackupEvent {
         val password: String
     ) : BackupEvent()
 
+    data class SetAutoBackupEnabled(
+        val enabled: Boolean
+    ) : BackupEvent()
+
+    data class SelectAutoBackupFolder(
+        val folderUri: String,
+    ) : BackupEvent()
+
+    data class SaveFrequenciesAndReschedule(
+        val frequency: BackupFrequency,
+        val amount: Int
+    ) : BackupEvent()
 }

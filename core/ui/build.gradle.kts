@@ -40,6 +40,7 @@ android {
 dependencies {
     implementation(project(":tasks:domain"))
     implementation(project(":notes:domain"))
+    implementation(project(":settings:domain"))
 
     implementation(project(":core:util"))
     implementation(project(":core:preferences"))

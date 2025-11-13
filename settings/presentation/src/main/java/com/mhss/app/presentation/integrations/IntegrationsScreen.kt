@@ -179,13 +179,11 @@ fun IntegrationsScreen(
                     booleanPreferencesKey(PrefsConstants.EXTERNAL_NOTES_ENABLED),
                     false
                 ).collectAsStateWithLifecycle(false)
-                val selectedFolder by viewModel.getSettings(
-                    stringPreferencesKey(PrefsConstants.EXTERNAL_NOTES_FOLDER_PATH),
-                    ""
-                ).collectAsStateWithLifecycle("")
+                val selectedFolder by viewModel.getExternalNotesFolderPath()
+                    .collectAsStateWithLifecycle(null)
                 ExternalNotesCard(
                     isEnabled = isExternalNotesEnabled,
-                    selectedFolder = selectedFolder.ifBlank { null },
+                    selectedFolder = selectedFolder,
                     onSwitchToggled = {
                         viewModel.onEvent(IntegrationsEvent.SetExternalNotesEnabled(it))
                     },

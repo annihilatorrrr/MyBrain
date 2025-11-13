@@ -1,19 +1,19 @@
-package com.mhss.app.data.impl
+package com.mhss.app.data.repository
 
 import android.content.Context
 import android.content.Intent
 import androidx.core.net.toUri
-import com.mhss.app.domain.repository.NoteFileUtilsRepository
+import com.mhss.app.domain.repository.FileUtilsRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Named
 
 @Factory
-class NoteFileUtilsRepositoryImpl(
+class FileUtilsRepositoryImpl(
     private val context: Context,
     @Named("ioDispatcher") private val ioDispatcher: CoroutineDispatcher
-): NoteFileUtilsRepository {
+): FileUtilsRepository {
     override suspend fun takePersistablePermission(uri: String) {
         withContext(ioDispatcher) {
             val contentResolver = context.contentResolver
@@ -23,7 +23,8 @@ class NoteFileUtilsRepositoryImpl(
         }
     }
 
-    override suspend fun getPathFromUri(uri: String): String? {
-         return uri.toUri().path?.substringAfter(":")
+    override suspend fun getPathFromUri(uri: String): String {
+         return runCatching { uri.toUri().path?.substringAfter(":") }.getOrNull() ?: uri
     }
 }
+

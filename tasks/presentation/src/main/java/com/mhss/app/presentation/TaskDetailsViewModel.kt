@@ -6,9 +6,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mhss.app.domain.model.Task
+import com.mhss.app.domain.use_case.CanScheduleAlarmsUseCase
 import com.mhss.app.domain.use_case.DeleteTaskUseCase
 import com.mhss.app.domain.use_case.GetTaskByIdUseCase
 import com.mhss.app.domain.use_case.UpsertTaskUseCase
+import com.mhss.app.ui.R
 import com.mhss.app.util.date.now
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -20,6 +22,7 @@ class TaskDetailsViewModel(
     private val getTask: GetTaskByIdUseCase,
     private val upsertTask: UpsertTaskUseCase,
     private val deleteTask: DeleteTaskUseCase,
+    private val canScheduleAlarms: CanScheduleAlarmsUseCase,
     @Named("applicationScope") private val applicationScope: CoroutineScope,
     taskId: String
 ) : ViewModel() {
@@ -71,6 +74,15 @@ class TaskDetailsViewModel(
             is TaskDetailsEvent.DeleteTask -> viewModelScope.launch {
                 deleteTask(taskDetailsUiState.task!!)
                 taskDetailsUiState = taskDetailsUiState.copy(navigateUp = true)
+            }
+
+            TaskDetailsEvent.DueDateEnabled -> {
+                if (!canScheduleAlarms()) {
+                    taskDetailsUiState = taskDetailsUiState.copy(
+                        error = R.string.no_alarm_permission,
+                        errorAlarm = true
+                    )
+                }
             }
         }
     }

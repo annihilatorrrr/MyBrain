@@ -207,6 +207,11 @@ fun MyBrainApp(
                     NotesScreen(navController = navController)
                 }
                 composable<Screen.NoteDetailsScreen>(
+                    deepLinks = listOf(
+                        navDeepLink {
+                            uriPattern = "${Constants.NOTE_DETAILS_URI}/{${Constants.NOTE_ID_ARG}}"
+                        }
+                    ),
                     enterTransition = { slideInTransition() },
                     exitTransition = { slideOutTransition() },
                 ) {

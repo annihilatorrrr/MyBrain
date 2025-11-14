@@ -16,6 +16,9 @@ object Constants {
     const val CALENDAR_SCREEN_URI = "app://com.mhss.app.mybrain.calendar"
     const val CALENDAR_DETAILS_SCREEN_URI = "app://com.mhss.app.mybrain.calendar_event_details"
     const val CALENDAR_EVENT_ARG = "eventJson"
+    const val NOTES_SCREEN_URI = "app://com.mhss.app.mybrain.notes"
+    const val NOTE_DETAILS_URI = "app://com.mhss.app.mybrain.note_details"
+    const val NOTE_ID_ARG = "noteId"
 
     // lINKS
     const val PROJECT_GITHUB_LINK = "https://github.com/mhss1/ByBrain"

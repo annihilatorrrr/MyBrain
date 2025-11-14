@@ -46,6 +46,8 @@
                 <data android:host="com.mhss.app.mybrain.tasks" />
                 <data android:host="com.mhss.app.mybrain.calendar" />
                 <data android:host="com.mhss.app.mybrain.calendar_event_details" />
+                <data android:host="com.mhss.app.mybrain.notes" />
+                <data android:host="com.mhss.app.mybrain.note_details" />
             </intent-filter>
 
         </activity>
@@ -155,6 +157,20 @@
             android:name="com.mhss.app.widget.tasks.CompleteTaskWidgetReceiver"
             android:enabled="@bool/glance_appwidget_available"
             android:exported="false" />
+
+        <!-- Notes widget-->
+        <receiver
+            android:name="com.mhss.app.widget.notes.NotesWidgetReceiver"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false"
+            android:label="@string/notes">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/notes_widget_info" />
+        </receiver>
 
         <provider
             android:name="androidx.startup.InitializationProvider"

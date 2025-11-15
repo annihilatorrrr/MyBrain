@@ -44,6 +44,7 @@
     <string name="ascending">Aufsteigend</string>
     <string name="descending">Absteigend</string>
     <string name="show_completed_tasks">Erledigte Aufgaben anzeigen</string>
+    <string name="show_all_notes">Show notes from all folders</string>
     <string name="search_tasks">Aufgabe suchen</string>
     <string name="save_task">Aufgabe speichern</string>
     <string name="delete_task">Aufgabe löschen</string>

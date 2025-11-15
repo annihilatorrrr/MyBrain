@@ -12,12 +12,17 @@ import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Named
 
 @Factory
-class GetAllFolderlessNotesUseCase(
+class GetAllNotesUseCase(
     private val notesRepository: NoteRepository,
     @Named("defaultDispatcher") private val defaultDispatcher: CoroutineDispatcher
 ) {
-    operator fun invoke(order: Order) : Flow<List<Note>> {
-        return notesRepository.getAllFolderlessNotes().map { list ->
+    operator fun invoke(order: Order, showAllNotes: Boolean): Flow<List<Note>> {
+        val notesFlow = if (showAllNotes) {
+            notesRepository.getAllNotes()
+        } else {
+            notesRepository.getAllFolderlessNotes()
+        }
+        return notesFlow.map { list ->
             when (order.orderType) {
                 is OrderType.ASC -> {
                     when (order) {
@@ -38,5 +43,5 @@ class GetAllFolderlessNotesUseCase(
             }
         }.flowOn(defaultDispatcher)
     }
-
 }
+

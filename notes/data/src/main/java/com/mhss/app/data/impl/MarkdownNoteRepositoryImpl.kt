@@ -17,6 +17,10 @@ class MarkdownNoteRepositoryImpl(
         return markdownFileManager.getFolderNotesFlow(rootUri)
     }
 
+    override fun getAllNotes(): Flow<List<Note>> {
+        return markdownFileManager.getAllNotesFlow(rootUri)
+    }
+
     override suspend fun getNote(id: String): Note? {
         return markdownFileManager.getNote(id.toUri())
     }
@@ -54,6 +58,7 @@ class MarkdownNoteRepositoryImpl(
     }
 
     override suspend fun getNoteFolder(folderId: String): NoteFolder? {
+        if (folderId == rootUri.toString()) return null
         return markdownFileManager.getFolder(folderId.toUri())
     }
 

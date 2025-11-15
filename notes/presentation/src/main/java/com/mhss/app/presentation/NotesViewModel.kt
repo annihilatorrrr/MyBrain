@@ -9,7 +9,7 @@ import com.mhss.app.domain.model.Note
 import com.mhss.app.domain.model.NoteFolder
 import com.mhss.app.domain.use_case.AddNoteFolderUseCase
 import com.mhss.app.domain.use_case.DeleteNoteFolderUseCase
-import com.mhss.app.domain.use_case.GetAllFolderlessNotesUseCase
+import com.mhss.app.domain.use_case.GetAllNotesUseCase
 import com.mhss.app.domain.use_case.GetAllNoteFoldersUseCase
 import com.mhss.app.domain.use_case.GetNoteFolderUseCase
 import com.mhss.app.domain.use_case.GetNotesByFolderUseCase
@@ -18,6 +18,7 @@ import com.mhss.app.domain.use_case.UpdateNoteFolderUseCase
 import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.domain.model.Order
 import com.mhss.app.preferences.domain.model.OrderType
+import com.mhss.app.preferences.domain.model.booleanPreferencesKey
 import com.mhss.app.preferences.domain.model.intPreferencesKey
 import com.mhss.app.preferences.domain.model.toInt
 import com.mhss.app.preferences.domain.model.toOrder
@@ -36,7 +37,7 @@ import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class NotesViewModel(
-    private val folderlessNotes: GetAllFolderlessNotesUseCase,
+    private val getAllNotes: GetAllNotesUseCase,
     private val searchNotes: SearchNotesUseCase,
     private val getPreference: GetPreferenceUseCase,
     private val savePreference: SavePreferenceUseCase,
@@ -65,10 +66,19 @@ class NotesViewModel(
                     intPreferencesKey(PrefsConstants.NOTE_VIEW_KEY),
                     ItemView.LIST.value
                 ),
+                getPreference(
+                    booleanPreferencesKey(PrefsConstants.SHOW_ALL_NOTES_KEY),
+                    false
+                ),
                 getAllFolders()
-            ) { order, view, folders ->
-                notesUiState = notesUiState.copy(notesOrder = order.toOrder(), folders = folders)
-                getFolderlessNotes(order.toOrder())
+            ) { order, view, showAllNotes, folders ->
+                val nextOrder = order.toOrder()
+                notesUiState = notesUiState.copy(
+                    notesOrder = nextOrder,
+                    folders = folders,
+                    showAllNotes = showAllNotes
+                )
+                getNotes(nextOrder, showAllNotes)
                 if (notesUiState.noteView.value != view) {
                     notesUiState = notesUiState.copy(noteView = view.toNotesView())
                 }
@@ -98,6 +108,13 @@ class NotesViewModel(
                 savePreference(
                     intPreferencesKey(PrefsConstants.NOTE_VIEW_KEY),
                     event.view.value
+                )
+            }
+
+            is NoteEvent.ShowAllNotes -> viewModelScope.launch {
+                savePreference(
+                    booleanPreferencesKey(PrefsConstants.SHOW_ALL_NOTES_KEY),
+                    event.showAll
                 )
             }
 
@@ -151,12 +168,13 @@ class NotesViewModel(
         val searchNotes: List<Note> = emptyList(),
         val folders: List<NoteFolder> = emptyList(),
         val folderNotes: List<Note> = emptyList(),
-        val folder: NoteFolder? = null
+        val folder: NoteFolder? = null,
+        val showAllNotes: Boolean = false
     )
 
-    private fun getFolderlessNotes(order: Order) {
+    private fun getNotes(order: Order, showAllNotes: Boolean) {
         getNotesJob?.cancel()
-        getNotesJob = folderlessNotes(order)
+        getNotesJob = getAllNotes(order, showAllNotes)
             .onEach { notes ->
                 notesUiState = notesUiState.copy(
                     notes = notes,

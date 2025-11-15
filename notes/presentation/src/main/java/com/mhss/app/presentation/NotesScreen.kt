@@ -32,6 +32,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -193,11 +194,15 @@ fun NotesScreen(
                     NotesSettingsSection(
                         uiState.notesOrder,
                         uiState.noteView,
+                        uiState.showAllNotes,
                         onOrderChange = {
                             viewModel.onEvent(NoteEvent.UpdateOrder(it))
                         },
                         onViewChange = {
                             viewModel.onEvent(NoteEvent.UpdateView(it))
+                        },
+                        onShowAllNotesChange = {
+                            viewModel.onEvent(NoteEvent.ShowAllNotes(it))
                         }
                     )
                 }
@@ -218,6 +223,7 @@ fun NotesScreen(
                                     navController.navigate(
                                         Screen.NoteDetailsScreen(
                                             noteId = note.id,
+                                            folderId = note.folderId
                                         )
                                     )
                                 },
@@ -238,7 +244,8 @@ fun NotesScreen(
                                     onClick = {
                                         navController.navigate(
                                             Screen.NoteDetailsScreen(
-                                                noteId = note.id
+                                                noteId = note.id,
+                                                folderId = note.folderId
                                             )
                                         )
                                     },
@@ -333,8 +340,10 @@ fun FoldersTab(
 fun NotesSettingsSection(
     order: Order,
     view: ItemView,
+    showAllNotes: Boolean,
     onOrderChange: (Order) -> Unit,
-    onViewChange: (ItemView) -> Unit
+    onViewChange: (ItemView) -> Unit,
+    onShowAllNotesChange: (Boolean) -> Unit
 ) {
     val orders = remember {
         listOf(
@@ -430,6 +439,15 @@ fun NotesSettingsSection(
                     )
                 }
             }
+        }
+        HorizontalDivider()
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(checked = showAllNotes, onCheckedChange = { onShowAllNotesChange(it) })
+            Text(
+                text = stringResource(R.string.show_all_notes),
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(start = 8.dp)
+            )
         }
         Spacer(Modifier.height(8.dp))
     }

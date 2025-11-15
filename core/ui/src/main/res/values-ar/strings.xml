@@ -45,6 +45,7 @@
     <string name="ascending">تصاعدي</string>
     <string name="descending">تنازلي</string>
     <string name="show_completed_tasks">إظهار المهام المكملة</string>
+    <string name="show_all_notes">إظهار الملاحظات من جميع المجلدات</string>
     <string name="search_tasks">ابحث المهام</string>
     <string name="save_task">حفظ</string>
     <string name="delete_task">حذف المهمة</string>

@@ -17,8 +17,8 @@ interface NoteDao {
     @Query("SELECT title, SUBSTR(content, 1, 200) AS content, created_date, updated_date, pinned, folder_id, id FROM notes WHERE folder_id IS NULL")
     fun getAllFolderlessNotes(): Flow<List<NoteEntity>>
 
-    @Query("SELECT * FROM notes")
-    suspend fun getAllNotes(): List<NoteEntity>
+    @Query("SELECT title, SUBSTR(content, 1, 200) AS content, created_date, updated_date, pinned, folder_id, id FROM notes")
+    fun getAllNotes(): Flow<List<NoteEntity>>
 
     @Query("SELECT * FROM notes")
     suspend fun getAllFullNotes(): List<NoteEntity>

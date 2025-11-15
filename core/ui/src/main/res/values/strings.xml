@@ -44,6 +44,7 @@
     <string name="ascending">Ascending</string>
     <string name="descending">Descending</string>
     <string name="show_completed_tasks">Show completed tasks</string>
+    <string name="show_all_notes">Show notes from all folders</string>
     <string name="search_tasks">Search tasks</string>
     <string name="save_task">Save task</string>
     <string name="delete_task">Delete task</string>

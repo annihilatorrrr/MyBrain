@@ -11,17 +11,17 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.provideContent
 import androidx.glance.material3.ColorProviders
+import com.mhss.app.domain.use_case.GetAllNotesUseCase
 import com.mhss.app.preferences.PrefsConstants
-import com.mhss.app.domain.use_case.GetAllFolderlessNotesUseCase
-import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
-import com.mhss.app.widget.WidgetTheme
 import com.mhss.app.preferences.domain.model.Order
 import com.mhss.app.preferences.domain.model.OrderType
 import com.mhss.app.preferences.domain.model.booleanPreferencesKey
 import com.mhss.app.preferences.domain.model.intPreferencesKey
 import com.mhss.app.preferences.domain.model.toInt
 import com.mhss.app.preferences.domain.model.toOrder
+import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import com.mhss.app.ui.ThemeSettings
+import com.mhss.app.widget.WidgetTheme
 import com.mhss.app.widget.widgetDarkColorScheme
 import com.mhss.app.widget.widgetLightColorScheme
 import kotlinx.coroutines.flow.map
@@ -31,7 +31,7 @@ import org.koin.core.component.inject
 class NotesWidget : GlanceAppWidget(), KoinComponent {
 
     private val getSettings: GetPreferenceUseCase by inject()
-    private val getAllFolderlessNotes: GetAllFolderlessNotesUseCase by inject()
+    private val getAllNotes: GetAllNotesUseCase by inject()
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
 
@@ -42,6 +42,10 @@ class NotesWidget : GlanceAppWidget(), KoinComponent {
             ).collectAsState(Order.DateModified(OrderType.ASC).toInt())
             val useMaterialYou by getSettings(
                 booleanPreferencesKey(PrefsConstants.SETTINGS_MATERIAL_YOU),
+                false
+            ).collectAsState(false)
+            val showAllNotes by getSettings(
+                booleanPreferencesKey(PrefsConstants.SHOW_ALL_NOTES_KEY),
                 false
             ).collectAsState(false)
             val isSystemDarkMode = remember {
@@ -55,18 +59,19 @@ class NotesWidget : GlanceAppWidget(), KoinComponent {
             ).map {
                 it == ThemeSettings.DARK.value || (it == ThemeSettings.AUTO.value && isSystemDarkMode)
             }.collectAsState(true)
-            val notes by getAllFolderlessNotes(
-                order.toOrder()
+            val notes by getAllNotes(
+                order.toOrder(),
+                showAllNotes
             ).collectAsState(emptyList())
+            val limitedNotes = remember(notes) { notes.take(10) }
 
             WidgetTheme(
                 if (useMaterialYou) GlanceTheme.colors
                 else if (isDarkMode) ColorProviders(widgetDarkColorScheme)
                 else ColorProviders(widgetLightColorScheme)
-
             ) {
                 NotesHomeScreenWidget(
-                    notes
+                    limitedNotes
                 )
             }
         }

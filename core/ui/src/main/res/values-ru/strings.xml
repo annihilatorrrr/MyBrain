@@ -44,6 +44,7 @@
     <string name="ascending">По возрастанию</string>
     <string name="descending">По убыванию</string>
     <string name="show_completed_tasks">Показать выполненные задачи</string>
+    <string name="show_all_notes">Show notes from all folders</string>
     <string name="search_tasks">Искать задачи</string>
     <string name="save_task">Сохранить задачу</string>
     <string name="delete_task">Удалить задачу</string>

@@ -44,6 +44,7 @@
     <string name="ascending">Crescător</string>
     <string name="descending">Descrescător</string>
     <string name="show_completed_tasks">Arată sarcinile completate</string>
+    <string name="show_all_notes">Show notes from all folders</string>
     <string name="search_tasks">Caută sarcini</string>
     <string name="save_task">Salvează sarcina</string>
     <string name="delete_task">Șterge sarcina</string>

@@ -14,10 +14,14 @@ import com.mhss.app.domain.model.Note
 import com.mhss.app.domain.model.NoteFolder
 import com.mhss.app.util.errors.NoteException
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -85,17 +89,20 @@ class MarkdownFileManager(
 
     private inline fun <T> Uri.observeUpdates(crossinline getData: () -> T): Flow<T> =
         callbackFlow {
+            val scope = CoroutineScope(ioDispatcher + SupervisorJob())
+
             val contentObserver = object : ContentObserver(mainLooperHandler) {
                 override fun onChange(selfChange: Boolean, uri: Uri?) {
-                    trySend(getData())
+                    scope.launch { send(getData()) }
                 }
             }
             contentResolver.registerContentObserver(this@observeUpdates, true, contentObserver)
             observers.add(contentObserver)
 
-            trySend(getData())
+            send(getData())
 
             awaitClose {
+                scope.cancel()
                 contentResolver.unregisterContentObserver(contentObserver)
                 observers.remove(contentObserver)
             }
@@ -104,6 +111,22 @@ class MarkdownFileManager(
 
     fun getFolderNotesFlow(folderUri: Uri) =
         folderUri.observeUpdates { getAllNotesInFolder(folderUri) }
+
+    fun getAllNotesFlow(rootUri: Uri) =
+        rootUri.observeUpdates { getAllNotesRecursive(rootUri) }
+
+    private fun getAllNotesRecursive(rootUri: Uri): List<Note> {
+        val allNotes = mutableListOf<Note>()
+        
+        allNotes.addAll(getAllNotesInFolder(rootUri))
+
+        val folders = getAllFoldersInFolder(rootUri)
+        folders.forEach { folder ->
+            allNotes.addAll(getAllNotesRecursive(folder.id.toUri()))
+        }
+
+        return allNotes
+    }
 
     private fun getAllNotesInFolder(folderUri: Uri): List<Note> {
         val notes = mutableListOf<Note>()

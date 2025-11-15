@@ -44,6 +44,7 @@
     <string name="ascending">升序</string>
     <string name="descending">降序</string>
     <string name="show_completed_tasks">显示已完成事项</string>
+    <string name="show_all_notes">Show notes from all folders</string>
     <string name="search_tasks">搜索事项</string>
     <string name="save_task">保存事项</string>
     <string name="delete_task">删除事项</string>

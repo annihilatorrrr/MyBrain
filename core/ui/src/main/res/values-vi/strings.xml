@@ -44,6 +44,7 @@
     <string name="ascending">Tăng dần</string>
     <string name="descending">Giảm dần</string>
     <string name="show_completed_tasks">Hiển thị các nhiệm vụ đã hoàn thành</string>
+    <string name="show_all_notes">Show notes from all folders</string>
     <string name="search_tasks">Tìm kiếm nhiệm vụ</string>
     <string name="save_task">Lưu nhiệm vụ</string>
     <string name="delete_task">Xóa nhiệm vụ</string>

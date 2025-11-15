@@ -8,6 +8,8 @@ interface NoteRepository {
 
     fun getAllFolderlessNotes(): Flow<List<Note>>
 
+    fun getAllNotes(): Flow<List<Note>>
+
     suspend fun getNote(id: String): Note?
 
     suspend fun searchNotes(query: String): List<Note>

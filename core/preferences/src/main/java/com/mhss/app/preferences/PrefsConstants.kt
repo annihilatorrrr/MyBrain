@@ -7,6 +7,7 @@ object PrefsConstants {
     const val SETTINGS_MATERIAL_YOU = "material_you"
     const val DEFAULT_START_UP_SCREEN_KEY = "default_start_up_screen"
     const val SHOW_COMPLETED_TASKS_KEY = "show_completed_tasks"
+    const val SHOW_ALL_NOTES_KEY = "show_all_notes"
     const val TASKS_ORDER_KEY = "tasks_order"
     const val NOTE_VIEW_KEY = "note_view"
     const val BOOKMARK_VIEW_KEY = "bookmark_view"

@@ -44,6 +44,7 @@
     <string name="ascending">Artan</string>
     <string name="descending">Azalan</string>
     <string name="show_completed_tasks">Tamamlanmış görevleri göster</string>
+    <string name="show_all_notes">Show notes from all folders</string>
     <string name="search_tasks">Görev ara</string>
     <string name="save_task">Görevi kaydet</string>
     <string name="delete_task">Görevi sil</string>

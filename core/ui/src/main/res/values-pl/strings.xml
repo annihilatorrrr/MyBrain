@@ -44,6 +44,7 @@
     <string name="ascending">Rosnąco</string>
     <string name="descending">Malejąco</string>
     <string name="show_completed_tasks">Pokaż wykonane zadania</string>
+    <string name="show_all_notes">Show notes from all folders</string>
     <string name="search_tasks">Szukaj w zadaniach</string>
     <string name="save_task">Zapisz zadanie</string>
     <string name="delete_task">Usuń zadanie</string>

@@ -44,6 +44,7 @@
     <string name="ascending">आरोही</string>
     <string name="descending">अवरोही</string>
     <string name="show_completed_tasks">पूर्ण किए गए कार्य दिखाएं</string>
+    <string name="show_all_notes">Show notes from all folders</string>
     <string name="search_tasks">कार्य खोजें</string>
     <string name="save_task">कार्य सहेजें</string>
     <string name="delete_task">कार्य हटाएं</string>

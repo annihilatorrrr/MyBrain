@@ -31,6 +31,16 @@ class RoomNoteRepositoryImpl(
             }
     }
 
+    override fun getAllNotes(): Flow<List<Note>> {
+        return noteDao.getAllNotes()
+            .flowOn(ioDispatcher)
+            .map { notes ->
+                notes.map {
+                    it.toNote()
+                }
+            }
+    }
+
     override suspend fun getNote(id: String): Note? {
         return withContext(ioDispatcher) {
             noteDao.getNote(id)?.toNote()

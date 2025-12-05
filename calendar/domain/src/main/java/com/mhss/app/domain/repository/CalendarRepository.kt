@@ -5,7 +5,9 @@ import com.mhss.app.domain.model.CalendarEvent
 
 interface CalendarRepository {
 
-    suspend fun getEvents(): List<CalendarEvent>
+    suspend fun getEvents(excludedCalendars: List<Int> = emptyList(), until: Long? = null): List<CalendarEvent>
+
+    suspend fun getEvents(start: Long, end: Long, excludedCalendars: List<Int> = emptyList()): List<CalendarEvent>
 
     suspend fun getCalendars(): List<Calendar>
 

@@ -6,11 +6,11 @@ import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.provider.CalendarContract
+import com.mhss.app.domain.model.Calendar
 import com.mhss.app.domain.model.CalendarEvent
+import com.mhss.app.domain.model.CalendarEventFrequency
 import com.mhss.app.domain.repository.CalendarRepository
 import com.mhss.app.ui.R
-import com.mhss.app.domain.model.Calendar
-import com.mhss.app.domain.model.CalendarEventFrequency
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Named
@@ -23,7 +23,7 @@ class CalendarRepositoryImpl(
     @Named("ioDispatcher") private val ioDispatcher: CoroutineDispatcher
 ) : CalendarRepository {
 
-    override suspend fun getEvents(): List<CalendarEvent> {
+    override suspend fun getEvents(excludedCalendars: List<Int>, until: Long?): List<CalendarEvent> {
         return withContext(ioDispatcher) {
             val projection: Array<String> = arrayOf(
                 CalendarContract.Events._ID,
@@ -56,13 +56,20 @@ class CalendarRepositoryImpl(
             val contentResolver = context.contentResolver
             val events = mutableListOf<CalendarEvent>()
 
+            val excludedSelection = if (excludedCalendars.isNotEmpty()) {
+                " AND ${CalendarContract.Events.CALENDAR_ID} NOT IN (${excludedCalendars.joinToString(",")})"
+            } else ""
+
+            val untilSelection = if (until != null) {
+                " AND ${CalendarContract.Events.DTSTART} <= ?"
+            } else ""
+
             val uri: Uri = CalendarContract.Events.CONTENT_URI
             val cur: Cursor? = contentResolver.query(
                 uri,
                 projection,
-                "${CalendarContract.Events.DTSTART} > ? AND ${CalendarContract.Events.DELETED} = 0",
-                // events today or in the future only
-                arrayOf(System.currentTimeMillis().toString()),
+                "${CalendarContract.Events.DTSTART} > ? AND ${CalendarContract.Events.DELETED} = 0" + untilSelection + excludedSelection,
+                if (until != null) arrayOf(System.currentTimeMillis().toString(), until.toString()) else arrayOf(System.currentTimeMillis().toString()),
                 null
             )
 
@@ -103,14 +110,19 @@ class CalendarRepositoryImpl(
 
             // get recurring events
             val startM = java.util.Calendar.getInstance().timeInMillis
-            val endM = startM + 6 * 30 * 24 * 60 * 60 * 1000L
+            val endM = until ?: (startM + 6 * 30 * 24 * 60 * 60 * 1000L)
             val builder = CalendarContract.Instances.CONTENT_URI.buildUpon()
             ContentUris.appendId(builder, startM)
             ContentUris.appendId(builder, endM)
+
+            val instancesSelection = if (excludedCalendars.isNotEmpty()) {
+                "${CalendarContract.Instances.CALENDAR_ID} NOT IN (${excludedCalendars.joinToString(",")})"
+            } else null
+
             val curI = contentResolver.query(
                 builder.build(),
                 instancesProjection,
-                null, null, null
+                instancesSelection, null, null
             )
             if (curI != null){
                 while (curI.moveToNext()){
@@ -142,6 +154,80 @@ class CalendarRepositoryImpl(
                         frequency = frequency,
                         recurring = true,
                     )
+                    )
+                }
+                curI.close()
+            }
+            events.sortedBy { it.start }
+        }
+    }
+
+    override suspend fun getEvents(start: Long, end: Long, excludedCalendars: List<Int>): List<CalendarEvent> {
+        return withContext(ioDispatcher) {
+            val instancesProjection = arrayOf(
+                CalendarContract.Instances.EVENT_ID,
+                CalendarContract.Instances.TITLE,
+                CalendarContract.Instances.DESCRIPTION,
+                CalendarContract.Instances.BEGIN,
+                CalendarContract.Instances.END,
+                CalendarContract.Instances.EVENT_LOCATION,
+                CalendarContract.Instances.ALL_DAY,
+                CalendarContract.Instances.EVENT_COLOR,
+                CalendarContract.Instances.CALENDAR_ID,
+                CalendarContract.Instances.RRULE,
+                CalendarContract.Instances.DURATION,
+                CalendarContract.Instances.CALENDAR_COLOR
+            )
+            val contentResolver = context.contentResolver
+            val events = mutableListOf<CalendarEvent>()
+
+            val builder = CalendarContract.Instances.CONTENT_URI.buildUpon()
+            ContentUris.appendId(builder, start)
+            ContentUris.appendId(builder, end)
+
+            val selection = if (excludedCalendars.isNotEmpty()) {
+                "${CalendarContract.Instances.CALENDAR_ID} NOT IN (${excludedCalendars.joinToString(",")})"
+            } else null
+
+            val curI = contentResolver.query(
+                builder.build(),
+                instancesProjection,
+                selection,
+                null,
+                null
+            )
+
+            if (curI != null) {
+                while (curI.moveToNext()) {
+                    val eventId: Long = curI.getLong(ID_INDEX)
+                    val title: String = curI.getString(TITLE_INDEX) ?: continue
+                    val description: String? = curI.getString(DESC_INDEX)
+                    val eventStart: Long = curI.getLong(START_INDEX)
+                    val duration: String = curI.getString(EVENT_DURATION_INDEX) ?: ""
+                    val eventEnd: Long = if (duration.isNotBlank()) duration.extractEndFromDuration(eventStart) else curI.getLong(END_INDEX)
+                    val location: String? = curI.getString(LOCATION_INDEX)
+                    val allDay: Boolean = curI.getInt(ALL_DAY_INDEX) == 1
+                    val color: Int = curI.getInt(COLOR_INDEX)
+                    val calendarColor: Int = curI.getInt(CALENDAR_COLOR_INDEX)
+                    val calendarId: Long = curI.getLong(EVENT_CALENDAR_ID_INDEX)
+                    val rrule: String = curI.getString(EVENT_RRULE_INDEX) ?: ""
+                    val recurring: Boolean = rrule.isNotBlank()
+                    val frequency: CalendarEventFrequency = rrule.extractFrequency()
+
+                    events.add(
+                        CalendarEvent(
+                            id = eventId,
+                            title = title,
+                            description = description,
+                            start = eventStart,
+                            end = eventEnd,
+                            location = location,
+                            allDay = allDay,
+                            color = if (color != 0) color else calendarColor,
+                            calendarId = calendarId,
+                            frequency = frequency,
+                            recurring = recurring,
+                        )
                     )
                 }
                 curI.close()
@@ -294,7 +380,7 @@ class CalendarRepositoryImpl(
         return try {
             val duration = this.substring(1, this.length - 1).toLong() * 1000
             start + duration
-        }catch (e: Exception) {
+        }catch (_: Exception) {
             start
         }
     }

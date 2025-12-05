@@ -53,6 +53,5 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    implementation(libs.kotlinx.datetime)
-
+    api(libs.kotlinx.datetime)
 }

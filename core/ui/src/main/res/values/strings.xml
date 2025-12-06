@@ -186,11 +186,17 @@
     <string name="api_key">API Key</string>
     <string name="ai">AI</string>
     <string name="gemini">Gemini</string>
+    <string name="anthropic" translatable="false">Anthropic</string>
+    <string name="openrouter" translatable="false">OpenRouter</string>
+    <string name="ollama" translatable="false">Ollama</string>
     <string name="openai">OpenAI</string>
     <string name="model">Model</string>
-    <string name="gemini_description">Gemini models from Google</string>
-    <string name="openai_description">GPT models from OpenAI.\nYou can also use any OpenAI compatible API like Groq or a self hosted option by adding a custom URL</string>
     <string name="custom_url">Custom URL</string>
+    <string name="ai_provider">AI provider</string>
+    <string name="ai_disabled">AI disabled</string>
+    <string name="custom_base_url">Custom base URL</string>
+    <string name="base_url">Base URL</string>
+    <string name="insecure_url_warning">The URL starts with http. Use https when possible for better security.</string>
     <string name="auto_format">Auto format</string>
     <string name="correct_spelling">Correct spelling</string>
     <string name="copy">Copy</string>

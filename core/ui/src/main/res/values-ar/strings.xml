@@ -184,8 +184,10 @@
     <string name="gemini">Gemini</string>
     <string name="openai">OpenAI</string>
     <string name="model">النموذج</string>
-    <string name="gemini_description">نماذج Gemini من Google</string>
-    <string name="openai_description">نماذج GPT من OpenAI\nيمكنك أيضاً إستخدام أي خدمة متوافقة مع OpenAI مثل Groq أو خيار مستضاف ذاتياً عن طريق إضافة رابط مخصص</string>
+    <string name="ai_provider">مزود الذكاء الاصطناعي</string>
+    <string name="custom_base_url">عنوان URL الأساسي المخصص</string>
+    <string name="base_url">عنوان URL الأساسي</string>
+    <string name="insecure_url_warning">الرابط يبدأ بـ http. استخدم https عندما يكون ذلك ممكناً لأمان أفضل.</string>
     <string name="custom_url">رابط مخصص</string>
     <string name="auto_format">تنسيق تلقائي</string>
     <string name="correct_spelling">تصحيح الإملاء</string>

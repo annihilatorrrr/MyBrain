@@ -1,17 +1,13 @@
 package com.mhss.app.presentation.integrations.components
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,62 +27,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.mhss.app.ui.R
-import com.mhss.app.ui.gradientBrushColor
-
-@Composable
-fun AiProviderCard(
-    modifier: Modifier = Modifier,
-    name: String,
-    description: String,
-    selected: Boolean,
-    key: String,
-    model: String,
-    keyInfoURL: String,
-    modelInfoURL: String,
-    onKeyChange: (String) -> Unit,
-    onModelChange: (String) -> Unit,
-    onClick: () -> Unit,
-    extraContent: @Composable ColumnScope.() -> Unit = {},
-) {
-    val gradientBrush = remember {
-        gradientBrushColor()
-    }
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(15.dp),
-        border = if (selected) BorderStroke(2.dp, gradientBrush) else null,
-        onClick = onClick
-    ) {
-        Column(
-            Modifier.padding(10.dp)
-        ) {
-            Text(
-                text = name,
-                style = MaterialTheme.typography.bodyLarge
-            )
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Spacer(Modifier.height(8.dp))
-            SavableTextField(
-                text = key,
-                infoURL = keyInfoURL,
-                label = stringResource(R.string.api_key),
-                onSave = onKeyChange
-            )
-            Spacer(Modifier.height(4.dp))
-            SavableTextField(
-                text = model,
-                infoURL = modelInfoURL,
-                label = stringResource(R.string.model),
-                onSave = onModelChange
-            )
-            extraContent()
-        }
-    }
-}
 
 @Composable
 fun SavableTextField(
@@ -105,28 +45,23 @@ fun SavableTextField(
     Column(
         modifier.fillMaxWidth()
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            OutlinedTextField(
-                value = localText,
-                onValueChange = { localText = it },
-                label = { Text(text = label) },
-                shape = RoundedCornerShape(15.dp),
-                modifier = Modifier.fillMaxWidth(),
-                trailingIcon = if (infoURL != null) {
-                    {
-                        IconButton(onClick = { uriHandler.openUri(infoURL) }) {
-                            Icon(
-                                painterResource(id = R.drawable.ic_info),
-                                contentDescription = null
-                            )
-                        }
+        OutlinedTextField(
+            value = localText,
+            onValueChange = { localText = it },
+            label = { Text(text = label) },
+            shape = RoundedCornerShape(15.dp),
+            modifier = Modifier.fillMaxWidth(),
+            trailingIcon = {
+                if (infoURL != null) {
+                    IconButton(onClick = { uriHandler.openUri(infoURL) }) {
+                        Icon(
+                            painterResource(id = R.drawable.ic_info),
+                            contentDescription = null
+                        )
                     }
-                } else null
-            )
-        }
+                }
+            },
+        )
         AnimatedVisibility(showSave) {
             Button(
                 modifier = Modifier.fillMaxWidth(),
@@ -144,6 +79,8 @@ fun CustomURLSection(
     modifier: Modifier = Modifier,
     enabled: Boolean,
     url: String,
+    label: String,
+    warningText: String? = null,
     onSave: (String) -> Unit,
     onEnable: (Boolean) -> Unit
 ) {
@@ -155,16 +92,26 @@ fun CustomURLSection(
         ) {
             Checkbox(checked = enabled, onCheckedChange = onEnable)
             Text(
-                text = stringResource(R.string.custom_url),
+                text = stringResource(R.string.custom_base_url),
                 style = MaterialTheme.typography.bodyMedium
             )
         }
         AnimatedVisibility(enabled) {
-            SavableTextField(
-                text = url,
-                label = "",
-                onSave = onSave
-            )
+            Column {
+                SavableTextField(
+                    text = url,
+                    label = label,
+                    onSave = onSave
+                )
+                if (warningText != null) {
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = warningText,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
+            }
         }
     }
 }

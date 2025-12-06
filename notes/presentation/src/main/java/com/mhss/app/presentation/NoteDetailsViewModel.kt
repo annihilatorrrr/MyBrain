@@ -23,6 +23,7 @@ import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.domain.model.AiProvider
 import com.mhss.app.preferences.domain.model.intPreferencesKey
 import com.mhss.app.preferences.domain.model.stringPreferencesKey
+import com.mhss.app.preferences.domain.model.toAiProvider
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import com.mhss.app.ui.errors.toSnackbarError
 import com.mhss.app.util.date.now
@@ -87,7 +88,7 @@ class NoteDetailsViewModel(
 
     private val aiProvider =
         getPreference(intPreferencesKey(PrefsConstants.AI_PROVIDER_KEY), AiProvider.None.id)
-            .map { id -> AiProvider.entries.first { it.id == id } }
+            .map { id -> id.toAiProvider() }
             .onEach { provider ->
                 _aiEnabled.update { provider != AiProvider.None }
                 when (provider) {

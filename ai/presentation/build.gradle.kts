@@ -71,4 +71,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.squircle.shape)
+
+    implementation(libs.koog.agents)
+    implementation(libs.liquid)
 }

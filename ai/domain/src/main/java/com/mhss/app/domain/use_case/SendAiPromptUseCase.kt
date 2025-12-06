@@ -35,7 +35,7 @@ class SendAiPromptUseCase(
                     model = model,
                     key = key
                 )
-                else -> throw IllegalStateException("No AI provider is chosen")
+                else -> NetworkResult.OtherError()
             }
         } catch (e: IOException) {
             e.printStackTrace()

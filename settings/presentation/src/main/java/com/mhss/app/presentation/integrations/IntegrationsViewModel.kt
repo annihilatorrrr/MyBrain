@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mhss.app.data.noteMarkdownModule
 import com.mhss.app.data.noteRoomModule
-import com.mhss.app.domain.AiConstants
 import com.mhss.app.domain.repository.FileUtilsRepository
 import com.mhss.app.domain.use_case.UpdateExternalNotesFolderUseCase
 import com.mhss.app.preferences.PrefsConstants
@@ -12,8 +11,12 @@ import com.mhss.app.preferences.domain.model.AiProvider
 import com.mhss.app.preferences.domain.model.PrefsKey
 import com.mhss.app.preferences.domain.model.PrefsKey.BooleanKey
 import com.mhss.app.preferences.domain.model.PrefsKey.IntKey
-import com.mhss.app.preferences.domain.model.PrefsKey.StringKey
+import com.mhss.app.preferences.domain.model.customUrlEnabledPrefsKey
+import com.mhss.app.preferences.domain.model.customUrlPrefsKey
+import com.mhss.app.preferences.domain.model.keyPrefsKey
+import com.mhss.app.preferences.domain.model.modelPrefsKey
 import com.mhss.app.preferences.domain.model.stringPreferencesKey
+import com.mhss.app.preferences.domain.model.toAiProvider
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import com.mhss.app.preferences.domain.use_case.SavePreferenceUseCase
 import kotlinx.coroutines.flow.Flow
@@ -37,9 +40,9 @@ class IntegrationsViewModel(
     }
 
     fun getAiProvider(): Flow<AiProvider> = getPreference(
-        PrefsKey.IntKey(PrefsConstants.AI_PROVIDER_KEY),
-        AiProvider.None.ordinal
-    ).map { AiProvider.entries.first { entry -> entry.id == it } }
+        IntKey(PrefsConstants.AI_PROVIDER_KEY),
+        AiProvider.None.id
+    ).map { it.toAiProvider() }
 
     fun getExternalNotesFolderPath(): Flow<String?> {
         return getPreference(
@@ -56,7 +59,7 @@ class IntegrationsViewModel(
             is IntegrationsEvent.ToggleAiProvider -> {
                 saveSettings(
                     IntKey(PrefsConstants.AI_PROVIDER_KEY),
-                    if (event.enabled) AiProvider.Gemini.id else AiProvider.None.id
+                    if (event.enabled) AiProvider.OpenAI.id else AiProvider.None.id
                 )
             }
 
@@ -67,52 +70,36 @@ class IntegrationsViewModel(
                 )
             }
 
-            is IntegrationsEvent.UpdateGeminiKey -> {
-                saveSettings(
-                    stringPreferencesKey(PrefsConstants.GEMINI_KEY),
-                    event.key
-                )
-            }
-
-            is IntegrationsEvent.UpdateGeminiModel -> {
-                saveSettings(
-                    stringPreferencesKey(PrefsConstants.GEMINI_MODEL_KEY),
-                    event.model
-                )
-            }
-
-            is IntegrationsEvent.UpdateOpenAiKey -> {
-                saveSettings(
-                    stringPreferencesKey(PrefsConstants.OPENAI_KEY),
-                    event.key
-                )
-            }
-
-            is IntegrationsEvent.UpdateOpenAiModel -> {
-                saveSettings(
-                    stringPreferencesKey(PrefsConstants.OPENAI_MODEL_KEY),
-                    event.model
-                )
-            }
-
-            is IntegrationsEvent.ToggleOpenAiCustomURL -> {
-                saveSettings(
-                    BooleanKey(PrefsConstants.OPENAI_USE_URL_KEY),
-                    event.enabled
-                )
-                if (!event.enabled) {
-                    saveSettings(
-                        StringKey(PrefsConstants.OPENAI_URL_KEY),
-                        AiConstants.OPENAI_BASE_URL
-                    )
+            is IntegrationsEvent.UpdateApiKey -> {
+                event.provider.keyPrefsKey?.let { key ->
+                    saveSettings(key, event.key)
                 }
             }
 
-            is IntegrationsEvent.UpdateOpenAiCustomURL -> {
-                saveSettings(
-                    StringKey(PrefsConstants.OPENAI_URL_KEY),
-                    event.url
-                )
+            is IntegrationsEvent.UpdateModel -> {
+                event.provider.modelPrefsKey?.let { key ->
+                    saveSettings(key, event.model)
+                }
+            }
+
+            is IntegrationsEvent.ToggleCustomURL -> {
+                if (!event.provider.supportsCustomUrl) return
+                event.provider.customUrlEnabledPrefsKey?.let { key ->
+                    saveSettings(key, event.enabled)
+                }
+                val defaultBaseUrl = event.provider.defaultBaseUrl
+                if (!event.enabled && defaultBaseUrl != null) {
+                    event.provider.customUrlPrefsKey?.let { key ->
+                        saveSettings(key, defaultBaseUrl)
+                    }
+                }
+            }
+
+            is IntegrationsEvent.UpdateCustomURL -> {
+                if (!event.provider.supportsCustomUrl) return
+                event.provider.customUrlPrefsKey?.let { key ->
+                    saveSettings(key, event.url)
+                }
             }
 
             is IntegrationsEvent.SelectExternalNotesFolder -> {

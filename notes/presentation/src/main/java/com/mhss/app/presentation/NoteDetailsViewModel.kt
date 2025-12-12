@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mhss.app.domain.AiConstants
 import com.mhss.app.domain.autoFormatNotePrompt
 import com.mhss.app.domain.correctSpellingNotePrompt
 import com.mhss.app.domain.model.Note
@@ -22,7 +21,6 @@ import com.mhss.app.network.NetworkResult
 import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.domain.model.AiProvider
 import com.mhss.app.preferences.domain.model.intPreferencesKey
-import com.mhss.app.preferences.domain.model.stringPreferencesKey
 import com.mhss.app.preferences.domain.model.toAiProvider
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import com.mhss.app.ui.errors.toSnackbarError
@@ -33,12 +31,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -77,55 +72,11 @@ class NoteDetailsViewModel(
     private var autoSaveJob: Job? = null
     private val saveMutex = Mutex()
 
-    private lateinit var aiKey: String
-    private lateinit var aiModel: String
-    private lateinit var openaiURL: String
     private val _aiEnabled = MutableStateFlow(false)
     val aiEnabled: StateFlow<Boolean> = _aiEnabled
     var aiState by mutableStateOf((AiState()))
         private set
     private var aiActionJob: Job? = null
-
-    private val aiProvider =
-        getPreference(intPreferencesKey(PrefsConstants.AI_PROVIDER_KEY), AiProvider.None.id)
-            .map { id -> id.toAiProvider() }
-            .onEach { provider ->
-                _aiEnabled.update { provider != AiProvider.None }
-                when (provider) {
-                    AiProvider.OpenAI -> {
-                        aiKey = getPreference(
-                            stringPreferencesKey(PrefsConstants.OPENAI_KEY),
-                            ""
-                        ).first()
-                        aiModel = getPreference(
-                            stringPreferencesKey(PrefsConstants.OPENAI_MODEL_KEY),
-                            AiConstants.OPENAI_DEFAULT_MODEL
-                        ).first()
-                        openaiURL = getPreference(
-                            stringPreferencesKey(PrefsConstants.OPENAI_URL_KEY),
-                            AiConstants.OPENAI_BASE_URL
-                        ).first()
-                    }
-
-                    AiProvider.Gemini -> {
-                        aiKey = getPreference(
-                            stringPreferencesKey(PrefsConstants.GEMINI_KEY),
-                            ""
-                        ).first()
-                        aiModel = getPreference(
-                            stringPreferencesKey(PrefsConstants.GEMINI_MODEL_KEY),
-                            AiConstants.GEMINI_DEFAULT_MODEL
-                        ).first()
-                        openaiURL = ""
-                    }
-
-                    else -> {
-                        aiKey = ""
-                        aiModel = ""
-                        openaiURL = ""
-                    }
-                }
-            }.stateIn(viewModelScope, SharingStarted.Eagerly, AiProvider.None)
 
     init {
         viewModelScope.launch(exceptionHandler) {
@@ -146,6 +97,13 @@ class NoteDetailsViewModel(
                 readingMode = note != null,
                 pinned = note?.pinned ?: false
             )
+        }
+        viewModelScope.launch(exceptionHandler) {
+            getPreference(intPreferencesKey(PrefsConstants.AI_PROVIDER_KEY), AiProvider.None.id)
+                .map { it.toAiProvider() }
+                .collect { provider ->
+                    _aiEnabled.update { provider != AiProvider.None }
+                }
         }
     }
 
@@ -216,14 +174,6 @@ class NoteDetailsViewModel(
             }
         }
     }
-
-    private suspend fun sendAiPrompt(prompt: String) = sendAiPrompt(
-        prompt,
-        aiKey,
-        aiModel,
-        aiProvider.value,
-        openaiURL
-    )
 
     private fun autoSaveNote() {
         autoSaveJob?.cancel()

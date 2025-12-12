@@ -184,7 +184,6 @@
     <string name="openai">OpenAI</string>
     <string name="model">Model</string>
     <string name="ai_provider">AI provider</string>
-    <string name="ai_disabled">AI disabled</string>
     <string name="custom_base_url">Custom base URL</string>
     <string name="base_url">Base URL</string>
     <string name="insecure_url_warning">The URL starts with http. Use https when possible for better security.</string>

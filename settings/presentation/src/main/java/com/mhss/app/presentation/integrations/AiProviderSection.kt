@@ -238,14 +238,22 @@ private fun ProviderSettingsContent(
     onEvent: (IntegrationsEvent) -> Unit
 ) {
     if (provider == AiProvider.None || settings == null) return
-    KeyModelSection(
-        key = settings.key,
-        model = settings.model,
-        keyInfo = provider.keyInfoUrl,
-        modelInfo = provider.modelsInfoUrl,
-        onKeySave = { onEvent(IntegrationsEvent.UpdateApiKey(provider, it)) },
-        onModelSave = { onEvent(IntegrationsEvent.UpdateModel(provider, it)) }
+    provider.keyPref?.let {
+        SavableTextField(
+            text = settings.key,
+            infoURL = provider.keyInfoUrl,
+            label = stringResource(R.string.api_key),
+            onSave = { onEvent(IntegrationsEvent.UpdateApiKey(provider, it)) }
+        )
+        Spacer(Modifier.height(8.dp))
+    }
+    SavableTextField(
+        text = settings.model,
+        infoURL = provider.modelsInfoUrl,
+        label = stringResource(R.string.model),
+        onSave = { onEvent(IntegrationsEvent.UpdateModel(provider, it)) }
     )
+    Spacer(Modifier.height(8.dp))
     if (provider.supportsCustomUrl &&
         provider.customUrlPrefsKey != null &&
         provider.customUrlEnabledPrefsKey != null
@@ -264,29 +272,5 @@ private fun ProviderSettingsContent(
             onEnable = { onEvent(IntegrationsEvent.ToggleCustomURL(provider, it)) }
         )
     }
-}
-
-@Composable
-private fun KeyModelSection(
-    key: String,
-    model: String,
-    keyInfo: String?,
-    modelInfo: String?,
-    onKeySave: (String) -> Unit,
-    onModelSave: (String) -> Unit
-) {
-    SavableTextField(
-        text = key,
-        infoURL = keyInfo,
-        label = stringResource(R.string.api_key),
-        onSave = onKeySave
-    )
-    Spacer(Modifier.height(8.dp))
-    SavableTextField(
-        text = model,
-        infoURL = modelInfo,
-        label = stringResource(R.string.model),
-        onSave = onModelSave
-    )
 }
 

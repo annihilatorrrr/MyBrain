@@ -32,7 +32,7 @@ enum class AiProvider(
         keyPref = PrefsConstants.GEMINI_KEY,
         modelPref = PrefsConstants.GEMINI_MODEL_KEY,
         defaultModel = "gemini-3-pro-preview",
-        keyInfoUrl = "https://ai.google.dev/gemini-api/docs/api-key",
+        keyInfoUrl = "https://aistudio.google.com/apikey",
         modelsInfoUrl = "https://ai.google.dev/gemini-api/docs/models"
     ),
     Anthropic(
@@ -53,10 +53,10 @@ enum class AiProvider(
     ),
     Ollama(
         id = 5,
-        keyPref = PrefsConstants.OLLAMA_KEY,
+        keyPref = null,
         modelPref = PrefsConstants.OLLAMA_MODEL_KEY,
         defaultModel = "gpt-oss:latest",
-        keyInfoUrl = "https://docs.ollama.com/api/authentication",
+        keyInfoUrl = "",
         modelsInfoUrl = "https://ollama.com/library",
         supportsCustomUrl = true,
         customUrlPref = PrefsConstants.OLLAMA_URL_KEY,

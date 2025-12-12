@@ -6,16 +6,16 @@ plugins {
 
 dependencies {
     implementation(project(":ai:domain"))
+    implementation(project(":core:preferences"))
+
     implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.ktor.core)
+    implementation(libs.ktor.cio)
 
     implementation(platform(libs.koin.bom))
     implementation(libs.bundles.koin)
     ksp(libs.koin.ksp.compiler)
 
     implementation(libs.kotlinx.serialization.json)
-
-    implementation(libs.kotlinx.datetime)
 
     implementation(libs.koog.agents)
 }

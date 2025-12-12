@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mhss.app.domain.AiConstants
 import com.mhss.app.domain.model.AiMessage
 import com.mhss.app.domain.model.AiMessageAttachment
 import com.mhss.app.domain.model.CalendarEvent
@@ -22,7 +21,6 @@ import com.mhss.app.network.NetworkResult
 import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.domain.model.AiProvider
 import com.mhss.app.preferences.domain.model.intPreferencesKey
-import com.mhss.app.preferences.domain.model.stringPreferencesKey
 import com.mhss.app.preferences.domain.model.stringSetPreferencesKey
 import com.mhss.app.preferences.domain.model.toAiProvider
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
@@ -35,12 +33,10 @@ import com.mhss.app.util.date.now
 import com.mhss.app.util.date.todayPlusDays
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.koin.android.annotation.KoinViewModel
@@ -64,9 +60,6 @@ class AssistantViewModel(
     var uiState by mutableStateOf(UiState())
         private set
 
-    private lateinit var aiKey: String
-    private lateinit var aiModel: String
-    private lateinit var openaiURL: String
     var aiEnabled by mutableStateOf(false)
         private set
 
@@ -82,48 +75,14 @@ class AssistantViewModel(
                 uiState = uiState.copy(noteView = it.toNotesView())
             }.collect()
         }
-    }
-
-    private val aiProvider =
-        getPreference(intPreferencesKey(PrefsConstants.AI_PROVIDER_KEY), AiProvider.None.id)
-            .map { id -> id.toAiProvider() }
-            .onEach { provider ->
-                aiEnabled = provider != AiProvider.None
-                when (provider) {
-                    AiProvider.OpenAI -> {
-                        aiKey = getPreference(
-                            stringPreferencesKey(PrefsConstants.OPENAI_KEY),
-                            ""
-                        ).first()
-                        aiModel = getPreference(
-                            stringPreferencesKey(PrefsConstants.OPENAI_MODEL_KEY),
-                            AiConstants.OPENAI_DEFAULT_MODEL
-                        ).first()
-                        openaiURL = getPreference(
-                            stringPreferencesKey(PrefsConstants.OPENAI_URL_KEY),
-                            AiConstants.OPENAI_BASE_URL
-                        ).first()
-                    }
-
-                    AiProvider.Gemini -> {
-                        aiKey = getPreference(
-                            stringPreferencesKey(PrefsConstants.GEMINI_KEY),
-                            ""
-                        ).first()
-                        aiModel = getPreference(
-                            stringPreferencesKey(PrefsConstants.GEMINI_MODEL_KEY),
-                            AiConstants.GEMINI_DEFAULT_MODEL
-                        ).first()
-                        openaiURL = ""
-                    }
-
-                    else -> {
-                        aiKey = ""
-                        aiModel = ""
-                        openaiURL = ""
-                    }
+        viewModelScope.launch {
+            getPreference(intPreferencesKey(PrefsConstants.AI_PROVIDER_KEY), AiProvider.None.id)
+                .map { it.toAiProvider() }
+                .collect { provider ->
+                    aiEnabled = provider != AiProvider.None
                 }
-            }.stateIn(viewModelScope, SharingStarted.Eagerly, AiProvider.None)
+        }
+    }
 
     fun onEvent(event: AssistantEvent) {
         when (event) {
@@ -141,14 +100,7 @@ class AssistantViewModel(
                     loading = true,
                     error = null
                 )
-                val result = sendAiMessage(
-                    _messages.reversed(),
-                    aiKey,
-                    aiModel,
-                    aiProvider.value,
-                    openaiURL
-                )
-                when (result) {
+                when (val result = sendAiMessage(_messages.reversed())) {
                     is NetworkResult.Success -> {
                         _messages.add(0, result.data)
 
@@ -193,7 +145,9 @@ class AssistantViewModel(
 
             is AssistantEvent.AddAttachmentNote -> viewModelScope.launch {
                 val note = getNoteById(event.id) ?: return@launch
-                attachments.add(AiMessageAttachment.Note(note.copy(
+                attachments.add(
+                    AiMessageAttachment.Note(
+                    note.copy(
                     title = note.title.ifBlank { "Untitled Note" }
                 )))
             }

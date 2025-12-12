@@ -162,7 +162,7 @@ fun NetworkResult.Failure.toUserMessage(): String {
     return when (this) {
         NetworkResult.InvalidKey -> stringResource(R.string.invalid_api_key)
         NetworkResult.InternetError -> stringResource(R.string.no_internet_connection)
-        is NetworkResult.OtherError -> if (message != null) message.toString() else stringResource(R.string.unexpected_error)
+        is NetworkResult.OtherError -> message.orEmpty().ifBlank { stringResource(R.string.unexpected_error) }
     }
 }
 

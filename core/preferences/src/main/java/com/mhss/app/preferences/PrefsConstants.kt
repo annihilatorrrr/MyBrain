@@ -30,7 +30,6 @@ object PrefsConstants {
     const val OPEN_ROUTER_MODEL_KEY = "open_router_model"
     const val OPEN_ROUTER_KEY = "open_router_key"
     const val OLLAMA_MODEL_KEY = "ollama_model"
-    const val OLLAMA_KEY = "ollama_key"
     const val OLLAMA_URL_KEY = "ollama_url"
     const val OLLAMA_USE_URL_KEY = "ollama_use_url"
     const val GEMINI_MODEL_KEY = "gemini_model"

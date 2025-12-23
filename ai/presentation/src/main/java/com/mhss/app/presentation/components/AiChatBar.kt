@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,11 +30,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mhss.app.domain.model.AiMessageAttachment
-import com.mhss.app.ui.R
 import com.mhss.app.domain.model.Note
 import com.mhss.app.domain.model.SubTask
 import com.mhss.app.domain.model.Task
 import com.mhss.app.presentation.LeftToRight
+import com.mhss.app.ui.R
 import com.mhss.app.ui.gradientBrushColor
 import com.mhss.app.ui.theme.MyBrainTheme
 
@@ -48,6 +49,7 @@ fun AiChatBar(
     onAttachClick: () -> Unit,
     onRemoveAttachment: (Int) -> Unit,
     onSend: () -> Unit,
+    onCancel: () -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -94,21 +96,43 @@ fun AiChatBar(
                     },
                 )
                 if (loading) {
-                    CircularProgressIndicator(
-                        Modifier
-                            .padding(8.dp)
-                            .size(32.dp)
-                            .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
-                            .drawWithCache {
-                                onDrawWithContent {
-                                    drawContent()
-                                    drawRect(
-                                        gradientBrushColor(),
-                                        blendMode = BlendMode.SrcAtop
-                                    )
-                                }
-                            }
-                    )
+                    IconButton(onClick = { onCancel() }) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                painterResource(id = R.drawable.ic_stop),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(18.dp)
+                                    .graphicsLayer {
+                                        compositingStrategy = CompositingStrategy.Offscreen
+                                    }
+                                    .drawWithCache {
+                                        onDrawWithContent {
+                                            drawContent()
+                                            drawRect(
+                                                gradientBrushColor(),
+                                                blendMode = BlendMode.SrcAtop
+                                            )
+                                        }
+                                    }
+                            )
+                            CircularProgressIndicator(
+                                Modifier
+                                    .size(34.dp)
+                                    .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                                    .drawWithCache {
+                                        onDrawWithContent {
+                                            drawContent()
+                                            drawRect(
+                                                gradientBrushColor(),
+                                                blendMode = BlendMode.SrcAtop
+                                            )
+                                        }
+                                    },
+                                strokeWidth = 2.dp
+                            )
+                        }
+                    }
                 } else {
                     IconButton(
                         onClick = { onSend() },
@@ -180,6 +204,7 @@ fun AiChatBarPreview() {
             onAttachClick = {},
             onRemoveAttachment = {},
             onSend = {},
+            onCancel = {},
         )
     }
 }

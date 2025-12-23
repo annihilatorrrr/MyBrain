@@ -35,6 +35,7 @@ object PrefsConstants {
     const val GEMINI_MODEL_KEY = "gemini_model"
     const val GEMINI_KEY = "gemini_key"
     const val AI_PROVIDER_KEY = "ai_api"
+    const val AI_TOOLS_ENABLED_KEY = "ai_tools_enabled"
 
     const val EXTERNAL_NOTES_ENABLED = "external_notes_enabled"
     const val EXTERNAL_NOTES_FOLDER_URI = "markdown_note_folder_uri"

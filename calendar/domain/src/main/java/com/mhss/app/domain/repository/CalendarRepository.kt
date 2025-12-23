@@ -9,6 +9,13 @@ interface CalendarRepository {
 
     suspend fun getEvents(start: Long, end: Long, excludedCalendars: List<Int> = emptyList()): List<CalendarEvent>
 
+    suspend fun searchEventsByTitleWithinRange(
+        start: Long,
+        end: Long,
+        titleQuery: String,
+        excludedCalendars: List<Int> = emptyList()
+    ): List<CalendarEvent>
+
     suspend fun getCalendars(): List<Calendar>
 
     suspend fun addEvent(event: CalendarEvent)

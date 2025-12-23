@@ -14,10 +14,10 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface NoteDao {
 
-    @Query("SELECT title, SUBSTR(content, 1, 200) AS content, created_date, updated_date, pinned, folder_id, id FROM notes WHERE folder_id IS NULL")
+    @Query("SELECT title, SUBSTR(content, 1, 150) AS content, created_date, updated_date, pinned, folder_id, id FROM notes WHERE folder_id IS NULL")
     fun getAllFolderlessNotes(): Flow<List<NoteEntity>>
 
-    @Query("SELECT title, SUBSTR(content, 1, 200) AS content, created_date, updated_date, pinned, folder_id, id FROM notes")
+    @Query("SELECT title, SUBSTR(content, 1, 150) AS content, created_date, updated_date, pinned, folder_id, id FROM notes")
     fun getAllNotes(): Flow<List<NoteEntity>>
 
     @Query("SELECT * FROM notes")
@@ -26,10 +26,10 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE id = :id")
     suspend fun getNote(id: String): NoteEntity?
 
-    @Query("SELECT title, SUBSTR(content, 1, 200) AS content, created_date, updated_date, pinned, folder_id, id FROM notes WHERE title LIKE '%' || :query || '%' OR content LIKE '%' || :query || '%'")
+    @Query("SELECT title, SUBSTR(content, 1, 100) AS content, created_date, updated_date, pinned, folder_id, id FROM notes WHERE title LIKE '%' || :query || '%' OR content LIKE '%' || :query || '%'")
     suspend fun getNotesByTitle(query: String): List<NoteEntity>
 
-    @Query("SELECT title, SUBSTR(content, 1, 200) AS content, created_date, updated_date, pinned, folder_id, id FROM notes WHERE folder_id = :folderId")
+    @Query("SELECT title, SUBSTR(content, 1, 150) AS content, created_date, updated_date, pinned, folder_id, id FROM notes WHERE folder_id = :folderId")
     fun getNotesByFolder(folderId: String): Flow<List<NoteEntity>>
 
     @Upsert
@@ -58,4 +58,7 @@ interface NoteDao {
 
     @Query("SELECT * FROM note_folders WHERE id = :folderId")
     fun getNoteFolder(folderId: String): NoteFolderEntity?
+
+    @Query("SELECT * FROM note_folders WHERE name LIKE '%' || :name || '%'")
+    fun searchFolderByName(name: String): List<NoteFolderEntity>
 }

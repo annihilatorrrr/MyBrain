@@ -8,10 +8,9 @@ import android.os.Build
 import androidx.core.app.AlarmManagerCompat
 import com.mhss.app.alarm.model.Alarm
 import com.mhss.app.alarm.repository.AlarmScheduler
-import com.mhss.app.util.Constants
 import com.mhss.app.notification.AlarmReceiver
+import com.mhss.app.util.Constants
 import org.koin.core.annotation.Factory
-import org.koin.core.annotation.Single
 
 @Factory
 class AlarmSchedulerImpl(
@@ -32,11 +31,11 @@ class AlarmSchedulerImpl(
 
     }
 
-    override fun cancelAlarm(alarmId: Int) {
+    override fun cancelAlarm(schedulerId: Int) {
         val intent = Intent(context, AlarmReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
             context,
-            alarmId,
+            schedulerId,
             intent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )

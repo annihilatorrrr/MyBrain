@@ -15,6 +15,7 @@ data class CalendarEvent(
     val calendarId: Long,
     val recurring: Boolean = false,
     val frequency: CalendarEventFrequency = CalendarEventFrequency.NEVER,
+    val instanceDay: Long? = null,
 )
 
 enum class CalendarEventFrequency {

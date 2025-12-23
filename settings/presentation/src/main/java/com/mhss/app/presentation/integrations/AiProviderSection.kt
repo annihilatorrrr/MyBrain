@@ -33,12 +33,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.domain.model.AiProvider
 import com.mhss.app.preferences.domain.model.PrefsKey
 import com.mhss.app.preferences.domain.model.customUrlEnabledPrefsKey
 import com.mhss.app.preferences.domain.model.customUrlPrefsKey
 import com.mhss.app.preferences.domain.model.keyPrefsKey
 import com.mhss.app.preferences.domain.model.modelPrefsKey
+import com.mhss.app.presentation.components.SettingsSwitchCard
 import com.mhss.app.presentation.integrations.components.CustomURLSection
 import com.mhss.app.presentation.integrations.components.SavableTextField
 import com.mhss.app.ui.R
@@ -81,6 +83,10 @@ fun AiProviderSection(
         )
     )
     val aiEnabled = provider != AiProvider.None
+    val aiToolsEnabled by getBooleanSetting(
+        PrefsKey.BooleanKey(PrefsConstants.AI_TOOLS_ENABLED_KEY),
+        false
+    ).collectAsStateWithLifecycle(false)
 
     Card(
         modifier = modifier
@@ -131,6 +137,19 @@ fun AiProviderSection(
                         provider = provider,
                         settings = providerSettings[provider],
                         onEvent = onEvent
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    SettingsSwitchCard(
+                        text = stringResource(R.string.enable_ai_tools),
+                        checked = aiToolsEnabled,
+                        iconPainter = painterResource(id = R.drawable.ic_tools),
+                        onCheck = { onEvent(IntegrationsEvent.ToggleAiTools(it)) }
+                    )
+                    Text(
+                        text = stringResource(R.string.enable_ai_tools_description),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = 8.dp)
                     )
                 }
             }

@@ -23,22 +23,22 @@ class RoomNoteRepositoryImpl(
 
     override fun getAllFolderlessNotes(): Flow<List<Note>> {
         return noteDao.getAllFolderlessNotes()
-            .flowOn(ioDispatcher)
             .map { notes ->
                 notes.map {
                     it.toNote()
                 }
             }
+            .flowOn(ioDispatcher)
     }
 
     override fun getAllNotes(): Flow<List<Note>> {
         return noteDao.getAllNotes()
-            .flowOn(ioDispatcher)
             .map { notes ->
                 notes.map {
                     it.toNote()
                 }
             }
+            .flowOn(ioDispatcher)
     }
 
     override suspend fun getNote(id: String): Note? {
@@ -59,8 +59,8 @@ class RoomNoteRepositoryImpl(
         return noteDao.getNotesByFolder(folderId)
             .flowOn(ioDispatcher)
             .map { notes ->
-            notes.map { it.toNote() }
-        }
+                notes.map { it.toNote() }
+            }
     }
 
     override suspend fun upsertNote(note: Note, currentFolderId: String?): String {
@@ -68,6 +68,16 @@ class RoomNoteRepositoryImpl(
             val id = note.id.ifBlank { Uuid.random().toString() }
             noteDao.upsertNote(note.copy(id = id).toNoteEntity())
             id
+        }
+    }
+
+    override suspend fun upsertNotes(notes: List<Note>): List<String> {
+        return withContext(ioDispatcher) {
+            val notesWithIds = notes.map {
+                it.copy(id = it.id.ifBlank { Uuid.random().toString() })
+            }
+            noteDao.upsertNotes(notesWithIds.map { it.toNoteEntity() })
+            notesWithIds.map { it.id }
         }
     }
 
@@ -99,13 +109,19 @@ class RoomNoteRepositoryImpl(
         return noteDao.getAllNoteFolders()
             .flowOn(ioDispatcher)
             .map { folders ->
-            folders.map { it.toNoteFolder() }
-        }
+                folders.map { it.toNoteFolder() }
+            }
     }
 
     override suspend fun getNoteFolder(folderId: String): NoteFolder? {
         return withContext(ioDispatcher) {
             noteDao.getNoteFolder(folderId)?.toNoteFolder()
+        }
+    }
+
+    override suspend fun searchFoldersByName(name: String): List<NoteFolder> {
+        return withContext(ioDispatcher) {
+            noteDao.searchFolderByName(name).map { it.toNoteFolder() }
         }
     }
 }

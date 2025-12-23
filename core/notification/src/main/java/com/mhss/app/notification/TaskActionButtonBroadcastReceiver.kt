@@ -27,7 +27,7 @@ class TaskActionButtonBroadcastReceiver : BroadcastReceiver(), KoinComponent {
             scope.launch(ioDispatcher) {
                 try {
                     val taskId = intent.getStringExtra(Constants.TASK_ID_EXTRA) ?: return@launch
-                    val task = getTaskById(taskId)
+                    val task = getTaskById(taskId) ?: return@launch
                     updateTaskCompleted(task, true)
                     val manager =
                         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

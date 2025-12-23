@@ -19,7 +19,7 @@ enum class AiProvider(
         id = 2,
         keyPref = PrefsConstants.OPENAI_KEY,
         modelPref = PrefsConstants.OPENAI_MODEL_KEY,
-        defaultModel = "gpt-5.1",
+        defaultModel = "gpt-5.2",
         keyInfoUrl = "https://platform.openai.com/api-keys",
         modelsInfoUrl = "https://platform.openai.com/docs/models",
         supportsCustomUrl = true,

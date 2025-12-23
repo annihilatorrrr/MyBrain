@@ -81,7 +81,7 @@ class Migration4to5(private val alarmScheduler: AlarmScheduler) : Migration(4, 5
 
             db.execSQL(
                 "INSERT INTO notes_new (id, title, content, created_date, updated_date, pinned, folder_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                arrayOf(newId, title, content, createdDate, updatedDate, pinned, newFolderId)
+                arrayOf<Any?>(newId, title, content, createdDate, updatedDate, pinned, newFolderId)
             )
         }
         notesCursor.close()
@@ -171,7 +171,7 @@ class Migration4to5(private val alarmScheduler: AlarmScheduler) : Migration(4, 5
 
             db.execSQL(
                 "INSERT INTO tasks_new (id, title, description, is_completed, priority, created_date, updated_date, sub_tasks, dueDate, recurring, frequency, frequency_amount, alarmId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                arrayOf(
+                arrayOf<Any?>(
                     newId,
                     title,
                     description,

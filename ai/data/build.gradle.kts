@@ -8,7 +8,14 @@ dependencies {
     implementation(project(":ai:domain"))
     implementation(project(":core:preferences"))
 
+    implementation(project(":notes:domain"))
+    implementation(project(":tasks:domain"))
+    implementation(project(":calendar:domain"))
+    implementation(project(":diary:domain"))
+    implementation(project(":bookmarks:domain"))
+
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.datetime)
     implementation(libs.ktor.cio)
 
     implementation(platform(libs.koin.bom))

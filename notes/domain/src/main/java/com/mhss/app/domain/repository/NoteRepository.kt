@@ -18,6 +18,8 @@ interface NoteRepository {
 
     suspend fun upsertNote(note: Note, currentFolderId: String? = null): String
 
+    suspend fun upsertNotes(notes: List<Note>): List<String>
+
     suspend fun deleteNote(note: Note)
 
     suspend fun insertNoteFolder(folder: NoteFolder)
@@ -29,5 +31,7 @@ interface NoteRepository {
     fun getAllNoteFolders(): Flow<List<NoteFolder>>
 
     suspend fun getNoteFolder(folderId: String): NoteFolder?
+
+    suspend fun searchFoldersByName(name: String): List<NoteFolder>
 
 }

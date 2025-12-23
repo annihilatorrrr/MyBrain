@@ -7,13 +7,15 @@ interface TaskRepository {
 
     fun getAllTasks(): Flow<List<Task>>
 
-    suspend fun getTaskById(id: String): Task
+    suspend fun getTaskById(id: String): Task?
 
     suspend fun getTaskByAlarm(alarmId: Int): Task?
 
     fun searchTasks(title: String): Flow<List<Task>>
 
     suspend fun upsertTask(task: Task)
+
+    suspend fun upsertTasks(tasks: List<Task>)
 
     suspend fun updateTask(task: Task)
 

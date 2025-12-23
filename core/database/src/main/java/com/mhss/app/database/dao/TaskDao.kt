@@ -1,6 +1,10 @@
 package com.mhss.app.database.dao
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Query
+import androidx.room.Update
+import androidx.room.Upsert
 import com.mhss.app.database.entity.TaskEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -14,7 +18,7 @@ interface TaskDao {
     suspend fun getAllFullTasks(): List<TaskEntity>
 
     @Query("SELECT * FROM tasks WHERE id = :id")
-    suspend fun getTask(id: String): TaskEntity
+    suspend fun getTask(id: String): TaskEntity?
 
     @Query("SELECT * FROM tasks WHERE alarmId = :alarmId")
     suspend fun getTaskByAlarm(alarmId: Int): TaskEntity?

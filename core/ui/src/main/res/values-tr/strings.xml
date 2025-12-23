@@ -117,7 +117,7 @@
     <string name="no_events">Henüz bir olay yok</string>
     <string name="tasks_summary">Görev özeti</string>
     <string name="you_completed">Son haftada görevlerinizin</string>
-    <string name="of_last_week_tasks">\'ını tamamladınız</string>
+    <string name="of_last_week_tasks">’ını tamamladınız</string>
     <string name="no_tasks_yet">Henüz görev yok</string>
     <string name="loading">Yükleniyor…</string>
     <string name="calendar_widget_refresh_message">Eğer izin verdiyseniz yenile butonuna tıklayın</string>
@@ -153,7 +153,7 @@
     <string name="block_screenshots">Ekran görüntülerini engelle</string>
     <string name="export_import">Dışa aktar/İçe aktar</string>
     <string name="export">Dışa aktar</string>
-    <string name="export_success">Dışa aktarma başarılı, dosya konumu: \n\"/Documents/MyBrain Export\"</string>
+    <string name="export_success">Dışa aktarma başarılı, dosya konumu: \n"/Documents/MyBrain Export"</string>
     <string name="export_failed">Dışa aktarırken bir sorun oluştu</string>
     <string name="import_data">İçe aktar</string>
     <string name="import_success">İçe aktarma başarılı %1$s</string>
@@ -199,6 +199,10 @@
     <string name="assistant">Assistant</string>
     <string name="calendar_events_next_7_days">Next 7 days events</string>
     <string name="ai_not_enabled">AI feature is not enabled\nPlease enable it from Integrations screen in settings</string>
+    <string name="enable_ai_tools">Enable AI tools</string>
+    <string name="enable_ai_tools_description">Allow the AI model to interact with the app (e.g. search notes, create tasks).\nMake sure the Model and Provider supports tool calling</string>
+    <string name="tool_call_content">Content:</string>
+    <string name="tool_call_result">Result:</string>
     <string name="font_size">Font Size</string>
     <string name="font_size_small">Small</string>
     <string name="font_size_normal">Normal</string>
@@ -233,4 +237,5 @@
     <string name="backup_frequency">Backup frequency</string>
     <string name="backup_folder">Backup folder</string>
     <string name="select_backup_folder">Select backup folder</string>
+    <string name="tool_call_limit_exceeded">The assistant has stopped after many consecutive actions. If you expect this, you can send "Continue" to the assistant.</string>
 </resources>

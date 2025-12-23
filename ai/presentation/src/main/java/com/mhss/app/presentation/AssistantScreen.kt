@@ -47,10 +47,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import com.mhss.app.ui.R
 import com.mhss.app.domain.model.AiMessage
 import com.mhss.app.domain.model.AiMessageAttachment
-import com.mhss.app.domain.model.AiMessageType
 import com.mhss.app.presentation.components.AiChatBar
 import com.mhss.app.presentation.components.AttachNoteSheet
 import com.mhss.app.presentation.components.AttachTaskSheet
@@ -58,9 +56,8 @@ import com.mhss.app.presentation.components.AttachmentDropDownMenu
 import com.mhss.app.presentation.components.AttachmentMenuItem
 import com.mhss.app.presentation.components.GlowingBorder
 import com.mhss.app.presentation.components.MessageCard
+import com.mhss.app.ui.R
 import com.mhss.app.ui.components.common.MyBrainAppBar
-import com.mhss.app.ui.toUserMessage
-import com.mhss.app.util.date.now
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -108,16 +105,15 @@ fun AssistantScreen(
                 onSend = {
                     viewModel.onEvent(
                         AssistantEvent.SendMessage(
-                            AiMessage(
-                                text,
-                                AiMessageType.USER,
-                                now(),
-                                attachments.toList() // a copy
-                            )
+                            content = text,
+                            attachments = attachments.toList()
                         )
                     )
                     text = ""
                     keyboardController?.hide()
+                },
+                onCancel = {
+                    viewModel.onEvent(AssistantEvent.CancelMessage)
                 }
             )
             val excludedItems by remember {
@@ -181,7 +177,7 @@ fun AssistantScreen(
                     ) {
                         item(key = -1) { Spacer(Modifier.height(20.dp)) }
                         error?.let { error ->
-                            item(key = -2) {
+                            item(key = "error_message") {
                                 Card(
                                     shape = RoundedCornerShape(18.dp),
                                     border = BorderStroke(
@@ -207,13 +203,19 @@ fun AssistantScreen(
                                 }
                             }
                         }
-                        items(messages, key = { it.time }) { message ->
+                        items(messages, key = { message ->
+                            when (message) {
+                                is AiMessage.UserMessage -> message.uuid
+                                is AiMessage.AssistantMessage -> message.uuid
+                                is AiMessage.ToolCall -> message.uuid
+                            }
+                        }) { message ->
                             MessageCard(
                                 message = message,
-                                onCopy = {
+                                onCopy = { content ->
                                     val clipboard =
                                         context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                    val clip = ClipData.newPlainText("label", message.content)
+                                    val clip = ClipData.newPlainText("label", content)
                                     clipboard.setPrimaryClip(clip)
                                 }
                             )

@@ -1,9 +1,10 @@
 package com.mhss.app.data
 
 import com.mhss.app.database.dao.DiaryDao
-import com.mhss.app.database.entity.*
-import com.mhss.app.domain.repository.DiaryRepository
+import com.mhss.app.database.entity.toDiaryEntry
+import com.mhss.app.database.entity.toDiaryEntryEntity
 import com.mhss.app.domain.model.DiaryEntry
+import com.mhss.app.domain.repository.DiaryRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
@@ -26,9 +27,9 @@ class DiaryRepositoryImpl(
             }
     }
 
-    override suspend fun getEntry(id: String): DiaryEntry {
+    override suspend fun getEntry(id: String): DiaryEntry? {
         return withContext(ioDispatcher) {
-            diaryDao.getEntry(id).toDiaryEntry()
+            diaryDao.getEntry(id)?.toDiaryEntry()
         }
     }
 

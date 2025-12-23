@@ -1,11 +1,12 @@
 package com.mhss.app.domain.repository
 
 import com.mhss.app.domain.model.AiMessage
-import com.mhss.app.network.NetworkResult
+import com.mhss.app.domain.model.AssistantResult
+import kotlinx.coroutines.flow.Flow
 
 interface AiRepository {
 
-    suspend fun sendPrompt(prompt: String): NetworkResult<String>
+    suspend fun sendPrompt(prompt: String): AssistantResult<String>
 
-    suspend fun sendMessage(messages: List<AiMessage>): NetworkResult<AiMessage>
+    fun sendMessage(messages: List<AiMessage>): Flow<AiMessage>
 }

@@ -37,6 +37,12 @@ class MarkdownNoteRepositoryImpl(
         return markdownFileManager.upsertNote(note, currentFolderId, rootUri)
     }
 
+    override suspend fun upsertNotes(notes: List<Note>): List<String> {
+        return notes.map {
+            upsertNote(it, null)
+        }
+    }
+
     override suspend fun deleteNote(note: Note) {
         markdownFileManager.deleteNote(note, rootUri)
     }
@@ -60,6 +66,10 @@ class MarkdownNoteRepositoryImpl(
     override suspend fun getNoteFolder(folderId: String): NoteFolder? {
         if (folderId == rootUri.toString()) return null
         return markdownFileManager.getFolder(folderId.toUri())
+    }
+
+    override suspend fun searchFoldersByName(name: String): List<NoteFolder> {
+        return markdownFileManager.searchFolderByName(name, rootUri)
     }
 
 }

@@ -102,6 +102,13 @@ class IntegrationsViewModel(
                 }
             }
 
+            is IntegrationsEvent.ToggleAiTools -> {
+                saveSettings(
+                    BooleanKey(PrefsConstants.AI_TOOLS_ENABLED_KEY),
+                    event.enabled
+                )
+            }
+
             is IntegrationsEvent.SelectExternalNotesFolder -> {
                 viewModelScope.launch {
                     updateExternalNotesFolder(event.folderUri)

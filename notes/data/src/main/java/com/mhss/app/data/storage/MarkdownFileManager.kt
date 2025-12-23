@@ -539,6 +539,11 @@ class MarkdownFileManager(
         return@withContext allNotes
     }
 
+    suspend fun searchFolderByName(name: String, rootUri: Uri): List<NoteFolder> = withContext(ioDispatcher) {
+        val folders = getAllFoldersInFolder(rootUri)
+        folders.filter { it.name.contains(name, ignoreCase = true) }
+    }
+
     private suspend fun searchNotesInFolder(query: String, folderUri: Uri): List<Note> =
         withContext(ioDispatcher) {
             val matchingNotes = mutableListOf<Note>()

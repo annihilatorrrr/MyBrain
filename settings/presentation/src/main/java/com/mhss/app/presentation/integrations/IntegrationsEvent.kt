@@ -10,6 +10,8 @@ sealed class IntegrationsEvent {
     data class ToggleCustomURL(val provider: AiProvider, val enabled: Boolean) : IntegrationsEvent()
     data class UpdateCustomURL(val provider: AiProvider, val url: String) : IntegrationsEvent()
 
+    data class ToggleAiTools(val enabled: Boolean) : IntegrationsEvent()
+
     data class SetExternalNotesEnabled(val enabled: Boolean) : IntegrationsEvent()
 
     data class SelectExternalNotesFolder(val folderUri: String) : IntegrationsEvent()

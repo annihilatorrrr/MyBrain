@@ -41,7 +41,13 @@
     kotlinx.serialization.KSerializer serializer(...);
 }
 -keep class com.mhss.app.widget.** { *; }
--keepattributes RuntimeVisibleAnnotations,AnnotationDefault
+
+-keep class * extends ai.koog.agents.core.tools.reflect.ToolSet { *; }
+
+-keep enum * { *; }
+
+
+-keepattributes RuntimeVisibleAnnotations,AnnotationDefault,MethodParameters
 
 -dontwarn org.bouncycastle.jsse.BCSSLParameters
 -dontwarn org.bouncycastle.jsse.BCSSLSocket

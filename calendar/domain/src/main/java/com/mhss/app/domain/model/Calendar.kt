@@ -1,5 +1,8 @@
 package com.mhss.app.domain.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Calendar(
     val id: Long,
     val name: String,

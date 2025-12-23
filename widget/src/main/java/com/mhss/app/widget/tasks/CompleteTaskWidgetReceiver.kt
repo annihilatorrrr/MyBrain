@@ -26,7 +26,7 @@ class CompleteTaskWidgetReceiver : BroadcastReceiver(), KoinComponent {
         val pendingResult = goAsync()
         applicationScope.launch(ioDispatcher) {
             try {
-                val task = getTaskById(id)
+                val task = getTaskById(id) ?: return@launch
                 completeTask(task, completed)
             } finally {
                 pendingResult.finish()

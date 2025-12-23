@@ -27,9 +27,9 @@ class TaskRepositoryImpl(
             }
     }
 
-    override suspend fun getTaskById(id: String): Task {
+    override suspend fun getTaskById(id: String): Task? {
         return withContext(ioDispatcher) {
-            taskDao.getTask(id).toTask()
+            taskDao.getTask(id)?.toTask()
         }
     }
 
@@ -50,6 +50,12 @@ class TaskRepositoryImpl(
     override suspend fun upsertTask(task: Task) {
         return withContext(ioDispatcher) {
             taskDao.upsertTask(task.toTaskEntity())
+        }
+    }
+
+    override suspend fun upsertTasks(tasks: List<Task>) {
+        withContext(ioDispatcher) {
+            taskDao.upsertTasks(tasks.map { it.toTaskEntity() })
         }
     }
 

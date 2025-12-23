@@ -1,21 +1,21 @@
 package com.mhss.app.domain.use_case
 
+import com.mhss.app.domain.model.AssistantResult
 import com.mhss.app.domain.repository.AiRepository
-import com.mhss.app.network.NetworkResult
-import org.koin.core.annotation.Single
+import org.koin.core.annotation.Factory
 import java.io.IOException
 
-@Single
+@Factory
 class SendAiPromptUseCase(private val aiRepository: AiRepository) {
-    suspend operator fun invoke(prompt: String): NetworkResult<String> {
+    suspend operator fun invoke(prompt: String): AssistantResult<String> {
         return try {
             aiRepository.sendPrompt(prompt)
         } catch (e: IOException) {
             e.printStackTrace()
-            NetworkResult.InternetError
+            AssistantResult.InternetError
         } catch (e: Exception) {
             e.printStackTrace()
-            NetworkResult.OtherError()
+            AssistantResult.OtherError()
         }
     }
 }

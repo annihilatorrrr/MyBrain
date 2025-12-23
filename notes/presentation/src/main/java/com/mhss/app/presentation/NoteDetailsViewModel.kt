@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mhss.app.domain.autoFormatNotePrompt
 import com.mhss.app.domain.correctSpellingNotePrompt
+import com.mhss.app.domain.model.AssistantResult
 import com.mhss.app.domain.model.Note
 import com.mhss.app.domain.model.NoteFolder
 import com.mhss.app.domain.summarizeNotePrompt
@@ -17,7 +18,6 @@ import com.mhss.app.domain.use_case.GetNoteFolderUseCase
 import com.mhss.app.domain.use_case.GetNoteUseCase
 import com.mhss.app.domain.use_case.SendAiPromptUseCase
 import com.mhss.app.domain.use_case.UpsertNoteUseCase
-import com.mhss.app.network.NetworkResult
 import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.domain.model.AiProvider
 import com.mhss.app.preferences.domain.model.intPreferencesKey
@@ -157,13 +157,13 @@ class NoteDetailsViewModel(
                 )
                 val result = sendAiPrompt(prompt)
                 aiState = when (result) {
-                    is NetworkResult.Success -> aiState.copy(
+                    is AssistantResult.Success -> aiState.copy(
                         loading = false,
                         result = result.data,
                         error = null
                     )
 
-                    is NetworkResult.Failure -> aiState.copy(error = result, loading = false)
+                    is AssistantResult.Failure -> aiState.copy(error = result, loading = false)
                 }
             }
 
@@ -250,7 +250,7 @@ class NoteDetailsViewModel(
     data class AiState(
         val loading: Boolean = false,
         val result: String? = null,
-        val error: NetworkResult.Failure? = null,
+        val error: AssistantResult.Failure? = null,
         val showAiSheet: Boolean = false,
     )
 }

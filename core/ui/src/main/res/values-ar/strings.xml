@@ -200,7 +200,7 @@
     <string name="assistant">المساعد الشخصي</string>
     <string name="calendar_events_next_7_days">احداث ال7 ايام القادمة</string>
     <string name="ai_not_enabled">ميزة الذكاء الاصطناعي غير مفعلة\nالرجاء تفعيلها من قائمة الإضافات في الاعدادات</string>
-    <string name="enable_ai_tools">تفعيل أدوات الذكاء الاصطناعي</string>
+    <string name="enable_ai_tools">تفعيل الأدوات</string>
     <string name="enable_ai_tools_description">السماح لنموذج الذكاء الاصطناعي بالتفاعل مع التطبيق (مثلاً البحث في الملاحظات، إنشاء المهام).\nتأكد من أن النموذج والمزود يدعمان استدعاء الأدوات</string>
     <string name="tool_call_content">المحتوى:</string>
     <string name="tool_call_result">النتيجة:</string>
@@ -239,4 +239,5 @@
     <string name="backup_folder">مجلد النسخ الاحتياطي</string>
     <string name="select_backup_folder">اختر مجلد النسخ الاحتياطي</string>
     <string name="tool_call_limit_exceeded">توقف المساعد بعد العديد من الإجراءات المتتالية. إذا كنت تتوقع ذلك، يمكنك إرسال كلمة \"Continue\" للمساعد.</string>
+    <string name="ask_assistant">اسأل المساعد…</string>
 </resources>

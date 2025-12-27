@@ -331,7 +331,7 @@ fun MyBrainApp(
                     enterTransition = { slideInTransition() },
                     exitTransition = { slideOutTransition() },
                 ) {
-                    AssistantScreen()
+                    AssistantScreen(navController = navController)
                 }
             }
             if (!appUnlocked) {

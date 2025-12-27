@@ -33,17 +33,16 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -59,7 +58,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -72,29 +70,32 @@ import com.mhss.app.preferences.domain.model.Order
 import com.mhss.app.preferences.domain.model.OrderType
 import com.mhss.app.ui.ItemView
 import com.mhss.app.ui.R
+import com.mhss.app.ui.components.common.LiquidFloatingActionButton
 import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.components.notes.NoteCard
 import com.mhss.app.ui.navigation.Screen
 import com.mhss.app.ui.titleRes
+import io.github.fletchmckee.liquid.liquefiable
+import io.github.fletchmckee.liquid.rememberLiquidState
 import org.koin.androidx.compose.koinViewModel
 import kotlin.uuid.Uuid
 
+@Suppress("AssignedValueIsNeverRead")
 @Composable
 fun NotesScreen(
     navController: NavHostController,
     viewModel: NotesViewModel = koinViewModel()
 ) {
-    val context = LocalContext.current
     val uiState = viewModel.notesUiState
     var orderSettingsVisible by remember { mutableStateOf(false) }
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
     var openCreateFolderDialog by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
-    LaunchedEffect(uiState.error) {
-        uiState.error?.let {
-            snackbarHostState.showSnackbar(
-                context.getString(it)
-            )
+    val errorMessage = uiState.error?.let { stringResource(it) }
+    val liquidState = rememberLiquidState()
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let {
+            snackbarHostState.showSnackbar(it)
             viewModel.onEvent(NoteEvent.ErrorDisplayed)
         }
     }
@@ -110,33 +111,27 @@ fun NotesScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
+            LiquidFloatingActionButton(
                 onClick = {
                     if (selectedTab == 0) {
-                        navController.navigate(
-                            Screen.NoteDetailsScreen()
-                        )
+                        navController.navigate(Screen.NoteDetailsScreen())
                     } else {
                         openCreateFolderDialog = true
                     }
                 },
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(
-                    modifier = Modifier.size(25.dp),
-                    painter = if (selectedTab == 0) painterResource(R.drawable.ic_add) else painterResource(
-                        R.drawable.ic_create_folder
-                    ),
-                    contentDescription = stringResource(R.string.add_note),
-                    tint = Color.White
-                )
-            }
+                iconPainter = if (selectedTab == 0) painterResource(R.drawable.ic_add) else painterResource(
+                    R.drawable.ic_create_folder
+                ),
+                contentDescription = stringResource(R.string.add_note),
+                liquidState = liquidState
+            )
+
         },
     ) { paddingValues ->
-        Column(modifier = Modifier.padding(paddingValues)) {
-            TabRow(
+        Column(modifier = Modifier.padding(paddingValues).liquefiable(liquidState)) {
+            PrimaryTabRow(
                 selectedTabIndex = selectedTab,
-                containerColor = MaterialTheme.colorScheme.background
+                containerColor = MaterialTheme.colorScheme.background,
             ) {
                 Tab(
                     text = {
@@ -476,6 +471,7 @@ fun NoNotesMessage() {
     }
 }
 
+@Suppress("AssignedValueIsNeverRead")
 @Composable
 fun CreateFolderDialog(
     onCreate: (String) -> Unit,

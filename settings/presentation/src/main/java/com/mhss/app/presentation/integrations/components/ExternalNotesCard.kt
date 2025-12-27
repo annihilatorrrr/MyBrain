@@ -25,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mhss.app.presentation.components.ExperimentalBadge
 import com.mhss.app.ui.R
+import com.mhss.app.ui.theme.MyBrainTheme
 import com.mohamedrejeb.calf.picker.FilePickerFileType
 import com.mohamedrejeb.calf.picker.FilePickerSelectionMode
 import com.mohamedrejeb.calf.picker.rememberFilePickerLauncher
@@ -73,10 +74,10 @@ fun ExternalNotesCard(
                 text = stringResource(R.string.external_notes_description),
                 style = MaterialTheme.typography.bodyMedium,
             )
+            Spacer(Modifier.height(8.dp))
+            WarningCard()
             AnimatedVisibility(isEnabled) {
                 Column {
-                    Spacer(Modifier.height(8.dp))
-                    WarningCard()
                     Spacer(Modifier.height(12.dp))
                     SourceFolderCard(
                         selectedFolder = selectedFolder,
@@ -135,7 +136,7 @@ private fun SourceFolderCard(
 private fun WarningCard(modifier: Modifier = Modifier) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(17.dp),
         elevation = CardDefaults.cardElevation(8.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.errorContainer,
@@ -155,32 +156,38 @@ private fun WarningCard(modifier: Modifier = Modifier) {
 @Preview
 @Composable
 private fun ExternalNotesCardDisabledPreview() {
-    ExternalNotesCard(
-        isEnabled = false,
-        selectedFolder = null,
-        onFolderSelected = {},
-        onSwitchToggled = {}
-    )
+    MyBrainTheme {
+        ExternalNotesCard(
+            isEnabled = false,
+            selectedFolder = null,
+            onFolderSelected = {},
+            onSwitchToggled = {}
+        )
+    }
 }
 
 @Preview
 @Composable
 private fun ExternalNotesCardEnabledPreview() {
-    ExternalNotesCard(
-        isEnabled = true,
-        selectedFolder = null,
-        onFolderSelected = {},
-        onSwitchToggled = {}
-    )
+    MyBrainTheme {
+        ExternalNotesCard(
+            isEnabled = true,
+            selectedFolder = null,
+            onFolderSelected = {},
+            onSwitchToggled = {}
+        )
+    }
 }
 
 @Preview
 @Composable
 private fun ExternalNotesCardEnabledWithFolderPreview() {
-    ExternalNotesCard(
-        isEnabled = true,
-        selectedFolder = "/path/to/my/notes",
-        onFolderSelected = {},
-        onSwitchToggled = {}
-    )
+    MyBrainTheme {
+        ExternalNotesCard(
+            isEnabled = true,
+            selectedFolder = "/path/to/my/notes",
+            onFolderSelected = {},
+            onSwitchToggled = {}
+        )
+    }
 }

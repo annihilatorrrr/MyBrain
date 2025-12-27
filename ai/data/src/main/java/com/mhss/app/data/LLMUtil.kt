@@ -13,7 +13,9 @@ import com.mhss.app.preferences.domain.model.AiProvider
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
+import kotlinx.datetime.format.DayOfWeekNames
 import kotlinx.datetime.format.byUnicodePattern
+import kotlinx.datetime.format.char
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
@@ -96,6 +98,14 @@ internal fun nowMillis() = Clock.System.now().toEpochMilliseconds()
 private val currentTimeZone = TimeZone.currentSystemDefault()
 internal fun currentLocalDateTime() = Clock.System.now().toLocalDateTime(currentTimeZone)
 internal const val llmDateTimeFormatUnicode = "HH:mm dd-MM-yyyy"
+
+internal val llmDateTimeWithDayNameFormat = LocalDateTime.Format {
+    hour(); char(':'); minute();
+    char(' ');
+    dayOfWeek(DayOfWeekNames.ENGLISH_FULL)
+    char(' ');
+    day(); char('-'); monthNumber(); char('-'); year()
+}
 internal val llmDateTimeFormat = LocalDateTime.Format {
     byUnicodePattern(llmDateTimeFormatUnicode)
 }
@@ -107,7 +117,7 @@ fun buildChatSystemMessage(toolsEnabled: Boolean) = buildString {
     appendLine(baseChatSystemMessage)
     if (toolsEnabled) appendLine(toolsSystemMessage)
     append("Current date & time: ")
-    appendLine(currentLocalDateTime().format(llmDateTimeFormat))
+    appendLine(currentLocalDateTime().format(llmDateTimeWithDayNameFormat))
     append("Time zone: "); append(currentTimeZone)
 }
 

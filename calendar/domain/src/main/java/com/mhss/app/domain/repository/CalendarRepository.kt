@@ -18,7 +18,9 @@ interface CalendarRepository {
 
     suspend fun getCalendars(): List<Calendar>
 
-    suspend fun addEvent(event: CalendarEvent)
+    suspend fun getEventById(id: Long): CalendarEvent?
+
+    suspend fun addEvent(event: CalendarEvent): Long?
 
     suspend fun deleteEvent(event: CalendarEvent)
 

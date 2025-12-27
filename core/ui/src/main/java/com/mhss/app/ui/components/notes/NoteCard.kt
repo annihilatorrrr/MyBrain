@@ -16,6 +16,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,11 +30,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.mhss.app.domain.model.Note
 import com.mhss.app.ui.R
-import com.mhss.app.ui.components.common.defaultMarkdownTypography
+import com.mhss.app.ui.components.common.previewMarkdownTypography
 import com.mhss.app.ui.theme.Orange
 import com.mhss.app.util.date.formatDateDependingOnDay
 import com.mikepenz.markdown.m3.Markdown
-import com.mikepenz.markdown.m3.markdownTypography
 
 @Composable
 fun NoteCard(
@@ -40,12 +42,13 @@ fun NoteCard(
     onClick: (Note) -> Unit,
 ) {
     val context = LocalContext.current
+    val formattedDate by remember(note.updatedDate) {
+        derivedStateOf { note.updatedDate.formatDateDependingOnDay(context) }
+    }
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(20.dp),
-        elevation = CardDefaults.elevatedCardElevation(
-            8.dp
-        ),
+        elevation = CardDefaults.elevatedCardElevation(4.dp),
         onClick = { onClick(note) }
     ) {
         Column(
@@ -77,11 +80,11 @@ fun NoteCard(
             Spacer(Modifier.height(8.dp))
             Markdown(
                 content = note.content,
-                typography = defaultMarkdownTypography()
+                typography = previewMarkdownTypography()
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                text = note.updatedDate.formatDateDependingOnDay(context),
+                text = formattedDate,
                 style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray),
                 modifier = Modifier.align(Alignment.End)
             )

@@ -1,6 +1,7 @@
 package com.mhss.app.presentation.integrations
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -27,7 +28,7 @@ fun IntegrationsScreen(
             )
         }
     ) { paddingValues ->
-        LazyColumn(modifier = Modifier.fillMaxWidth(), contentPadding = paddingValues) {
+        LazyColumn(modifier = Modifier.fillMaxWidth().imePadding(), contentPadding = paddingValues) {
             item {
                 AiProviderSection(
                     getAiProvider = viewModel::getAiProvider,

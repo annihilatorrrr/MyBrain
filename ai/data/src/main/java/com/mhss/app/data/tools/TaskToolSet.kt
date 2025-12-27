@@ -30,13 +30,13 @@ class TaskToolSet(
     private val updateTaskCompletedUseCase: UpdateTaskCompletedUseCase
 ) : ToolSet {
 
-    @Tool
-    @LLMDescription("Search tasks by title (partial match).")
-    suspend fun searchTask(
+    @Tool(SEARCH_TASKS_TOOL)
+    @LLMDescription("Search tasks by title (partial match). If the query is empty, returns all tasks. If the user asks about the due date, use $FORMAT_DATE_TOOL to get accurate dates from the result.")
+    suspend fun searchTasks(
         query: String
-    ): List<Task> = searchTasksByName(query).first()
+    ): SearchTasksResult = SearchTasksResult(searchTasksByName(query).first())
 
-    @Tool
+    @Tool(CREATE_TASK_TOOL)
     @LLMDescription("Create a task. Returns ID.")
     suspend fun createTask(
         title: String,
@@ -47,14 +47,14 @@ class TaskToolSet(
         recurring: Boolean = false,
         frequency: TaskFrequency = TaskFrequency.DAILY,
         frequencyAmount: Int = 1
-    ): String {
+    ): TaskIdResult {
         val id = Uuid.random().toString()
         val task = Task(
             title = title,
             description = description,
             priority = priority,
             dueDate = if (dueDate != null) {
-                dueDate.parseDateTimeFromLLM() ?: throw IllegalArgumentException("Invalid due date format. The task was not created.")
+                dueDate.parseDateTimeFromLLM() ?: throw IllegalArgumentException("Invalid due date format for date: $dueDate. The task was not created.")
             } else 0L,
             subTasks = subTasks?.map { SubTask(it.title, it.isCompleted) } ?: emptyList(),
             recurring = recurring,
@@ -65,10 +65,10 @@ class TaskToolSet(
             id = id
         )
         upsertTask(task)
-        return id
+        return TaskIdResult(createdTaskId = id)
     }
 
-    @Tool
+    @Tool(UPDATE_TASK_COMPLETED_TOOL)
     @LLMDescription("Update task completed status.")
     suspend fun updateTaskCompleted(
         id: String,
@@ -78,19 +78,11 @@ class TaskToolSet(
         updateTaskCompletedUseCase(task, completed)
     }
 
-    @Tool
-    @LLMDescription("Get task by ID.")
-    suspend fun getTaskById(
-        id: String
-    ): Task? {
-        return getTask(id)
-    }
-
-    @Tool
+    @Tool(CREATE_MULTIPLE_TASKS_TOOL)
     @LLMDescription("Create multiple tasks. Returns IDs.")
     suspend fun createMultipleTasks(
         tasks: List<TaskInput>
-    ): List<String> {
+    ): TaskIdsResult {
         val taskModels = tasks.map { input ->
             val id = Uuid.random().toString()
             Task(
@@ -110,7 +102,7 @@ class TaskToolSet(
             )
         }
         upsertTasks(taskModels)
-        return taskModels.map { it.id }
+        return TaskIdsResult(createdTaskIds = taskModels.map { it.id })
     }
 }
 
@@ -131,3 +123,15 @@ data class SubTaskInput(
     val title: String,
     val isCompleted: Boolean = false
 )
+
+@Serializable
+data class SearchTasksResult(val tasks: List<Task>)
+
+@Serializable
+data class TaskIdResult(val createdTaskId: String)
+
+@Serializable
+data class TaskResult(val task: Task?)
+
+@Serializable
+data class TaskIdsResult(val createdTaskIds: List<String>)

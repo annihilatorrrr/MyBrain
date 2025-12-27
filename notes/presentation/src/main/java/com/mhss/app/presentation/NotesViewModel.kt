@@ -9,8 +9,8 @@ import com.mhss.app.domain.model.Note
 import com.mhss.app.domain.model.NoteFolder
 import com.mhss.app.domain.use_case.AddNoteFolderUseCase
 import com.mhss.app.domain.use_case.DeleteNoteFolderUseCase
-import com.mhss.app.domain.use_case.GetAllNotesUseCase
 import com.mhss.app.domain.use_case.GetAllNoteFoldersUseCase
+import com.mhss.app.domain.use_case.GetAllNotesUseCase
 import com.mhss.app.domain.use_case.GetNoteFolderUseCase
 import com.mhss.app.domain.use_case.GetNotesByFolderUseCase
 import com.mhss.app.domain.use_case.SearchNotesUseCase

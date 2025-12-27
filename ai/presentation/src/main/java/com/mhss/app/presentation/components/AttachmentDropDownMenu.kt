@@ -1,22 +1,29 @@
 package com.mhss.app.presentation.components
 
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.PopupProperties
 import com.mhss.app.ui.R
+import com.mhss.app.ui.components.common.frostedGlass
+import io.github.fletchmckee.liquid.LiquidState
 
 @Composable
 fun AttachmentDropDownMenu(
     expanded: Boolean,
     excludedItems: List<AttachmentMenuItem>,
+    liquidState: LiquidState,
     onDismiss: () -> Unit,
     onItemClick: (AttachmentMenuItem) -> Unit,
     modifier: Modifier = Modifier,
@@ -24,14 +31,26 @@ fun AttachmentDropDownMenu(
     val items = remember(excludedItems) {
         AttachmentMenuItem.entries.filterNot { it in excludedItems }
     }
+    val shape = RoundedCornerShape(22.dp)
     DropdownMenu(
-        modifier = modifier,
+        modifier = modifier
+            .frostedGlass(liquidState = liquidState, shape = shape, frost = 7.dp),
         expanded = expanded,
-        onDismissRequest = onDismiss
+        shape = shape,
+        onDismissRequest = onDismiss,
+        shadowElevation = 4.dp,
+        properties = PopupProperties(focusable = false)
     ) {
         items.forEach {
             DropdownMenuItem(
-                text = { Text(stringResource(it.titleRes)) },
+                text = {
+                    Text(
+                        text = stringResource(it.titleRes),
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    )
+                },
                 leadingIcon = {
                     Icon(
                         painter = painterResource(it.iconRes),

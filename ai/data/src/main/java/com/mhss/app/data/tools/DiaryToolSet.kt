@@ -9,6 +9,7 @@ import com.mhss.app.domain.model.Mood
 import com.mhss.app.domain.use_case.AddDiaryEntryUseCase
 import com.mhss.app.domain.use_case.GetDiaryEntryUseCase
 import com.mhss.app.domain.use_case.SearchEntriesUseCase
+import kotlinx.serialization.Serializable
 import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
@@ -20,13 +21,13 @@ class DiaryToolSet(
     private val getDiaryEntry: GetDiaryEntryUseCase
 ) : ToolSet {
 
-    @Tool
+    @Tool(CREATE_DIARY_ENTRY_TOOL)
     @LLMDescription("Create diary entry. Returns ID.")
     suspend fun createDiaryEntry(
         title: String,
         content: String,
         mood: Mood
-    ): String {
+    ): DiaryEntryIdResult {
         val id = Uuid.random().toString()
         val entry = DiaryEntry(
             title = title,
@@ -37,18 +38,27 @@ class DiaryToolSet(
             id = id
         )
         addDiaryEntry(entry)
-        return id
+        return DiaryEntryIdResult(createdDiaryEntryId = id)
     }
 
-    @Tool
-    @LLMDescription("Search diary entries by title/content (partial match, content truncated to 100 chars).")
+    @Tool(SEARCH_DIARY_ENTRIES_TOOL)
+    @LLMDescription("Search diary entries by title/content (partial match, content truncated to 100 chars). If the user asks about the date of an entry, use $FORMAT_DATE_TOOL to get accurate dates from the result.")
     suspend fun searchDiaryEntries(
         query: String
-    ): List<DiaryEntry> = searchEntries(query)
+    ): SearchDiaryEntriesResult = SearchDiaryEntriesResult(searchEntries(query))
 
-    @Tool
-    @LLMDescription("Get diary entry by ID.")
+    @Tool(GET_DIARY_ENTRY_TOOL)
+    @LLMDescription("Get diary entry by ID. If the user asks about the date of an entry, use $FORMAT_DATE_TOOL to get accurate dates from the result.")
     suspend fun getDiaryEntry(
         id: String
-    ): DiaryEntry? = getDiaryEntry.invoke(id)
+    ): DiaryEntryResult = DiaryEntryResult(getDiaryEntry.invoke(id))
 }
+
+@Serializable
+data class DiaryEntryIdResult(val createdDiaryEntryId: String)
+
+@Serializable
+data class SearchDiaryEntriesResult(val entries: List<DiaryEntry>)
+
+@Serializable
+data class DiaryEntryResult(val entry: DiaryEntry?)

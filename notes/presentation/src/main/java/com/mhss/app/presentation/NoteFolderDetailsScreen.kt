@@ -1,10 +1,13 @@
+@file:Suppress("AssignedValueIsNeverRead")
+
 package com.mhss.app.presentation
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -17,7 +20,6 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -43,9 +45,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.mhss.app.ui.ItemView
 import com.mhss.app.ui.R
+import com.mhss.app.ui.components.common.LiquidFloatingActionButton
 import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.components.notes.NoteCard
 import com.mhss.app.ui.navigation.Screen
+import io.github.fletchmckee.liquid.liquefiable
+import io.github.fletchmckee.liquid.rememberLiquidState
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -63,6 +68,7 @@ fun NoteFolderDetailsScreen(
     val context = LocalContext.current
 
     val snackbarHostState = remember { SnackbarHostState() }
+    val liquidState = rememberLiquidState()
     LaunchedEffect(true) { viewModel.onEvent(NoteEvent.GetFolderNotes(id)) }
     LaunchedEffect(uiState) {
         if (viewModel.notesUiState.navigateUp) {
@@ -91,63 +97,32 @@ fun NoteFolderDetailsScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
+            LiquidFloatingActionButton(
                 onClick = {
                     navController.navigate(
                         Screen.NoteDetailsScreen(folderId = id)
                     )
                 },
-                containerColor = MaterialTheme.colorScheme.primary,
-            ) {
-                Icon(
-                    modifier = Modifier.size(25.dp),
-                    painter = painterResource(R.drawable.ic_add),
-                    contentDescription = stringResource(R.string.add_note),
-                    tint = Color.White
-                )
-            }
+                iconPainter = painterResource(R.drawable.ic_add),
+                contentDescription = stringResource(R.string.add_note),
+                liquidState = liquidState
+            )
         }
     ) { contentPadding ->
-        if (uiState.noteView == ItemView.LIST) {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(
-                    top = 12.dp,
-                    bottom = 24.dp,
-                    start = 12.dp,
-                    end = 12.dp
-                ),
-                modifier = Modifier.padding(contentPadding)
-            ) {
-                items(uiState.folderNotes, key = { it.id }) { note ->
-                    NoteCard(
-                        note = note,
-                        onClick = {
-                            navController.navigate(
-                                Screen.NoteDetailsScreen(
-                                    noteId = note.id,
-                                    folderId = id
-                                )
-                            )
-                        }
-                    )
-                }
-            }
-        } else {
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(150.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(
-                    top = 12.dp,
-                    bottom = 24.dp,
-                    start = 12.dp,
-                    end = 12.dp
-                ),
-                modifier = Modifier.padding(contentPadding)
-            ) {
-                items(uiState.folderNotes) { note ->
-                    key(note.id) {
+        Column(
+            Modifier.fillMaxSize().liquefiable(liquidState)
+        ) {
+            if (uiState.noteView == ItemView.LIST) {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(
+                        top = 12.dp,
+                        bottom = 24.dp,
+                        start = 12.dp,
+                        end = 12.dp
+                    ),
+                ) {
+                    items(uiState.folderNotes, key = { it.id }) { note ->
                         NoteCard(
                             note = note,
                             onClick = {
@@ -157,11 +132,40 @@ fun NoteFolderDetailsScreen(
                                         folderId = id
                                     )
                                 )
-                            },
-                            modifier = Modifier
-                                .animateItem()
-                                .height(220.dp)
+                            }
                         )
+                    }
+                }
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(150.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(
+                        top = 12.dp,
+                        bottom = 24.dp,
+                        start = 12.dp,
+                        end = 12.dp
+                    ),
+                    modifier = Modifier.padding(contentPadding).liquefiable(liquidState)
+                ) {
+                    items(uiState.folderNotes) { note ->
+                        key(note.id) {
+                            NoteCard(
+                                note = note,
+                                onClick = {
+                                    navController.navigate(
+                                        Screen.NoteDetailsScreen(
+                                            noteId = note.id,
+                                            folderId = id
+                                        )
+                                    )
+                                },
+                                modifier = Modifier
+                                    .animateItem()
+                                    .height(220.dp)
+                            )
+                        }
                     }
                 }
             }

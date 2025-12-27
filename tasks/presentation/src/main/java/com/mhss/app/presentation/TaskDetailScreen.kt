@@ -30,13 +30,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabPosition
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -82,6 +80,7 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 import kotlin.uuid.Uuid
 
+@Suppress("AssignedValueIsNeverRead")
 @Composable
 fun TaskDetailScreen(
     navController: NavHostController,
@@ -128,17 +127,17 @@ fun TaskDetailScreen(
             subTasks.addAll(uiState.task.subTasks)
         }
     }
-    LaunchedEffect(uiState.navigateUp, uiState.error, uiState.errorAlarm) {
+    val errorMessage = uiState.error?.let { stringResource(it) }
+    val actionLabel: String? =
+        if (uiState.errorAlarm) stringResource(R.string.grant_permission) else null
+    LaunchedEffect(uiState.navigateUp, errorMessage, uiState.errorAlarm) {
         if (uiState.navigateUp) {
             openDialog = false
             navController.navigateUp()
         }
-        if (uiState.error != null) {
+        if (errorMessage != null) {
             if (uiState.errorAlarm) dueDateExists = false
-            val snackbarResult = snackbarHostState.showSnackbar(
-                context.getString(uiState.error),
-                if (uiState.errorAlarm) context.getString(R.string.grant_permission) else null
-            )
+            val snackbarResult = snackbarHostState.showSnackbar(errorMessage, actionLabel)
             if (snackbarResult == SnackbarResult.ActionPerformed) {
                 alarmPermissionState.launchRequest()
             }
@@ -478,12 +477,12 @@ fun PriorityTabRow(
     selectedPriority: Priority,
     onChange: (Priority) -> Unit
 ) {
-    val indicator = @Composable { tabPositions: List<TabPosition> ->
-        AnimatedTabIndicator(Modifier.tabIndicatorOffset(tabPositions[selectedPriority.value]))
-    }
-    TabRow(
+    SecondaryTabRow(
         selectedTabIndex = selectedPriority.value,
-        indicator = indicator,
+        indicator = {
+            AnimatedTabIndicator(Modifier.tabIndicatorOffset(selectedPriority.value))
+        },
+        divider = {},
         modifier = Modifier.clip(RoundedCornerShape(14.dp))
     ) {
         priorities.forEach {

@@ -59,4 +59,6 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     implementation(libs.kotlinx.serialization.json)
+    api(libs.liquid)
+    api(libs.squircle.shape)
 }

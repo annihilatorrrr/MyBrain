@@ -344,6 +344,18 @@ fun EventTimeSection(
     onFrequencySelected: (CalendarEventFrequency) -> Unit
 ) {
     val context = LocalContext.current
+    val formattedStartDate by remember(startMillis) {
+        derivedStateOf { startMillis.formatDate() }
+    }
+    val formattedStartTime by remember(startMillis) {
+        derivedStateOf { startMillis.formatTime(context) }
+    }
+    val formattedEndDate by remember(endMillis) {
+        derivedStateOf { endMillis.formatDate() }
+    }
+    val formattedEndTime by remember(endMillis) {
+        derivedStateOf { endMillis.formatTime(context) }
+    }
     var showStartDateDialog by remember {
         mutableStateOf(false)
     }
@@ -379,7 +391,7 @@ fun EventTimeSection(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = startMillis.formatDate(),
+                text = formattedStartDate,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
                     .clickable {
@@ -388,7 +400,7 @@ fun EventTimeSection(
                     .padding(horizontal = 28.dp, vertical = 16.dp)
             )
             Text(
-                text = startMillis.formatTime(context),
+                text = formattedStartTime,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
                     .clickable {
@@ -403,7 +415,7 @@ fun EventTimeSection(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = endMillis.formatDate(),
+                text = formattedEndDate,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
                     .clickable {
@@ -412,7 +424,7 @@ fun EventTimeSection(
                     .padding(horizontal = 28.dp, vertical = 16.dp)
             )
             Text(
-                text = endMillis.formatTime(context),
+                text = formattedEndTime,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
                     .clickable {

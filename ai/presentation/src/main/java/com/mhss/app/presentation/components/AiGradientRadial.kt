@@ -1,13 +1,14 @@
 package com.mhss.app.presentation.components
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import com.mhss.app.ui.components.common.drawGradientRadial
 import com.mhss.app.ui.theme.Blue
-import com.mhss.app.ui.theme.LightPurple
 import com.mhss.app.ui.theme.DarkOrange
+import com.mhss.app.ui.theme.LightPurple
+import kotlin.random.Random
 
 fun DrawScope.drawAiGradientRadials(
     background: Color,
@@ -43,18 +44,3 @@ fun DrawScope.drawAiGradientRadials(
         radius
     )
 }
-
-fun DrawScope.drawGradientRadial(
-    color: Color,
-    center: Offset,
-    radius: Float = size.maxDimension * 0.75f
-) = drawRect(
-    brush = Brush.radialGradient(
-        colors = listOf(
-            color,
-            Color.Transparent
-        ),
-        center = center,
-        radius = radius,
-    )
-)

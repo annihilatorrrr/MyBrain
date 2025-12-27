@@ -164,8 +164,66 @@ class CalendarRepositoryImpl(
         }
     }
 
-    override suspend fun addEvent(event: CalendarEvent) {
-        withContext(ioDispatcher){
+    override suspend fun getEventById(id: Long): CalendarEvent? {
+        return withContext(ioDispatcher) {
+            val projection = arrayOf(
+                CalendarContract.Events._ID,
+                CalendarContract.Events.TITLE,
+                CalendarContract.Events.DESCRIPTION,
+                CalendarContract.Events.DTSTART,
+                CalendarContract.Events.DTEND,
+                CalendarContract.Events.EVENT_LOCATION,
+                CalendarContract.Events.ALL_DAY,
+                CalendarContract.Events.EVENT_COLOR,
+                CalendarContract.Events.CALENDAR_ID,
+                CalendarContract.Events.RRULE,
+                CalendarContract.Events.DURATION,
+            )
+            val selection = "${CalendarContract.Events._ID} = ?"
+            val selectionArgs = arrayOf(id.toString())
+            val cursor = context.contentResolver.query(
+                CalendarContract.Events.CONTENT_URI,
+                projection,
+                selection,
+                selectionArgs,
+                null
+            )
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val eventId: Long = it.getLong(0)
+                    val title: String = it.getString(1) ?: ""
+                    val description: String? = it.getString(2)
+                    val start: Long = it.getLong(3)
+                    val duration: String = it.getString(10) ?: ""
+                    val end: Long = if (duration.isNotBlank()) duration.extractEndFromDuration(start) else it.getLong(4)
+                    val location: String? = it.getString(5)
+                    val allDay: Boolean = it.getInt(6) == 1
+                    val color: Int = it.getInt(7)
+                    val calendarId: Long = it.getLong(8)
+                    val rrule: String = it.getString(9) ?: ""
+                    val recurring: Boolean = rrule.isNotBlank()
+                    val frequency: CalendarEventFrequency = rrule.extractFrequency()
+
+                    CalendarEvent(
+                        id = eventId,
+                        title = title,
+                        description = description,
+                        start = start,
+                        end = end,
+                        location = location,
+                        allDay = allDay,
+                        color = color,
+                        calendarId = calendarId,
+                        frequency = frequency,
+                        recurring = recurring,
+                    )
+                } else null
+            }
+        }
+    }
+
+    override suspend fun addEvent(event: CalendarEvent): Long? {
+        return withContext(ioDispatcher){
             val values = ContentValues().apply {
                 put(CalendarContract.Events.CALENDAR_ID, event.calendarId)
                 put(CalendarContract.Events.TITLE, event.title)
@@ -181,7 +239,8 @@ class CalendarRepositoryImpl(
                 }
                 put(CalendarContract.Events.EVENT_TIMEZONE, TimeZone.getDefault().id)
             }
-            context.contentResolver.insert(CalendarContract.Events.CONTENT_URI, values)
+            val uri = context.contentResolver.insert(CalendarContract.Events.CONTENT_URI, values)
+            uri?.let { ContentUris.parseId(it) }
         }
     }
 

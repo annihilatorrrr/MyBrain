@@ -21,6 +21,7 @@ private val DarkColorPalette = darkColorScheme(
     background = Color.Black,
     onSurface = Color.White,
     onBackground = Color.White,
+    onSurfaceVariant = Color.White,
     surfaceTint = DarkGray,
     surfaceVariant = DarkGray,
     surfaceContainerHighest = DarkGray,
@@ -37,16 +38,18 @@ private val LightColorPalette = lightColorScheme(
     onPrimary = OnPrimary,
     secondary = SecondaryColor,
     tertiary = TertiaryColor,
-    background = Color.White,
-    surfaceTint = Color.White,
-    surfaceVariant = Color.White,
-    surfaceContainerHighest = Color.White,
-    surfaceContainerLow = Color.White,
-    surfaceContainerLowest = Color.White,
-    surfaceContainer = Color.White,
-    surfaceContainerHigh = Color.White,
-    surfaceDim = Color.White,
-    surfaceBright = Color.White
+    background = BackgroundColor,
+    onBackground = DarkGray,
+    onSurfaceVariant = DarkGray,
+    surfaceTint = BackgroundColor,
+    surfaceVariant = BackgroundColor,
+    surfaceContainerHighest = BackgroundColor,
+    surfaceContainerLow = BackgroundColor,
+    surfaceContainerLowest = BackgroundColor,
+    surfaceContainer = BackgroundColor,
+    surfaceContainerHigh = BackgroundColor,
+    surfaceDim = BackgroundColor,
+    surfaceBright = BackgroundColor
 )
 
 @Composable

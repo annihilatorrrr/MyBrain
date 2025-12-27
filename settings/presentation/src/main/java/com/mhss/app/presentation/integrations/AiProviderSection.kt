@@ -1,6 +1,7 @@
 package com.mhss.app.presentation.integrations
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,6 +9,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -31,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mhss.app.preferences.PrefsConstants
@@ -40,11 +44,13 @@ import com.mhss.app.preferences.domain.model.customUrlEnabledPrefsKey
 import com.mhss.app.preferences.domain.model.customUrlPrefsKey
 import com.mhss.app.preferences.domain.model.keyPrefsKey
 import com.mhss.app.preferences.domain.model.modelPrefsKey
-import com.mhss.app.presentation.components.SettingsSwitchCard
+import com.mhss.app.presentation.components.ExperimentalBadge
 import com.mhss.app.presentation.integrations.components.CustomURLSection
 import com.mhss.app.presentation.integrations.components.SavableTextField
 import com.mhss.app.ui.R
+import com.mhss.app.ui.theme.MyBrainTheme
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 @Composable
 fun AiProviderSection(
@@ -138,22 +144,51 @@ fun AiProviderSection(
                         settings = providerSettings[provider],
                         onEvent = onEvent
                     )
-                    Spacer(Modifier.height(12.dp))
-                    SettingsSwitchCard(
-                        text = stringResource(R.string.enable_ai_tools),
+                    AiToolsSwitch(
                         checked = aiToolsEnabled,
-                        iconPainter = painterResource(id = R.drawable.ic_tools),
                         onCheck = { onEvent(IntegrationsEvent.ToggleAiTools(it)) }
                     )
                     Text(
                         text = stringResource(R.string.enable_ai_tools_description),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(horizontal = 8.dp)
+                        modifier = Modifier.padding(horizontal = 12.dp)
                     )
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun AiToolsSwitch(
+    modifier: Modifier = Modifier,
+    checked: Boolean,
+    onCheck: (Boolean) -> Unit
+) {
+    Row(
+        modifier
+            .fillMaxWidth()
+            .clickable { onCheck(!checked) }
+            .padding(horizontal = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_tools),
+                contentDescription = "",
+                modifier = Modifier.size(16.dp)
+            )
+            Spacer(Modifier.width(8.dp))
+            Text(
+                text = stringResource(R.string.enable_ai_tools),
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Spacer(Modifier.width(8.dp))
+            ExperimentalBadge()
+        }
+        Switch(checked = checked, onCheckedChange = { onCheck(it) })
     }
 }
 
@@ -289,6 +324,27 @@ private fun ProviderSettingsContent(
             warningText = warning,
             onSave = { onEvent(IntegrationsEvent.UpdateCustomURL(provider, it)) },
             onEnable = { onEvent(IntegrationsEvent.ToggleCustomURL(provider, it)) }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AiProviderSectionPreview() {
+    MyBrainTheme {
+        val providerFlow = flowOf(AiProvider.OpenAI)
+        val stringSetting: (PrefsKey<String>, String) -> Flow<String> = { _, default ->
+            flowOf(default)
+        }
+        val booleanSetting: (PrefsKey<Boolean>, Boolean) -> Flow<Boolean> = { _, default ->
+            flowOf(true)
+        }
+
+        AiProviderSection(
+            getAiProvider = { providerFlow },
+            getStringSetting = stringSetting,
+            getBooleanSetting = booleanSetting,
+            onEvent = {}
         )
     }
 }

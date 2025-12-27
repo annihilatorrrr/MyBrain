@@ -53,9 +53,8 @@ class AssistantViewModel(
     private val searchTasks: SearchTasksUseCase,
     private val getCalendarEvents: GetAllEventsUseCase,
     private val getNoteById: GetNoteUseCase,
-    private val getTaskById: GetTaskByIdUseCase,
+    private val getTaskById: GetTaskByIdUseCase
 ) : ViewModel() {
-
 
     private val _messages = mutableStateListOf<AiMessage>()
     val messages: List<AiMessage> = _messages
@@ -183,6 +182,9 @@ class AssistantViewModel(
 
             AssistantEvent.CancelMessage -> {
                 sendMessageJob?.cancel()
+                if (messages.firstOrNull() is AiMessage.UserMessage) {
+                    _messages.removeAt(0)
+                }
                 uiState = uiState.copy(loading = false)
             }
         }

@@ -44,6 +44,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,8 +58,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextLinkStyles
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -74,6 +73,8 @@ import com.mhss.app.ui.theme.Orange
 import com.mhss.app.util.date.formatDateDependingOnDay
 import com.mikepenz.markdown.coil2.Coil2ImageTransformerImpl
 import com.mikepenz.markdown.m3.Markdown
+import io.github.fletchmckee.liquid.liquefiable
+import io.github.fletchmckee.liquid.rememberLiquidState
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -100,20 +101,20 @@ fun NoteDetailsScreen(
     val pinned = state.pinned
     val readingMode = state.readingMode
     val folder = state.folder
-    var lastModified by remember { mutableStateOf("") }
+    val lastModified by remember(state.note?.updatedDate) {
+        derivedStateOf {
+            state.note?.updatedDate?.formatDateDependingOnDay(context) ?: ""
+        }
+    }
     var wordCountString by remember { mutableStateOf("") }
     val aiEnabled by viewModel.aiEnabled.collectAsStateWithLifecycle()
     val aiState = viewModel.aiState
     val showAiSheet = aiState.showAiSheet
 
+    val liquidState = rememberLiquidState()
     LaunchedEffect(content) {
         delay(500)
         wordCountString = content.countWords().toString()
-    }
-    LaunchedEffect(state.note) {
-        if (state.note != null) {
-            lastModified = state.note.updatedDate.formatDateDependingOnDay(context)
-        }
     }
     LaunchedEffect(state.navigateUp) {
         if (state.navigateUp) {
@@ -267,7 +268,8 @@ fun NoteDetailsScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 6.dp)
-                        .padding(8.dp),
+                        .padding(8.dp)
+                        .liquefiable(liquidState),
                     imageTransformer = Coil2ImageTransformerImpl,
                     typography = defaultMarkdownTypography()
                 )
@@ -335,6 +337,7 @@ fun NoteDetailsScreen(
                         viewModel.onEvent(NoteDetailsEvent.UpdateContent(aiState.result.toString()))
                         viewModel.onEvent(NoteDetailsEvent.AiResultHandled)
                     },
+                    liquidState = liquidState,
                     onAddToNoteClick = {
                         viewModel.onEvent(NoteDetailsEvent.UpdateContent(aiState.result + "\n" + content))
                         viewModel.onEvent(NoteDetailsEvent.AiResultHandled)

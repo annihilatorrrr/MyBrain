@@ -7,6 +7,7 @@ import com.mhss.app.data.nowMillis
 import com.mhss.app.domain.model.Bookmark
 import com.mhss.app.domain.use_case.AddBookmarkUseCase
 import com.mhss.app.domain.use_case.SearchBookmarksUseCase
+import kotlinx.serialization.Serializable
 import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
@@ -17,13 +18,13 @@ class BookmarkToolSet(
     private val searchBookmarksUseCase: SearchBookmarksUseCase
 ) : ToolSet {
 
-    @Tool
+    @Tool(CREATE_BOOKMARK_TOOL)
     @LLMDescription("Create bookmark. Returns ID.")
     suspend fun createBookmark(
         url: String,
         title: String = "",
         description: String = ""
-    ): String {
+    ): BookmarkIdResult {
         val id = Uuid.random().toString()
         val bookmark = Bookmark(
             url = url,
@@ -34,12 +35,18 @@ class BookmarkToolSet(
             id = id
         )
         addBookmark(bookmark)
-        return id
+        return BookmarkIdResult(createdBookmarkId = id)
     }
 
-    @Tool
+    @Tool(SEARCH_BOOKMARKS_TOOL)
     @LLMDescription("Search bookmarks by title/description/URL (partial match).")
     suspend fun searchBookmarks(
         query: String
-    ): List<Bookmark> = searchBookmarksUseCase(query)
+    ): SearchBookmarksResult = SearchBookmarksResult(searchBookmarksUseCase(query))
 }
+
+@Serializable
+data class BookmarkIdResult(val createdBookmarkId: String)
+
+@Serializable
+data class SearchBookmarksResult(val bookmarks: List<Bookmark>)

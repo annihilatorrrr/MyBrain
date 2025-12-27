@@ -18,14 +18,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -55,12 +52,15 @@ import com.mhss.app.domain.model.Calendar
 import com.mhss.app.domain.model.CalendarDay
 import com.mhss.app.domain.model.CalendarEvent
 import com.mhss.app.ui.R
+import com.mhss.app.ui.components.common.LiquidFloatingActionButton
 import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.navigation.Screen
 import com.mhss.app.util.date.currentLocalDate
 import com.mhss.app.util.date.monthName
 import com.mhss.app.util.permissions.Permission
 import com.mhss.app.util.permissions.rememberPermissionState
+import io.github.fletchmckee.liquid.liquefiable
+import io.github.fletchmckee.liquid.rememberLiquidState
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.koin.androidx.compose.koinViewModel
@@ -89,6 +89,7 @@ fun CalendarScreen(
     val currentMonth = state.currentMonth
 
     val scope = rememberCoroutineScope()
+    val liquidState = rememberLiquidState()
 
     val listMonthLabel by remember(state.events) {
         derivedStateOf {
@@ -139,7 +140,7 @@ fun CalendarScreen(
                         ) { month ->
                             Text(
                                 text = month,
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                             )
@@ -159,7 +160,7 @@ fun CalendarScreen(
             )
         },
         floatingActionButton = {
-            if (readCalendarPermissionState.isGranted) FloatingActionButton(
+            if (readCalendarPermissionState.isGranted) LiquidFloatingActionButton(
                 onClick = {
                     navController.navigate(
                         Screen.CalendarEventDetailsScreen(
@@ -167,21 +168,17 @@ fun CalendarScreen(
                         )
                     )
                 },
-                containerColor = MaterialTheme.colorScheme.primary,
-            ) {
-                Icon(
-                    modifier = Modifier.size(25.dp),
-                    painter = painterResource(R.drawable.ic_add),
-                    contentDescription = stringResource(R.string.add_event),
-                    tint = Color.White
-                )
-            }
+                iconPainter = painterResource(R.drawable.ic_add),
+                contentDescription = stringResource(R.string.add_event),
+                liquidState = liquidState
+            )
         },
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .liquefiable(liquidState)
         ) {
             if (readCalendarPermissionState.isGranted) {
                 LaunchedEffect(true) {
@@ -226,7 +223,6 @@ fun CalendarScreen(
                 } else {
                     MonthlyCalendar(
                         modifier = Modifier
-                            .fillMaxWidth()
                             .padding(horizontal = 12.dp),
                         loadedMonths = loadedMonths,
                         onLoadMonth = viewModel::loadMonth,
@@ -242,8 +238,7 @@ fun CalendarScreen(
                     Spacer(Modifier.height(16.dp))
                     DayEventsList(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
+                            .fillMaxSize(),
                         state = dayEventsState,
                         selectedDate = selectedDate,
                         onEventClick = { event ->
@@ -319,7 +314,7 @@ private fun CalendarListView(
                 ) {
                     Text(
                         text = day.substring(0, day.indexOf(",")),
-                        style = MaterialTheme.typography.headlineSmall
+                        style = MaterialTheme.typography.titleMedium
                     )
                     dayEvents.forEach { event ->
                         CalendarEventItem(event = event, onClick = onEventClick)
@@ -344,7 +339,7 @@ fun MonthDropDownMenu(
             AnimatedContent(targetState = selectedMonth, label = "") { month ->
                 Text(
                     text = month,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -377,12 +372,12 @@ private fun ViewModeToggleButton(
     IconButton(onClick = onToggle) {
         if (mode == CalendarViewMode.List) {
             Icon(
-                imageVector = Icons.AutoMirrored.Default.List,
+                painter = painterResource(R.drawable.ic_list_view),
                 contentDescription = null
             )
         } else {
             Icon(
-                imageVector = Icons.Filled.Apps,
+                painter = painterResource(R.drawable.ic_monthly_view),
                 contentDescription = null
             )
         }

@@ -347,7 +347,7 @@ private fun ToolCallResultPreview(
                     AiTaskCard(
                         task = task,
                         onClick = { onTaskClick(task) },
-                        modifier = Modifier.widthIn(max = 220.dp)
+                        modifier = Modifier.widthIn(max = 260.dp)
                     )
                 }
             }

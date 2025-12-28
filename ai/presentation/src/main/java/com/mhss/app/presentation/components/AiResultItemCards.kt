@@ -38,10 +38,12 @@ import androidx.compose.ui.unit.dp
 import com.mhss.app.domain.model.CalendarEvent
 import com.mhss.app.domain.model.Note
 import com.mhss.app.domain.model.Priority
+import com.mhss.app.domain.model.SubTask
 import com.mhss.app.domain.model.Task
 import com.mhss.app.ui.R
 import com.mhss.app.ui.color
 import com.mhss.app.ui.components.common.previewMarkdownTypography
+import com.mhss.app.ui.components.tasks.SubTasksProgressBar
 import com.mhss.app.ui.theme.MyBrainTheme
 import com.mhss.app.util.date.formatDateDependingOnDay
 import com.mhss.app.util.date.formatEventStartEnd
@@ -135,7 +137,7 @@ fun AiTaskCard(
                     )
                 }
             }
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.width(8.dp))
             Column {
                 Text(
                     text = task.title,
@@ -144,13 +146,38 @@ fun AiTaskCard(
                     overflow = TextOverflow.Ellipsis,
                     textDecoration = if (task.isCompleted) TextDecoration.LineThrough else TextDecoration.None
                 )
-                if (task.dueDate != 0L) {
-                    Text(
-                        text = formattedDate,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                    )
+                if (task.subTasks.isNotEmpty() || task.dueDate != 0L) {
+                    Spacer(Modifier.height(4.dp))
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        if (task.subTasks.isNotEmpty()) {
+                            SubTasksProgressBar(subTasks = task.subTasks)
+                        }
+                        Spacer(Modifier.width(6.dp))
+                        if (task.dueDate != 0L) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    modifier = Modifier.size(10.dp),
+                                    painter = painterResource(R.drawable.ic_alarm),
+                                    contentDescription = stringResource(R.string.due_date),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                                )
+                                Spacer(Modifier.width(4.dp))
+                                Text(
+                                    text = formattedDate,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                                )
+                            }
+                        }
+                    }
                 }
+//                if (task.dueDate != 0L) {
+//                    Text(
+//                        text = formattedDate,
+//                        style = MaterialTheme.typography.labelSmall,
+//                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+//                    )
+//                }
             }
         }
     }
@@ -244,7 +271,21 @@ private fun AiTaskCardPreview() {
                 id = "1",
                 title = "Sample Task",
                 priority = Priority.HIGH,
-                dueDate = System.currentTimeMillis()
+                dueDate = System.currentTimeMillis(),
+                subTasks = listOf(
+                    SubTask(
+                        title = "Test SubTask 1",
+                        isCompleted = false
+                    ),
+                    SubTask(
+                        title = "Test SubTask 2",
+                        isCompleted = true
+                    ),
+                    SubTask(
+                        title = "Test SubTask 3",
+                        isCompleted = false
+                    )
+                )
             ),
             onClick = {},
             modifier = Modifier.padding(16.dp)

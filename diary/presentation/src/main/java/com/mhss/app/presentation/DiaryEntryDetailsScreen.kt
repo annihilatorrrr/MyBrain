@@ -24,8 +24,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -53,6 +51,7 @@ import com.mhss.app.ui.R
 import com.mhss.app.ui.components.common.DateTimeDialog
 import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.components.common.defaultMarkdownTypography
+import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
 import com.mhss.app.util.date.fullDate
 import com.mhss.app.util.date.now
 import com.mikepenz.markdown.coil2.Coil2ImageTransformerImpl
@@ -68,7 +67,6 @@ fun DiaryEntryDetailsScreen(
     viewModel: DiaryDetailsViewModel = koinViewModel(parameters = { parametersOf(entryId.orEmpty()) })
 ) {
     val state = viewModel.uiState
-    val snackbarHostState = remember { SnackbarHostState() }
     var openDialog by rememberSaveable { mutableStateOf(false) }
 
     var title by remember { mutableStateOf("") }
@@ -111,7 +109,7 @@ fun DiaryEntryDetailsScreen(
         }
     }
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = { LocalisedSnackbarHost(state.snackbarHostState) },
         topBar = {
             MyBrainAppBar(
                 title = "",

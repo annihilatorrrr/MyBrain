@@ -23,7 +23,9 @@ import com.mhss.app.preferences.domain.model.AiProvider
 import com.mhss.app.preferences.domain.model.intPreferencesKey
 import com.mhss.app.preferences.domain.model.toAiProvider
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
+import com.mhss.app.ui.R
 import com.mhss.app.ui.errors.toSnackbarError
+import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.util.date.now
 import com.mhss.app.util.errors.NoteException
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -84,6 +86,10 @@ class NoteDetailsViewModel(
             val folderId = folderId.ifBlank { null }
             val folder = folderId?.let { getNoteFolder(it) }
             val folders = getAllFolders().first()
+
+            if (id.isNotBlank() && note == null) {
+                noteUiState.snackbarHostState.showSnackbar(R.string.error_item_not_found)
+            }
 
             if (note != null) {
                 title = note.title

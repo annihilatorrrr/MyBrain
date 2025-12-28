@@ -10,6 +10,7 @@ import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.updateAll
 import com.mhss.app.util.Constants
+import com.mhss.app.util.Constants.CALENDAR_EVENT_ID_ARG
 
 class AddEventAction : ActionCallback {
     override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
@@ -33,10 +34,10 @@ class NavigateToCalendarAction : ActionCallback {
 
 class CalendarWidgetItemClick : ActionCallback {
     override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
-        parameters[eventJson]?.let {
+        parameters[eventIdKey]?.let {
             val intent = Intent(
                 Intent.ACTION_VIEW,
-                "${Constants.CALENDAR_DETAILS_SCREEN_URI}?${Constants.CALENDAR_EVENT_ARG}=$it".toUri()
+                "${Constants.CALENDAR_DETAILS_SCREEN_URI}?${Constants.CALENDAR_EVENT_ID_ARG}=$it".toUri()
             ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
         }
@@ -58,4 +59,4 @@ class RefreshCalendarAction : ActionCallback {
 }
 
 
-val eventJson = ActionParameters.Key<String>("eventJson")
+val eventIdKey = ActionParameters.Key<Long>(CALENDAR_EVENT_ID_ARG)

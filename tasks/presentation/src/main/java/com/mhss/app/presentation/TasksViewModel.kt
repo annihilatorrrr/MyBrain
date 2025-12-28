@@ -1,14 +1,17 @@
 package com.mhss.app.presentation
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mhss.app.preferences.PrefsConstants
-import com.mhss.app.ui.R
 import com.mhss.app.domain.model.Task
-import com.mhss.app.domain.use_case.*
+import com.mhss.app.domain.use_case.GetAllTasksUseCase
+import com.mhss.app.domain.use_case.SearchTasksUseCase
+import com.mhss.app.domain.use_case.UpdateTaskCompletedUseCase
+import com.mhss.app.domain.use_case.UpsertTaskUseCase
+import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.domain.model.Order
 import com.mhss.app.preferences.domain.model.OrderType
 import com.mhss.app.preferences.domain.model.booleanPreferencesKey
@@ -17,8 +20,14 @@ import com.mhss.app.preferences.domain.model.toInt
 import com.mhss.app.preferences.domain.model.toOrder
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import com.mhss.app.preferences.domain.use_case.SavePreferenceUseCase
+import com.mhss.app.ui.R
+import com.mhss.app.ui.snackbar.showSnackbar
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
@@ -58,18 +67,14 @@ class TasksViewModel(
     fun onEvent(event: TaskEvent) {
         when (event) {
             is TaskEvent.AddTask -> {
-                if (event.task.title.isNotBlank()) {
-                    viewModelScope.launch {
+                viewModelScope.launch {
+                    if (event.task.title.isNotBlank()) {
                         val scheduleSuccess = addTask(event.task)
-                        if (!scheduleSuccess) {
-                            tasksUiState = tasksUiState.copy(
-                                error = R.string.no_alarm_permission,
-                                errorAlarm = true
-                            )
-                        }
+                        if (!scheduleSuccess) tasksUiState = tasksUiState.copy(alarmError = true)
+                    } else {
+                        tasksUiState.snackbarHostState.showSnackbar(R.string.error_empty_title)
                     }
-                } else
-                    tasksUiState = tasksUiState.copy(error = R.string.error_empty_title)
+                }
             }
 
             is TaskEvent.CompleteTask -> viewModelScope.launch {
@@ -77,7 +82,7 @@ class TasksViewModel(
             }
 
             TaskEvent.ErrorDisplayed -> {
-                tasksUiState = tasksUiState.copy(error = null, errorAlarm = false)
+                tasksUiState = tasksUiState.copy(alarmError = false)
             }
 
             is TaskEvent.UpdateOrder -> viewModelScope.launch {
@@ -106,9 +111,9 @@ class TasksViewModel(
         val tasks: List<Task> = emptyList(),
         val taskOrder: Order = Order.DateModified(OrderType.ASC),
         val showCompletedTasks: Boolean = false,
-        val error: Int? = null,
-        val errorAlarm: Boolean = false,
-        val searchTasks: List<Task> = emptyList()
+        val alarmError: Boolean = false,
+        val searchTasks: List<Task> = emptyList(),
+        val snackbarHostState: SnackbarHostState = SnackbarHostState()
     )
 
     private fun getTasks(order: Order, showCompleted: Boolean) {

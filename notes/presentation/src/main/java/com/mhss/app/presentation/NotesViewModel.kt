@@ -1,5 +1,6 @@
 package com.mhss.app.presentation
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -26,6 +27,7 @@ import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import com.mhss.app.preferences.domain.use_case.SavePreferenceUseCase
 import com.mhss.app.ui.ItemView
 import com.mhss.app.ui.R
+import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.ui.toNotesView
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
@@ -100,10 +102,6 @@ class NotesViewModel(
                 )
             }
 
-            is NoteEvent.ErrorDisplayed -> {
-                notesUiState = notesUiState.copy(error = null)
-            }
-
             is NoteEvent.UpdateView -> viewModelScope.launch {
                 savePreference(
                     intPreferencesKey(PrefsConstants.NOTE_VIEW_KEY),
@@ -120,12 +118,12 @@ class NotesViewModel(
 
             is NoteEvent.CreateFolder -> viewModelScope.launch {
                 if (event.folder.name.isBlank()) {
-                    notesUiState = notesUiState.copy(error = R.string.error_empty_title)
+                    notesUiState.snackbarHostState.showSnackbar(R.string.error_empty_title)
                 } else {
                     if (!notesUiState.folders.contains(event.folder)) {
                         createFolder(event.folder)
                     } else {
-                        notesUiState = notesUiState.copy(error = R.string.error_folder_exists)
+                        notesUiState.snackbarHostState.showSnackbar(R.string.error_folder_exists)
                     }
                 }
             }
@@ -136,15 +134,16 @@ class NotesViewModel(
             }
 
             is NoteEvent.UpdateFolder -> viewModelScope.launch {
-                notesUiState = if (event.folder.name.isBlank()) {
-                    notesUiState.copy(error = R.string.error_empty_title)
+                if (event.folder.name.isBlank()) {
+                    notesUiState.snackbarHostState.showSnackbar(R.string.error_empty_title)
+                    return@launch
+                }
+
+                if (!notesUiState.folders.contains(event.folder)) {
+                    updateFolder(event.folder)
+                    notesUiState = notesUiState.copy(folder = event.folder)
                 } else {
-                    if (!notesUiState.folders.contains(event.folder)) {
-                        updateFolder(event.folder)
-                        notesUiState.copy(folder = event.folder)
-                    } else {
-                        notesUiState.copy(error = R.string.error_folder_exists)
-                    }
+                    notesUiState.snackbarHostState.showSnackbar(R.string.error_folder_exists)
                 }
             }
 
@@ -162,14 +161,14 @@ class NotesViewModel(
     data class UiState(
         val notes: List<Note> = emptyList(),
         val notesOrder: Order = Order.DateModified(OrderType.ASC),
-        val error: Int? = null,
         val noteView: ItemView = ItemView.LIST,
         val navigateUp: Boolean = false,
         val searchNotes: List<Note> = emptyList(),
         val folders: List<NoteFolder> = emptyList(),
         val folderNotes: List<Note> = emptyList(),
         val folder: NoteFolder? = null,
-        val showAllNotes: Boolean = false
+        val showAllNotes: Boolean = false,
+        val snackbarHostState: SnackbarHostState = SnackbarHostState(),
     )
 
     private fun getNotes(order: Order, showAllNotes: Boolean) {

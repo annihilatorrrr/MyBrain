@@ -56,6 +56,7 @@ import com.mhss.app.ui.R
 import com.mhss.app.ui.components.common.LiquidFloatingActionButton
 import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.navigation.Screen
+import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.ui.titleRes
 import io.github.fletchmckee.liquid.liquefiable
 import io.github.fletchmckee.liquid.rememberLiquidState
@@ -147,9 +148,7 @@ fun BookmarksScreen(
                             },
                             onInvalidUrl = {
                                 scope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        context.getString(R.string.invalid_url)
-                                    )
+                                    snackbarHostState.showSnackbar(R.string.invalid_url)
                                 }
                             },
                             modifier = Modifier.animateItem()
@@ -176,9 +175,7 @@ fun BookmarksScreen(
                                 },
                                 onInvalidUrl = {
                                     scope.launch {
-                                        snackbarHostState.showSnackbar(
-                                            context.getString(R.string.invalid_url)
-                                        )
+                                        snackbarHostState.showSnackbar(R.string.invalid_url)
                                     }
                                 },
                                 modifier = Modifier

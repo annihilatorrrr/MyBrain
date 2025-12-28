@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -21,7 +20,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -32,14 +30,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
-import com.mhss.app.ui.R
-import com.mhss.app.ui.navigation.Screen
-import com.mhss.app.ui.theme.MyBrainTheme
-import com.mhss.app.ui.theme.Rubik
-import com.mhss.app.ui.toFontFamily
-import com.mhss.app.ui.toFontSizeScale
-import com.mhss.app.ui.toInt
-import com.mhss.app.util.Constants
 import com.mhss.app.mybrain.presentation.app_lock.AppLockManager
 import com.mhss.app.mybrain.presentation.app_lock.AuthScreen
 import com.mhss.app.presentation.AssistantScreen
@@ -52,8 +42,6 @@ import com.mhss.app.presentation.DiaryChartScreen
 import com.mhss.app.presentation.DiaryEntryDetailsScreen
 import com.mhss.app.presentation.DiaryScreen
 import com.mhss.app.presentation.DiarySearchScreen
-import com.mhss.app.presentation.backup.ImportExportScreen
-import com.mhss.app.presentation.integrations.IntegrationsScreen
 import com.mhss.app.presentation.NoteDetailsScreen
 import com.mhss.app.presentation.NoteFolderDetailsScreen
 import com.mhss.app.presentation.NotesScreen
@@ -61,8 +49,20 @@ import com.mhss.app.presentation.NotesSearchScreen
 import com.mhss.app.presentation.TaskDetailScreen
 import com.mhss.app.presentation.TasksScreen
 import com.mhss.app.presentation.TasksSearchScreen
+import com.mhss.app.presentation.backup.ImportExportScreen
+import com.mhss.app.presentation.integrations.IntegrationsScreen
+import com.mhss.app.ui.R
 import com.mhss.app.ui.StartUpScreenSettings
+import com.mhss.app.ui.navigation.Screen
+import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
+import com.mhss.app.ui.snackbar.showSnackbar
+import com.mhss.app.ui.theme.MyBrainTheme
+import com.mhss.app.ui.theme.Rubik
+import com.mhss.app.ui.toFontFamily
+import com.mhss.app.ui.toFontSizeScale
+import com.mhss.app.ui.toInt
 import com.mhss.app.ui.toStartUpScreen
+import com.mhss.app.util.Constants
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -74,13 +74,8 @@ fun MyBrainApp(
     isDarkMode: Boolean,
     appLockManager: AppLockManager
 ) {
-    val context = LocalContext.current
-    val snackbarHostState = remember {
-        SnackbarHostState()
-    }
-    var appUnlocked by remember {
-        mutableStateOf(true)
-    }
+    val snackbarHostState = remember { SnackbarHostState() }
+    var appUnlocked by remember { mutableStateOf(true) }
     val useMaterialYou by viewModel.useMaterialYou.collectAsStateWithLifecycle(false)
     val lifecycleOwner = LocalLifecycleOwner.current
     val font = viewModel.font.collectAsStateWithLifecycle(Rubik.toInt())
@@ -102,15 +97,11 @@ fun MyBrainApp(
                         }
 
                         AppLockManager.AuthResult.Failed -> {
-                            snackbarHostState.showSnackbar(
-                                context.getString(R.string.auth_failed)
-                            )
+                            snackbarHostState.showSnackbar(R.string.auth_failed)
                         }
 
                         AppLockManager.AuthResult.NoHardware, AppLockManager.AuthResult.HardwareUnavailable -> {
-                            snackbarHostState.showSnackbar(
-                                context.getString(R.string.auth_no_hardware)
-                            )
+                            snackbarHostState.showSnackbar(R.string.auth_no_hardware)
                         }
 
                         AppLockManager.AuthResult.Success -> {
@@ -144,7 +135,7 @@ fun MyBrainApp(
         Scaffold(
             modifier = modifier.fillMaxSize(),
             containerColor = MaterialTheme.colorScheme.background,
-            snackbarHost = { SnackbarHost(snackbarHostState) }
+            snackbarHost = { LocalisedSnackbarHost(snackbarHostState) }
         ) { paddingValues ->
             NavHost(
                 startDestination = Screen.Main,
@@ -293,7 +284,7 @@ fun MyBrainApp(
                     deepLinks = listOf(
                         navDeepLink {
                             uriPattern =
-                                "${Constants.CALENDAR_DETAILS_SCREEN_URI}?${Constants.CALENDAR_EVENT_ARG}={${Constants.CALENDAR_EVENT_ARG}}"
+                                "${Constants.CALENDAR_DETAILS_SCREEN_URI}?${Constants.CALENDAR_EVENT_ID_ARG}={${Constants.CALENDAR_EVENT_ID_ARG}}"
                         }
                     ),
                     enterTransition = { slideInTransition() },
@@ -302,7 +293,7 @@ fun MyBrainApp(
                     val args = it.toRoute<Screen.CalendarEventDetailsScreen>()
                     CalendarEventDetailsScreen(
                         navController = navController,
-                        eventJson = args.eventJson
+                        eventId = args.eventId
                     )
                 }
                 composable<Screen.NoteFolderDetailsScreen>(

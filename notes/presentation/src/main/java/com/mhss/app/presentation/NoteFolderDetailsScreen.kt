@@ -24,8 +24,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -38,7 +36,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -49,6 +46,7 @@ import com.mhss.app.ui.components.common.LiquidFloatingActionButton
 import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.components.notes.NoteCard
 import com.mhss.app.ui.navigation.Screen
+import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
 import io.github.fletchmckee.liquid.liquefiable
 import io.github.fletchmckee.liquid.rememberLiquidState
 import org.koin.androidx.compose.koinViewModel
@@ -61,28 +59,20 @@ fun NoteFolderDetailsScreen(
 ) {
     val uiState = viewModel.notesUiState
     val folder = uiState.folder
+    val snackbarHostState = uiState.snackbarHostState
 
     var openDeleteDialog by remember { mutableStateOf(false) }
     var openEditDialog by remember { mutableStateOf(false) }
 
-    val context = LocalContext.current
-
-    val snackbarHostState = remember { SnackbarHostState() }
     val liquidState = rememberLiquidState()
     LaunchedEffect(true) { viewModel.onEvent(NoteEvent.GetFolderNotes(id)) }
     LaunchedEffect(uiState) {
         if (viewModel.notesUiState.navigateUp) {
             navController.navigateUp()
         }
-        if (uiState.error != null) {
-            snackbarHostState.showSnackbar(
-                context.getString(uiState.error)
-            )
-            viewModel.onEvent(NoteEvent.ErrorDisplayed)
-        }
     }
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = { LocalisedSnackbarHost(snackbarHostState) },
         topBar = {
             MyBrainAppBar(
                 title = folder?.name ?: "",

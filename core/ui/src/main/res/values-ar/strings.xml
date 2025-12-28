@@ -240,4 +240,5 @@
     <string name="select_backup_folder">اختر مجلد النسخ الاحتياطي</string>
     <string name="tool_call_limit_exceeded">توقف المساعد بعد العديد من الإجراءات المتتالية. إذا كنت تتوقع ذلك، يمكنك إرسال كلمة \"Continue\" للمساعد.</string>
     <string name="ask_assistant">اسأل المساعد…</string>
+    <string name="error_item_not_found">حدث خطأ, لم يتم العثور على العنصر</string>
 </resources>

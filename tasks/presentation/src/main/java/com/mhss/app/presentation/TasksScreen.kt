@@ -1,4 +1,5 @@
 @file:OptIn(ExperimentalLayoutApi::class)
+@file:Suppress("AssignedValueIsNeverRead")
 
 package com.mhss.app.presentation
 
@@ -30,7 +31,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
@@ -47,7 +47,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -61,6 +60,8 @@ import com.mhss.app.ui.components.common.LiquidFloatingActionButton
 import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.components.tasks.TaskCard
 import com.mhss.app.ui.navigation.Screen
+import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
+import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.ui.titleRes
 import com.mhss.app.util.permissions.Permission
 import com.mhss.app.util.permissions.rememberPermissionState
@@ -76,7 +77,6 @@ fun TasksScreen(
     addTask: Boolean = false,
     viewModel: TasksViewModel = koinViewModel()
 ) {
-    val context = LocalContext.current
     var orderSettingsVisible by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
     val uiState = viewModel.tasksUiState
@@ -91,7 +91,7 @@ fun TasksScreen(
     val scope = rememberCoroutineScope()
     val liquidState = rememberLiquidState()
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = { LocalisedSnackbarHost(snackbarHostState) },
         topBar = {
             MyBrainAppBar(stringResource(R.string.tasks))
         },
@@ -119,21 +119,16 @@ fun TasksScreen(
                 onAddTask = {
                     viewModel.onEvent(TaskEvent.AddTask(it))
                     scope.launch { sheetState.hide() }.invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            openSheet = false
-                        }
+                        if (!sheetState.isVisible) { openSheet = false }
                     }
                     focusRequester.freeFocus()
                 },
                 focusRequester
             )
         }
-        LaunchedEffect(uiState.error) {
-            uiState.error?.let {
-                val snackbarResult = snackbarHostState.showSnackbar(
-                    context.getString(it),
-                    if (uiState.errorAlarm) context.getString(R.string.grant_permission) else null
-                )
+        LaunchedEffect(uiState.alarmError) {
+            if (uiState.alarmError) {
+                val snackbarResult = snackbarHostState.showSnackbar(R.string.no_alarm_permission, R.string.grant_permission)
                 if (snackbarResult == SnackbarResult.ActionPerformed) {
                     alarmPermissionState.launchRequest()
                 }

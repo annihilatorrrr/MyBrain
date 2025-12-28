@@ -64,10 +64,7 @@ import com.mhss.app.ui.navigation.Screen
 import com.mhss.app.ui.theme.MyBrainTheme
 import io.github.fletchmckee.liquid.liquefiable
 import io.github.fletchmckee.liquid.rememberLiquidState
-import kotlinx.serialization.json.Json
 import org.koin.androidx.compose.koinViewModel
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
 
 @Composable
 fun AssistantScreen(
@@ -84,7 +81,7 @@ fun AssistantScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalEncodingApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AssistantScreenContent(
     uiState: AssistantViewModel.UiState,
@@ -265,7 +262,7 @@ fun AssistantScreenContent(
                                 onEventClick = { event ->
                                     navController.navigate(
                                         Screen.CalendarEventDetailsScreen(
-                                            Base64.encode(Json.encodeToString(event).toByteArray())
+                                            event.id
                                         )
                                     )
                                 }

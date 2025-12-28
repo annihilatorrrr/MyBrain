@@ -9,24 +9,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mhss.app.domain.model.Calendar
 import com.mhss.app.domain.model.CalendarEvent
-import com.mhss.app.domain.use_case.AddCalendarEventUseCase
-import com.mhss.app.domain.use_case.DeleteCalendarEventUseCase
 import com.mhss.app.domain.use_case.GetAllCalendarsUseCase
 import com.mhss.app.domain.use_case.GetAllEventsUseCase
 import com.mhss.app.domain.use_case.GetMonthEventsUseCase
-import com.mhss.app.domain.use_case.UpdateCalendarEventUseCase
 import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.domain.model.booleanPreferencesKey
 import com.mhss.app.preferences.domain.model.stringSetPreferencesKey
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import com.mhss.app.preferences.domain.use_case.SavePreferenceUseCase
 import com.mhss.app.presentation.model.CalendarMonth
-import com.mhss.app.ui.R
 import com.mhss.app.ui.toIntList
 import com.mhss.app.util.date.currentLocalDate
 import com.mhss.app.util.date.formatDateForMapping
 import com.mhss.app.util.date.monthName
-import com.mhss.app.util.date.now
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.launchIn
@@ -54,9 +49,6 @@ class CalendarViewModel(
     private val getAllEventsUseCase: GetAllEventsUseCase,
     private val getMonthEventsUseCase: GetMonthEventsUseCase,
     private val getAllCalendarsUseCase: GetAllCalendarsUseCase,
-    private val addEvent: AddCalendarEventUseCase,
-    private val editEvent: UpdateCalendarEventUseCase,
-    private val deleteEvent: DeleteCalendarEventUseCase,
     private val savePreference: SavePreferenceUseCase,
     private val getPreference: GetPreferenceUseCase
 ) : ViewModel() {
@@ -138,39 +130,6 @@ class CalendarViewModel(
                 uiState = uiState.copy(currentMonth = event.newMonth)
             }
 
-            is CalendarViewModelEvent.AddEvent -> viewModelScope.launch {
-                uiState = if (event.event.title.isNotBlank()) {
-                    if (event.event.start > now()) {
-                        addEvent(event.event)
-                        uiState.copy(navigateUp = true)
-                    } else {
-                        uiState.copy(error = R.string.error_future_event)
-                    }
-                } else {
-                    uiState.copy(error = R.string.error_empty_title)
-                }
-            }
-
-            is CalendarViewModelEvent.DeleteEvent -> viewModelScope.launch {
-                if (event.event.title.isNotBlank()) {
-                    deleteEvent(event.event)
-                    uiState = uiState.copy(navigateUp = true)
-                }
-            }
-
-            is CalendarViewModelEvent.EditEvent -> viewModelScope.launch {
-                uiState = if (event.event.title.isNotBlank()) {
-                    if (event.event.start > now()) {
-                        editEvent(event.event)
-                        uiState.copy(navigateUp = true)
-                    } else {
-                        uiState.copy(error = R.string.error_future_event)
-                    }
-                } else {
-                    uiState.copy(error = R.string.error_empty_title)
-                }
-            }
-
             is CalendarViewModelEvent.ViewModeChanged -> {
                 viewModelScope.launch {
                     savePreference(
@@ -179,10 +138,6 @@ class CalendarViewModel(
                     )
                 }
                 uiState = uiState.copy(isMonthView = event.isMonthView)
-            }
-
-            CalendarViewModelEvent.ErrorDisplayed -> {
-                uiState = uiState.copy(error = null)
             }
         }
     }
@@ -203,11 +158,9 @@ class CalendarViewModel(
             emptySet()
         ).onEach { calendarsSet ->
             val calendars = getAllCalendarsUseCase(calendarsSet.toIntList())
-            val allCalendars = getAllCalendarsUseCase(emptyList())
             uiState = uiState.copy(
                 excludedCalendars = calendarsSet.map { it.toInt() }.toMutableList(),
-                calendars = calendars,
-                calendarsList = allCalendars.values.flatten()
+                calendars = calendars
             )
             loadEvents()
         }.launchIn(viewModelScope)
@@ -249,12 +202,9 @@ class CalendarViewModel(
     data class UiState(
         val events: Map<String, List<CalendarEvent>> = emptyMap(),
         val calendars: Map<String, List<Calendar>> = emptyMap(),
-        val calendarsList: List<Calendar> = emptyList(),
         val excludedCalendars: MutableList<Int> = mutableListOf(),
         val months: List<String> = emptyList(),
         val isMonthView: Boolean = false,
-        val navigateUp: Boolean = false,
-        val error: Int? = null,
         val currentMonth: LocalDate = currentLocalDate(),
         val loadedMonths: SnapshotStateMap<Int, CalendarMonth> = mutableStateMapOf()
     )

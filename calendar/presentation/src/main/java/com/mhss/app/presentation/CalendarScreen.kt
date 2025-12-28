@@ -62,12 +62,9 @@ import com.mhss.app.util.permissions.rememberPermissionState
 import io.github.fletchmckee.liquid.liquefiable
 import io.github.fletchmckee.liquid.rememberLiquidState
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
 import org.koin.androidx.compose.koinViewModel
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
 
-@OptIn(ExperimentalEncodingApi::class)
+
 @Composable
 fun CalendarScreen(
     navController: NavHostController,
@@ -160,18 +157,20 @@ fun CalendarScreen(
             )
         },
         floatingActionButton = {
-            if (readCalendarPermissionState.isGranted) LiquidFloatingActionButton(
-                onClick = {
-                    navController.navigate(
-                        Screen.CalendarEventDetailsScreen(
-                            null
+            if (readCalendarPermissionState.isGranted) {
+                LiquidFloatingActionButton(
+                    onClick = {
+                        navController.navigate(
+                            Screen.CalendarEventDetailsScreen(
+                                null
+                            )
                         )
-                    )
-                },
-                iconPainter = painterResource(R.drawable.ic_add),
-                contentDescription = stringResource(R.string.add_event),
-                liquidState = liquidState
-            )
+                    },
+                    iconPainter = painterResource(R.drawable.ic_add),
+                    contentDescription = stringResource(R.string.add_event),
+                    liquidState = liquidState
+                )
+            }
         },
     ) { paddingValues ->
         Column(
@@ -215,7 +214,7 @@ fun CalendarScreen(
                         onEventClick = { event ->
                             navController.navigate(
                                 Screen.CalendarEventDetailsScreen(
-                                    Base64.encode(Json.encodeToString(event).toByteArray())
+                                    event.id
                                 )
                             )
                         }
@@ -244,7 +243,7 @@ fun CalendarScreen(
                         onEventClick = { event ->
                             navController.navigate(
                                 Screen.CalendarEventDetailsScreen(
-                                    Base64.encode(Json.encodeToString(event).toByteArray())
+                                    event.id
                                 )
                             )
                         }

@@ -31,8 +31,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SecondaryTabRow
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
@@ -62,7 +60,6 @@ import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.navigation.NavHostController
 import com.mhss.app.domain.model.Priority
 import com.mhss.app.domain.model.SubTask
-import com.mhss.app.domain.model.Task
 import com.mhss.app.domain.model.TaskFrequency
 import com.mhss.app.ui.R
 import com.mhss.app.ui.color
@@ -71,6 +68,8 @@ import com.mhss.app.ui.components.common.DateTimeDialog
 import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.components.common.NumberPicker
 import com.mhss.app.ui.components.tasks.TaskCheckBox
+import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
+import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.ui.titleRes
 import com.mhss.app.util.date.formatDateDependingOnDay
 import com.mhss.app.util.date.now
@@ -89,9 +88,7 @@ fun TaskDetailScreen(
 ) {
     val alarmPermissionState = rememberPermissionState(Permission.SCHEDULE_ALARMS)
     val uiState = viewModel.taskDetailsUiState
-    val snackbarHostState = remember {
-        SnackbarHostState()
-    }
+    val snackbarHostState = uiState.snackbarHostState
     var openDialog by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
 
@@ -107,9 +104,7 @@ fun TaskDetailScreen(
     val subTasks = remember { mutableStateListOf<SubTask>() }
     val priorities = listOf(Priority.LOW, Priority.MEDIUM, Priority.HIGH)
     val formattedDate by remember {
-        derivedStateOf {
-            dueDate.formatDateDependingOnDay(context)
-        }
+        derivedStateOf { dueDate.formatDateDependingOnDay(context) }
     }
 
     LaunchedEffect(uiState.task) {
@@ -127,17 +122,14 @@ fun TaskDetailScreen(
             subTasks.addAll(uiState.task.subTasks)
         }
     }
-    val errorMessage = uiState.error?.let { stringResource(it) }
-    val actionLabel: String? =
-        if (uiState.errorAlarm) stringResource(R.string.grant_permission) else null
-    LaunchedEffect(uiState.navigateUp, errorMessage, uiState.errorAlarm) {
+    LaunchedEffect(uiState.navigateUp, uiState.alarmError) {
         if (uiState.navigateUp) {
             openDialog = false
             navController.navigateUp()
         }
-        if (errorMessage != null) {
-            if (uiState.errorAlarm) dueDateExists = false
-            val snackbarResult = snackbarHostState.showSnackbar(errorMessage, actionLabel)
+        if (uiState.alarmError) {
+            dueDateExists = false
+            val snackbarResult = snackbarHostState.showSnackbar(R.string.no_alarm_permission, R.string.grant_permission)
             if (snackbarResult == SnackbarResult.ActionPerformed) {
                 alarmPermissionState.launchRequest()
             }
@@ -146,26 +138,28 @@ fun TaskDetailScreen(
     }
     LifecycleStartEffect(Unit) {
         onStopOrDispose {
-            viewModel.onEvent(
-                TaskDetailsEvent.ScreenOnStop(
-                    Task(
-                        title = title,
-                        description = description,
-                        isCompleted = completed,
-                        dueDate = if (dueDateExists) dueDate else 0L,
-                        priority = priority,
-                        subTasks = subTasks,
-                        recurring = recurring,
-                        frequency = frequency,
-                        frequencyAmount = frequencyAmount,
-                        id = Uuid.random().toString()
+            uiState.task?.let {task ->
+                viewModel.onEvent(
+                    TaskDetailsEvent.ScreenOnStop(
+                        task.copy(
+                            title = title,
+                            description = description,
+                            isCompleted = completed,
+                            dueDate = if (dueDateExists) dueDate else 0L,
+                            priority = priority,
+                            subTasks = subTasks,
+                            recurring = recurring,
+                            frequency = frequency,
+                            frequencyAmount = frequencyAmount,
+                            id = Uuid.random().toString()
+                        )
                     )
                 )
-            )
+            }
         }
     }
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = { LocalisedSnackbarHost(snackbarHostState) },
         topBar = {
             MyBrainAppBar(
                 title = "",

@@ -1,5 +1,6 @@
 package com.mhss.app.presentation
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,6 +12,7 @@ import com.mhss.app.domain.use_case.DeleteTaskUseCase
 import com.mhss.app.domain.use_case.GetTaskByIdUseCase
 import com.mhss.app.domain.use_case.UpsertTaskUseCase
 import com.mhss.app.ui.R
+import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.util.date.now
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -33,6 +35,9 @@ class TaskDetailsViewModel(
     init {
         viewModelScope.launch {
             val task = getTask(taskId)
+            if (taskId.isNotBlank() && task == null) {
+                taskDetailsUiState.snackbarHostState.showSnackbar(R.string.error_item_not_found)
+            }
             taskDetailsUiState = taskDetailsUiState.copy(
                task = task
             )
@@ -43,7 +48,7 @@ class TaskDetailsViewModel(
         when (event) {
 
             TaskDetailsEvent.ErrorDisplayed -> {
-                taskDetailsUiState = taskDetailsUiState.copy(error = null, errorAlarm = false)
+                taskDetailsUiState = taskDetailsUiState.copy(alarmError = false)
             }
             // Using applicationScope to avoid cancelling when the user exits the screen
             // and the view model is cleared before the job finishes
@@ -78,10 +83,7 @@ class TaskDetailsViewModel(
 
             TaskDetailsEvent.DueDateEnabled -> {
                 if (!canScheduleAlarms()) {
-                    taskDetailsUiState = taskDetailsUiState.copy(
-                        error = R.string.no_alarm_permission,
-                        errorAlarm = true
-                    )
+                    taskDetailsUiState = taskDetailsUiState.copy(alarmError = true)
                 }
             }
         }
@@ -90,8 +92,8 @@ class TaskDetailsViewModel(
     data class TaskDetailsUiState(
         val task: Task? = null,
         val navigateUp: Boolean = false,
-        val error: Int? = null,
-        val errorAlarm: Boolean = false,
+        val alarmError: Boolean = false,
+        val snackbarHostState: SnackbarHostState = SnackbarHostState()
     )
 
     private fun taskChanged(

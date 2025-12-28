@@ -4,6 +4,8 @@ import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.mhss.app.domain.model.Task
+import com.mhss.app.domain.use_case.GetTaskByAlarmUseCase
 import com.mhss.app.domain.use_case.GetTaskByIdUseCase
 import com.mhss.app.domain.use_case.UpdateTaskCompletedUseCase
 import com.mhss.app.util.Constants
@@ -18,6 +20,7 @@ class TaskActionButtonBroadcastReceiver : BroadcastReceiver(), KoinComponent {
 
     private val updateTaskCompleted: UpdateTaskCompletedUseCase by inject()
     private val getTaskById: GetTaskByIdUseCase by inject()
+    private val getTaskByAlarm: GetTaskByAlarmUseCase by inject()
     private val ioDispatcher: CoroutineDispatcher by inject(named("ioDispatcher"))
     private val scope = CoroutineScope(ioDispatcher)
 
@@ -26,8 +29,7 @@ class TaskActionButtonBroadcastReceiver : BroadcastReceiver(), KoinComponent {
             val pendingResult = goAsync()
             scope.launch(ioDispatcher) {
                 try {
-                    val taskId = intent.getStringExtra(Constants.TASK_ID_EXTRA) ?: return@launch
-                    val task = getTaskById(taskId) ?: return@launch
+                    val task = intent.getTaskBackwardsCompat() ?: return@launch
                     updateTaskCompleted(task, true)
                     val manager =
                         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -37,5 +39,13 @@ class TaskActionButtonBroadcastReceiver : BroadcastReceiver(), KoinComponent {
                 }
             }
         }
+    }
+
+    // The new is uuid string but previously it was an int which is same as alarm id
+    private suspend fun Intent.getTaskBackwardsCompat(): Task? {
+        val taskId = getStringExtra(Constants.TASK_ID_EXTRA) // uuid
+        taskId?.let { return getTaskById(it) }
+        val alarmId = getIntExtra(Constants.TASK_ID_EXTRA, -1).takeIf { it != -1 }
+        return alarmId?.let { getTaskByAlarm(it) }
     }
 }

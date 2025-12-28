@@ -101,7 +101,7 @@ class RoomNoteRepositoryImpl(
 
     override suspend fun deleteNoteFolder(folder: NoteFolder) {
         withContext(ioDispatcher) {
-            noteDao.deleteNoteFolder(folder.toNoteFolderEntity())
+            noteDao.deleteFolderAndNotes(folder.id)
         }
     }
 

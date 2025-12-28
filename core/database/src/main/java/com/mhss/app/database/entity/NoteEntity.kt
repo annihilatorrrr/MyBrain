@@ -2,25 +2,13 @@ package com.mhss.app.database.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.mhss.app.database.converters.IdSerializer
 import com.mhss.app.domain.model.Note
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Entity(
-    tableName = "notes",
-    foreignKeys = [
-        ForeignKey(
-            entity = NoteFolderEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["folder_id"],
-            onDelete = ForeignKey.CASCADE,
-            onUpdate = ForeignKey.NO_ACTION
-        )
-    ]
-)
+@Entity(tableName = "notes")
 @Serializable
 data class NoteEntity(
     @SerialName("title")

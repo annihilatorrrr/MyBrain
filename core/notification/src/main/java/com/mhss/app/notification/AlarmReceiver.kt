@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import com.mhss.app.alarm.use_case.DeleteAlarmUseCase
 import com.mhss.app.alarm.use_case.UpsertAlarmUseCase
+import com.mhss.app.domain.model.Task
 import com.mhss.app.domain.model.TaskFrequency
 import com.mhss.app.domain.use_case.GetTaskByAlarmUseCase
 import com.mhss.app.domain.use_case.UpsertTaskUseCase
@@ -30,12 +31,10 @@ class AlarmReceiver : BroadcastReceiver(), KoinComponent {
         val pendingResult = goAsync()
 
         scope.launch {
-            val task =
-                intent?.getIntExtra(Constants.ALARM_ID_EXTRA, -1)?.let { getTaskByAlarm(it) }
-                    ?: run {
-                        pendingResult.finish()
-                        return@launch
-                    }
+            val task = intent?.getTaskBackwardsCompat() ?: run {
+                pendingResult.finish()
+                return@launch
+            }
             val notificationJob = launch {
                 val manager =
                     context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -66,4 +65,14 @@ class AlarmReceiver : BroadcastReceiver(), KoinComponent {
             pendingResult.finish()
         }
     }
+
+
+    // Newly used name is alarm id but previous versions use task id name
+    private suspend fun Intent.getTaskBackwardsCompat(): Task? {
+        val alarmId =
+            getIntExtra(Constants.ALARM_ID_EXTRA, -1).takeIf { it != -1 }
+                ?: getIntExtra(Constants.TASK_ID_EXTRA, -1).takeIf { it != -1 }
+        return alarmId?.let { getTaskByAlarm(it) }
+    }
+
 }

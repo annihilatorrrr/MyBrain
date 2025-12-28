@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import androidx.room.Upsert
 import com.mhss.app.database.entity.NoteEntity
@@ -32,6 +33,9 @@ interface NoteDao {
     @Query("SELECT title, SUBSTR(content, 1, 150) AS content, created_date, updated_date, pinned, folder_id, id FROM notes WHERE folder_id = :folderId")
     fun getNotesByFolder(folderId: String): Flow<List<NoteEntity>>
 
+    @Query("DELETE FROM notes WHERE folder_id = :folderId")
+    suspend fun deleteNotesByFolderId(folderId: String)
+
     @Upsert
     suspend fun upsertNote(note: NoteEntity)
 
@@ -52,6 +56,15 @@ interface NoteDao {
 
     @Delete
     suspend fun deleteNoteFolder(folder: NoteFolderEntity)
+
+    @Query("DELETE FROM note_folders WHERE id = :folderId")
+    suspend fun deleteNoteFolderById(folderId: String)
+
+    @Transaction
+    suspend fun deleteFolderAndNotes(folderId: String) {
+        deleteNotesByFolderId(folderId)
+        deleteNoteFolderById(folderId)
+    }
 
     @Query("SELECT * FROM note_folders")
     fun getAllNoteFolders(): Flow<List<NoteFolderEntity>>

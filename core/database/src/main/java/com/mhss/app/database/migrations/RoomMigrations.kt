@@ -4,8 +4,6 @@ package com.mhss.app.database.migrations
 import androidx.core.database.getIntOrNull
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.mhss.app.alarm.model.Alarm
-import com.mhss.app.alarm.repository.AlarmScheduler
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -35,14 +33,15 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
 }
 
 // Migrating from using auto-incrementing integer IDs to UUIDs
-class Migration4to5(private val alarmScheduler: AlarmScheduler) : Migration(4, 5) {
+val MIGRATION_4_5 = object : Migration(4, 5) {
 
     override fun migrate(db: SupportSQLiteDatabase) {
         // Create a mapping of old folder IDs to new UUIDs
         val folderIdMapping = HashMap<Int, String>()
 
-        // Migrate note_folders table
+        // Migrate note_folders and notes tables
         db.execSQL("CREATE TABLE note_folders_new (name TEXT NOT NULL, id TEXT PRIMARY KEY NOT NULL)")
+        db.execSQL("CREATE TABLE notes_new (title TEXT NOT NULL, content TEXT NOT NULL, created_date INTEGER NOT NULL, updated_date INTEGER NOT NULL, pinned INTEGER NOT NULL, folder_id TEXT, id TEXT PRIMARY KEY NOT NULL)")
 
         val folderCursor = db.query("SELECT * FROM note_folders")
         while (folderCursor.moveToNext()) {
@@ -58,12 +57,6 @@ class Migration4to5(private val alarmScheduler: AlarmScheduler) : Migration(4, 5
             )
         }
         folderCursor.close()
-
-        db.execSQL("DROP TABLE note_folders")
-        db.execSQL("ALTER TABLE note_folders_new RENAME TO note_folders")
-
-        // Migrate notes table
-        db.execSQL("CREATE TABLE notes_new (title TEXT NOT NULL, content TEXT NOT NULL, created_date INTEGER NOT NULL, updated_date INTEGER NOT NULL, pinned INTEGER NOT NULL, folder_id TEXT, id TEXT PRIMARY KEY NOT NULL, FOREIGN KEY (folder_id) REFERENCES note_folders (id) ON UPDATE NO ACTION ON DELETE CASCADE)")
 
         val notesCursor = db.query("SELECT * FROM notes")
         while (notesCursor.moveToNext()) {
@@ -87,6 +80,8 @@ class Migration4to5(private val alarmScheduler: AlarmScheduler) : Migration(4, 5
         notesCursor.close()
 
         db.execSQL("DROP TABLE notes")
+        db.execSQL("DROP TABLE note_folders")
+        db.execSQL("ALTER TABLE note_folders_new RENAME TO note_folders")
         db.execSQL("ALTER TABLE notes_new RENAME TO notes")
 
         // Migrate bookmarks table
@@ -115,7 +110,7 @@ class Migration4to5(private val alarmScheduler: AlarmScheduler) : Migration(4, 5
         db.execSQL("ALTER TABLE bookmarks_new RENAME TO bookmarks")
 
         // Migrate alarms table first and collect alarm ID mapping
-        val alarmIdMapping = HashMap<Int, Int>()
+        val alarmIdSet = HashSet<Int>()
         db.execSQL("CREATE TABLE alarms_new (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, time INTEGER NOT NULL)")
 
         val alarmsCursor = db.query("SELECT * FROM alarms")
@@ -123,22 +118,12 @@ class Migration4to5(private val alarmScheduler: AlarmScheduler) : Migration(4, 5
             val oldAlarmId = alarmsCursor.getInt(alarmsCursor.getColumnIndexOrThrow("id"))
             val time = alarmsCursor.getLong(alarmsCursor.getColumnIndexOrThrow("time"))
 
-            // Insert without specifying ID to get auto-generated ID
             db.execSQL(
-                "INSERT INTO alarms_new (time) VALUES (?)",
-                arrayOf(time)
+                "INSERT INTO alarms_new (id, time) VALUES (?, ?)",
+                arrayOf<Any?>(oldAlarmId, time)
             )
 
-            // Get the newly generated ID
-            val newIdCursor = db.query("SELECT id FROM alarms_new ORDER BY id DESC LIMIT 1")
-            newIdCursor.moveToFirst()
-            val newAlarmId = newIdCursor.getInt(0)
-            newIdCursor.close()
-
-            // Map old ID to new ID
-            alarmIdMapping[oldAlarmId] = newAlarmId
-            // Schedule the alarm using the new ID
-            runCatching { alarmScheduler.scheduleAlarm(Alarm(newAlarmId, time)) }
+            alarmIdSet.add(oldAlarmId)
         }
         alarmsCursor.close()
 
@@ -166,7 +151,7 @@ class Migration4to5(private val alarmScheduler: AlarmScheduler) : Migration(4, 5
                 tasksCursor.getInt(tasksCursor.getColumnIndexOrThrow("frequency_amount"))
 
             // old version was using the task id as the alarm id
-            val alarmId = alarmIdMapping[oldTaskId]
+            val alarmId = if (oldTaskId in alarmIdSet) oldTaskId else null
             val newId = Uuid.random().toString()
 
             db.execSQL(

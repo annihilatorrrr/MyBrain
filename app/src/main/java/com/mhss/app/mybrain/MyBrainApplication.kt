@@ -41,16 +41,13 @@ import com.mhss.app.presentation.di.TasksPresentationModule
 import com.mhss.app.ui.R
 import com.mhss.app.util.Constants
 import com.mhss.app.widget.di.WidgetModule
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.workmanager.koin.workManagerFactory
-import org.koin.core.context.GlobalContext.loadKoinModules
+import org.koin.core.context.loadKoinModules
 import org.koin.core.context.startKoin
 import org.koin.ksp.generated.module
 import kotlin.system.exitProcess
@@ -59,7 +56,6 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = Pre
 
 class MyBrainApplication : Application() {
 
-    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val getPreference: GetPreferenceUseCase by inject()
 
     override fun onCreate() {
@@ -106,22 +102,20 @@ class MyBrainApplication : Application() {
         }
     }
 
-    private fun loadNotesModule() {
-        applicationScope.launch {
-            val isExternalNotesEnabled = getPreference(
-                booleanPreferencesKey(PrefsConstants.EXTERNAL_NOTES_ENABLED),
-                false
-            ).first()
-            val rootUri = getPreference(
-                stringPreferencesKey(PrefsConstants.EXTERNAL_NOTES_FOLDER_URI),
-                ""
-            ).first()
+    private fun loadNotesModule() = runBlocking {
+        val isExternalNotesEnabled = getPreference(
+            booleanPreferencesKey(PrefsConstants.EXTERNAL_NOTES_ENABLED),
+            false
+        ).first()
+        val rootUri = getPreference(
+            stringPreferencesKey(PrefsConstants.EXTERNAL_NOTES_FOLDER_URI),
+            ""
+        ).first()
 
-            if (isExternalNotesEnabled && rootUri.isNotBlank()) {
-                loadKoinModules(noteMarkdownModule(rootUri))
-            } else {
-                loadKoinModules(noteRoomModule)
-            }
+        if (isExternalNotesEnabled && rootUri.isNotBlank()) {
+            loadKoinModules(noteMarkdownModule(rootUri))
+        } else {
+            loadKoinModules(noteRoomModule)
         }
     }
 

@@ -22,7 +22,7 @@ interface NoteRepository {
 
     suspend fun deleteNote(note: Note)
 
-    suspend fun insertNoteFolder(folder: NoteFolder)
+    suspend fun insertNoteFolder(folderName: String): String
 
     suspend fun updateNoteFolder(folder: NoteFolder)
 

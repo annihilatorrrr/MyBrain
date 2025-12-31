@@ -1,6 +1,7 @@
 package com.mhss.app.ui.components.common
 
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
@@ -21,12 +22,13 @@ fun Modifier.frostedGlass(
     this.frost = frost
 }
 
-fun Modifier.clearGlass(liquidState: LiquidState, shape: Shape = RoundedCornerShape(28.dp)) = liquid(liquidState) {
-    this.shape = shape
+@Composable
+fun Modifier.clearGlass(liquidState: LiquidState, shape: () -> Shape = { RoundedCornerShape(28.dp) }, edge: () ->Float = { 0.03f }) = liquid(liquidState) {
+    this.shape = shape()
     refraction = 0.12f
     curve = 0.24f
     frost = 3.dp
-    edge = 0.03f
+    this.edge = edge()
     dispersion = 0.08f
 }
 

@@ -83,6 +83,11 @@ fun AiProviderSection(
             icon = painterResource(id = R.drawable.ic_openrouter)
         ),
         ProviderOption(
+            provider = AiProvider.LmStudio,
+            label = stringResource(R.string.lm_studio),
+            icon = painterResource(id = R.drawable.ic_lmstudio)
+        ),
+        ProviderOption(
             provider = AiProvider.Ollama,
             label = stringResource(R.string.ollama),
             icon = painterResource(id = R.drawable.ic_ollama)
@@ -307,20 +312,25 @@ private fun ProviderSettingsContent(
         label = stringResource(R.string.model),
         onSave = { onEvent(IntegrationsEvent.UpdateModel(provider, it)) }
     )
-    Spacer(Modifier.height(8.dp))
     if (provider.supportsCustomUrl &&
         provider.customUrlPrefsKey != null &&
-        provider.customUrlEnabledPrefsKey != null
+        (provider.customUrlEnabledPrefsKey != null || provider.requiresCustomUrl)
     ) {
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(4.dp))
+        val showCustomUrl = settings.useCustomUrl || provider.requiresCustomUrl
         val warning =
-            if (settings.useCustomUrl && settings.customUrl.startsWith("http://", true)) {
+            if (showCustomUrl && !provider.isLocalProvider && settings.customUrl.startsWith(
+                    "http://",
+                    true
+                )
+            ) {
                 stringResource(R.string.insecure_url_warning)
             } else null
         CustomURLSection(
-            enabled = settings.useCustomUrl,
+            enabled = showCustomUrl,
             url = settings.customUrl,
             label = stringResource(R.string.base_url),
+            showCheckbox = !provider.requiresCustomUrl,
             warningText = warning,
             onSave = { onEvent(IntegrationsEvent.UpdateCustomURL(provider, it)) },
             onEnable = { onEvent(IntegrationsEvent.ToggleCustomURL(provider, it)) }

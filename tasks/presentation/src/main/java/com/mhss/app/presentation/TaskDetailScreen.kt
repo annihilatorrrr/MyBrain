@@ -138,23 +138,25 @@ fun TaskDetailScreen(
     }
     LifecycleStartEffect(Unit) {
         onStopOrDispose {
-            uiState.task?.let {task ->
-                viewModel.onEvent(
-                    TaskDetailsEvent.ScreenOnStop(
-                        task.copy(
-                            title = title,
-                            description = description,
-                            isCompleted = completed,
-                            dueDate = if (dueDateExists) dueDate else 0L,
-                            priority = priority,
-                            subTasks = subTasks,
-                            recurring = recurring,
-                            frequency = frequency,
-                            frequencyAmount = frequencyAmount,
-                            id = Uuid.random().toString()
+            if (!uiState.navigateUp) {
+                uiState.task?.let {task ->
+                    viewModel.onEvent(
+                        TaskDetailsEvent.ScreenOnStop(
+                            task.copy(
+                                title = title,
+                                description = description,
+                                isCompleted = completed,
+                                dueDate = if (dueDateExists) dueDate else 0L,
+                                priority = priority,
+                                subTasks = subTasks,
+                                recurring = recurring,
+                                frequency = frequency,
+                                frequencyAmount = frequencyAmount,
+                                id = Uuid.random().toString()
+                            )
                         )
                     )
-                )
+                }
             }
         }
     }

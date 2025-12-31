@@ -80,6 +80,7 @@ fun CustomURLSection(
     enabled: Boolean,
     url: String,
     label: String,
+    showCheckbox: Boolean = true,
     warningText: String? = null,
     onSave: (String) -> Unit,
     onEnable: (Boolean) -> Unit
@@ -87,16 +88,18 @@ fun CustomURLSection(
     Column(
         modifier = modifier.fillMaxWidth()
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Checkbox(checked = enabled, onCheckedChange = onEnable)
-            Text(
-                text = stringResource(R.string.custom_base_url),
-                style = MaterialTheme.typography.bodyMedium
-            )
+        if (showCheckbox) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(checked = enabled, onCheckedChange = onEnable)
+                Text(
+                    text = stringResource(R.string.custom_base_url),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
-        AnimatedVisibility(enabled) {
+        AnimatedVisibility(!showCheckbox || enabled) {
             Column {
                 SavableTextField(
                     text = url,

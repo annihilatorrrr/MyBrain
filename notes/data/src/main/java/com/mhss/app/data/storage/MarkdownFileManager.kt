@@ -409,7 +409,7 @@ class MarkdownFileManager(
         val newName = newTitle.ifBlank { generateUntitledTitle(folderUri) }.trim()
         if (!isValidFileName(newName)) throw NoteException.InvalidFileName
         val fullFileName = newName + FILE_EXT
-        fullFileName.verifySameNameIn(folderUri)
+        fullFileName.verifyNameAndGetDocumentFile(folderUri)
         return try {
             DocumentsContract.renameDocument(
                 contentResolver,
@@ -444,23 +444,20 @@ class MarkdownFileManager(
         val base = note.title.ifBlank { generateUntitledTitle(targetFolderUri) }.trim()
         if (!isValidFileName(base)) throw NoteException.InvalidFileName
         val fileName = base + FILE_EXT
-        val dir = DocumentFile.fromTreeUri(
-            applicationContext,
-            targetFolderUri
-        ) ?: throw NoteException.InvalidUri
-        val existing = dir.listFiles().firstOrNull { it.isFile && it.name == fileName }?.uri
-        if (existing != null) throw NoteException.FileWithSameNameExists
+
+        val dir = fileName.verifyNameAndGetDocumentFile(targetFolderUri)
         return dir.createFile("text/markdown", fileName)?.uri
             ?: throw NoteException.CreateFileFailed
     }
 
-    private inline fun String.verifySameNameIn(folderUri: Uri) {
+    private inline fun String.verifyNameAndGetDocumentFile(folderUri: Uri): DocumentFile {
         val dir = DocumentFile.fromTreeUri(
             applicationContext,
             folderUri
         ) ?: throw NoteException.InvalidUri
         val existing = dir.listFiles().firstOrNull { it.isFile && it.name == this }?.uri
-        if (existing != null) throw NoteException.FileWithSameNameExists
+        if (existing != null) throw NoteException.NoteWithSameNameAlreadyExists
+        return dir
     }
 
     suspend fun deleteNote(note: Note, rootUri: Uri) = withContext(ioDispatcher) {
@@ -482,6 +479,10 @@ class MarkdownFileManager(
             try {
                 val parentDir = DocumentFile.fromTreeUri(applicationContext, parentUri)
                     ?: throw NoteException.InvalidUri
+                
+                val existing = parentDir.listFiles().firstOrNull { it.isDirectory && it.name.equals(folderName, ignoreCase = true) }
+                if (existing != null) throw NoteException.FolderWithSameNameExists
+
                 val newFolder =
                     parentDir.createDirectory(folderName) ?: throw NoteException.CreateFolderFailed
                 notifyFileChanged(newFolder.uri)
@@ -497,6 +498,17 @@ class MarkdownFileManager(
     suspend fun updateFolder(folderUri: Uri, newName: String, rootUri: Uri) =
         withContext(ioDispatcher) {
             try {
+                val folder = DocumentFile.fromTreeUri(applicationContext, folderUri)
+                    ?: throw NoteException.InvalidUri
+                val parentDir = folder.parentFile ?: throw NoteException.InvalidUri
+
+                if (folder.name.equals(newName, ignoreCase = true)) return@withContext
+
+                val existing = parentDir.listFiles().firstOrNull { 
+                    it.isDirectory && it.name.equals(newName, ignoreCase = true)
+                }
+                if (existing != null) throw NoteException.FolderWithSameNameExists
+
                 DocumentsContract.renameDocument(contentResolver, folderUri, newName)
                     ?: throw NoteException.RenameFolderFailed
                 notifyFileChanged(rootUri)

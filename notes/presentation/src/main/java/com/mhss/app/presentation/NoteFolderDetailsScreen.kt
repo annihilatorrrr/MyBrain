@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.mhss.app.ui.ItemView
 import com.mhss.app.ui.R
@@ -50,14 +51,15 @@ import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
 import io.github.fletchmckee.liquid.liquefiable
 import io.github.fletchmckee.liquid.rememberLiquidState
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun NoteFolderDetailsScreen(
     navController: NavHostController,
     id: String,
-    viewModel: NotesViewModel = koinViewModel()
+    viewModel: NoteFolderDetailsViewModel = koinViewModel(parameters = { parametersOf(id) })
 ) {
-    val uiState = viewModel.notesUiState
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val folder = uiState.folder
     val snackbarHostState = uiState.snackbarHostState
 
@@ -65,9 +67,8 @@ fun NoteFolderDetailsScreen(
     var openEditDialog by remember { mutableStateOf(false) }
 
     val liquidState = rememberLiquidState()
-    LaunchedEffect(true) { viewModel.onEvent(NoteEvent.GetFolderNotes(id)) }
-    LaunchedEffect(uiState) {
-        if (viewModel.notesUiState.navigateUp) {
+    LaunchedEffect(uiState.navigateUp) {
+        if (uiState.navigateUp) {
             navController.navigateUp()
         }
     }
@@ -100,7 +101,7 @@ fun NoteFolderDetailsScreen(
         }
     ) { contentPadding ->
         Column(
-            Modifier.fillMaxSize().liquefiable(liquidState)
+            Modifier.fillMaxSize().padding(contentPadding).liquefiable(liquidState)
         ) {
             if (uiState.noteView == ItemView.LIST) {
                 LazyColumn(
@@ -137,7 +138,7 @@ fun NoteFolderDetailsScreen(
                         start = 12.dp,
                         end = 12.dp
                     ),
-                    modifier = Modifier.padding(contentPadding).liquefiable(liquidState)
+                    modifier = Modifier.liquefiable(liquidState)
                 ) {
                     items(uiState.folderNotes) { note ->
                         key(note.id) {
@@ -177,7 +178,7 @@ fun NoteFolderDetailsScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
                         shape = RoundedCornerShape(25.dp),
                         onClick = {
-                            viewModel.onEvent(NoteEvent.DeleteFolder(folder!!))
+                            viewModel.deleteCurrentFolder()
                             openDeleteDialog = false
                         },
                     ) {
@@ -220,7 +221,7 @@ fun NoteFolderDetailsScreen(
                     Button(
                         shape = RoundedCornerShape(25.dp),
                         onClick = {
-                            viewModel.onEvent(NoteEvent.UpdateFolder(folder?.copy(name = folderName)!!))
+                            viewModel.updateCurrentFolderName(folderName)
                             openEditDialog = false
                         },
                     ) {

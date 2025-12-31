@@ -1,6 +1,7 @@
 package com.mhss.app.data.impl
 
 import com.mhss.app.database.dao.NoteDao
+import com.mhss.app.database.entity.NoteFolderEntity
 import com.mhss.app.database.entity.toNote
 import com.mhss.app.database.entity.toNoteEntity
 import com.mhss.app.database.entity.toNoteFolder
@@ -8,6 +9,7 @@ import com.mhss.app.database.entity.toNoteFolderEntity
 import com.mhss.app.domain.model.Note
 import com.mhss.app.domain.model.NoteFolder
 import com.mhss.app.domain.repository.NoteRepository
+import com.mhss.app.util.errors.NoteException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
@@ -87,14 +89,23 @@ class RoomNoteRepositoryImpl(
         }
     }
 
-    override suspend fun insertNoteFolder(folder: NoteFolder) {
-        withContext(ioDispatcher) {
-            noteDao.insertNoteFolder(folder.toNoteFolderEntity())
+    override suspend fun insertNoteFolder(folderName: String): String {
+        return withContext(ioDispatcher) {
+            if (noteDao.getNoteFolderByName(folderName) != null) {
+                throw NoteException.FolderWithSameNameExists
+            }
+            val folderEntity = NoteFolderEntity(id = Uuid.random().toString(), name = folderName)
+            noteDao.insertNoteFolder(folderEntity)
+            folderEntity.id
         }
     }
 
     override suspend fun updateNoteFolder(folder: NoteFolder) {
         withContext(ioDispatcher) {
+            val existingFolder = noteDao.getNoteFolderByName(folder.name)
+            if (existingFolder != null && existingFolder.id != folder.id) {
+                throw NoteException.FolderWithSameNameExists
+            }
             noteDao.updateNoteFolder(folder.toNoteFolderEntity())
         }
     }

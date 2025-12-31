@@ -61,6 +61,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.mhss.app.domain.model.NoteFolder
 import com.mhss.app.preferences.domain.model.Order
@@ -76,7 +77,6 @@ import com.mhss.app.ui.titleRes
 import io.github.fletchmckee.liquid.liquefiable
 import io.github.fletchmckee.liquid.rememberLiquidState
 import org.koin.androidx.compose.koinViewModel
-import kotlin.uuid.Uuid
 
 @Suppress("AssignedValueIsNeverRead")
 @Composable
@@ -84,7 +84,7 @@ fun NotesScreen(
     navController: NavHostController,
     viewModel: NotesViewModel = koinViewModel()
 ) {
-    val uiState = viewModel.notesUiState
+    val uiState by viewModel.notesUiState.collectAsStateWithLifecycle()
     var orderSettingsVisible by remember { mutableStateOf(false) }
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
     var openCreateFolderDialog by remember { mutableStateOf(false) }
@@ -252,12 +252,7 @@ fun NotesScreen(
                     CreateFolderDialog(
                         onCreate = {
                             viewModel.onEvent(
-                                NoteEvent.CreateFolder(
-                                    NoteFolder(
-                                        id = Uuid.random().toString(),
-                                        name = it.trim()
-                                    )
-                                )
+                                NoteEvent.CreateFolder(name = it.trim())
                             )
                             openCreateFolderDialog = false
                         },

@@ -327,15 +327,16 @@ private fun AiProvider.getExecutor(key: String, customUrl: String): PromptExecut
     val client = when (this) {
         AiProvider.OpenAI -> OpenAILLMClient(
             apiKey = key,
-            settings = if (customUrl.isBlank()) OpenAIClientSettings() else OpenAIClientSettings(
-                baseUrl = customUrl
-            )
+            settings = if (customUrl.isBlank()) OpenAIClientSettings() else OpenAIClientSettings(baseUrl = customUrl)
         )
-
         AiProvider.Gemini -> GoogleLLMClient(apiKey = key)
         AiProvider.Anthropic -> AnthropicLLMClient(apiKey = key)
         AiProvider.OpenRouter -> OpenRouterLLMClient(apiKey = key)
         AiProvider.Ollama -> if (customUrl.isBlank()) OllamaClient() else OllamaClient(customUrl)
+        AiProvider.LmStudio -> OpenAILLMClient(
+            apiKey = "",
+            settings = OpenAIClientSettings(baseUrl = customUrl)
+        )
         AiProvider.None -> EmptyAiClient
     }
     return SingleLLMPromptExecutor(client)

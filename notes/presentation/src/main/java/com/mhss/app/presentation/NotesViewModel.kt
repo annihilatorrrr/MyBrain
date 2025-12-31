@@ -1,21 +1,14 @@
 package com.mhss.app.presentation
 
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mhss.app.domain.model.Note
 import com.mhss.app.domain.model.NoteFolder
-import com.mhss.app.domain.use_case.AddNoteFolderUseCase
-import com.mhss.app.domain.use_case.DeleteNoteFolderUseCase
+import com.mhss.app.domain.use_case.CreateNoteFolderUseCase
 import com.mhss.app.domain.use_case.GetAllNoteFoldersUseCase
 import com.mhss.app.domain.use_case.GetAllNotesUseCase
-import com.mhss.app.domain.use_case.GetNoteFolderUseCase
-import com.mhss.app.domain.use_case.GetNotesByFolderUseCase
 import com.mhss.app.domain.use_case.SearchNotesUseCase
-import com.mhss.app.domain.use_case.UpdateNoteFolderUseCase
 import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.domain.model.Order
 import com.mhss.app.preferences.domain.model.OrderType
@@ -27,13 +20,19 @@ import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import com.mhss.app.preferences.domain.use_case.SavePreferenceUseCase
 import com.mhss.app.ui.ItemView
 import com.mhss.app.ui.R
+import com.mhss.app.ui.errors.toMessageResId
 import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.ui.toNotesView
+import com.mhss.app.util.errors.NoteException
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
@@ -44,47 +43,60 @@ class NotesViewModel(
     private val getPreference: GetPreferenceUseCase,
     private val savePreference: SavePreferenceUseCase,
     private val getAllFolders: GetAllNoteFoldersUseCase,
-    private val createFolder: AddNoteFolderUseCase,
-    private val deleteFolder: DeleteNoteFolderUseCase,
-    private val updateFolder: UpdateNoteFolderUseCase,
-    private val getFolderNotes: GetNotesByFolderUseCase,
-    private val getNoteFolder: GetNoteFolderUseCase,
+    private val createFolder: CreateNoteFolderUseCase,
 ) : ViewModel() {
 
-    var notesUiState by mutableStateOf((UiState()))
-        private set
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        if (throwable is NoteException) {
+            viewModelScope.launch {
+                notesUiState.value.snackbarHostState.showSnackbar(throwable.toMessageResId())
+            }
+        }
+    }
+
+    private val _notesUiState = MutableStateFlow(UiState())
+    val notesUiState = _notesUiState.asStateFlow()
 
     private var getNotesJob: Job? = null
-    private var getFolderNotesJob: Job? = null
 
     init {
         viewModelScope.launch {
-            combine(
-                getPreference(
-                    intPreferencesKey(PrefsConstants.NOTES_ORDER_KEY),
-                    Order.DateModified(OrderType.ASC).toInt()
-                ),
-                getPreference(
-                    intPreferencesKey(PrefsConstants.NOTE_VIEW_KEY),
-                    ItemView.LIST.value
-                ),
-                getPreference(
-                    booleanPreferencesKey(PrefsConstants.SHOW_ALL_NOTES_KEY),
-                    false
-                ),
-                getAllFolders()
-            ) { order, view, showAllNotes, folders ->
-                val nextOrder = order.toOrder()
-                notesUiState = notesUiState.copy(
-                    notesOrder = nextOrder,
-                    folders = folders,
-                    showAllNotes = showAllNotes
-                )
-                getNotes(nextOrder, showAllNotes)
-                if (notesUiState.noteView.value != view) {
-                    notesUiState = notesUiState.copy(noteView = view.toNotesView())
+            launch {
+                combine(
+                    getPreference(
+                        intPreferencesKey(PrefsConstants.NOTES_ORDER_KEY),
+                        Order.DateModified(OrderType.ASC).toInt()
+                    ),
+                    getPreference(
+                        intPreferencesKey(PrefsConstants.NOTE_VIEW_KEY),
+                        ItemView.LIST.value
+                    ),
+                    getPreference(
+                        booleanPreferencesKey(PrefsConstants.SHOW_ALL_NOTES_KEY),
+                        false
+                    )
+                ) { order, view, showAllNotes ->
+                    val nextOrder = order.toOrder()
+                    getNotes(nextOrder, showAllNotes)
+                    _notesUiState.update {
+                        it.copy(
+                            notesOrder = nextOrder,
+                            showAllNotes = showAllNotes,
+                            noteView = view.toNotesView()
+                        )
+                    }
+                }.collect()
+            }
+
+            launch {
+                getAllFolders().collect { folders ->
+                    _notesUiState.update {
+                        it.copy(
+                            folders = folders
+                        )
+                    }
                 }
-            }.collect()
+            }
         }
     }
 
@@ -92,7 +104,11 @@ class NotesViewModel(
         when (event) {
 
             is NoteEvent.SearchNotes -> viewModelScope.launch {
-                notesUiState = notesUiState.copy(searchNotes = searchNotes(event.query))
+                _notesUiState.update {
+                    it.copy(
+                        searchNotes = searchNotes(event.query)
+                    )
+                }
             }
 
             is NoteEvent.UpdateOrder -> viewModelScope.launch {
@@ -116,45 +132,14 @@ class NotesViewModel(
                 )
             }
 
-            is NoteEvent.CreateFolder -> viewModelScope.launch {
-                if (event.folder.name.isBlank()) {
-                    notesUiState.snackbarHostState.showSnackbar(R.string.error_empty_title)
+            is NoteEvent.CreateFolder -> viewModelScope.launch(exceptionHandler) {
+                if (event.name.isBlank()) {
+                    notesUiState.value.snackbarHostState.showSnackbar(R.string.error_empty_title)
                 } else {
-                    if (!notesUiState.folders.contains(event.folder)) {
-                        createFolder(event.folder)
-                    } else {
-                        notesUiState.snackbarHostState.showSnackbar(R.string.error_folder_exists)
-                    }
+                    createFolder(event.name)
                 }
             }
 
-            is NoteEvent.DeleteFolder -> viewModelScope.launch {
-                deleteFolder(event.folder)
-                notesUiState = notesUiState.copy(navigateUp = true)
-            }
-
-            is NoteEvent.UpdateFolder -> viewModelScope.launch {
-                if (event.folder.name.isBlank()) {
-                    notesUiState.snackbarHostState.showSnackbar(R.string.error_empty_title)
-                    return@launch
-                }
-
-                if (!notesUiState.folders.contains(event.folder)) {
-                    updateFolder(event.folder)
-                    notesUiState = notesUiState.copy(folder = event.folder)
-                } else {
-                    notesUiState.snackbarHostState.showSnackbar(R.string.error_folder_exists)
-                }
-            }
-
-            is NoteEvent.GetFolderNotes -> {
-                getNotesFromFolder(event.id, notesUiState.notesOrder)
-            }
-
-            is NoteEvent.GetFolder -> viewModelScope.launch {
-                val folder = getNoteFolder(event.id)
-                notesUiState = notesUiState.copy(folder = folder)
-            }
         }
     }
 
@@ -166,7 +151,6 @@ class NotesViewModel(
         val searchNotes: List<Note> = emptyList(),
         val folders: List<NoteFolder> = emptyList(),
         val folderNotes: List<Note> = emptyList(),
-        val folder: NoteFolder? = null,
         val showAllNotes: Boolean = false,
         val snackbarHostState: SnackbarHostState = SnackbarHostState(),
     )
@@ -175,23 +159,12 @@ class NotesViewModel(
         getNotesJob?.cancel()
         getNotesJob = getAllNotes(order, showAllNotes)
             .onEach { notes ->
-                notesUiState = notesUiState.copy(
-                    notes = notes,
-                    notesOrder = order
-                )
+                _notesUiState.update {
+                    it.copy(
+                        notes = notes,
+                        notesOrder = order
+                    )
+                }
             }.launchIn(viewModelScope)
-    }
-
-    private fun getNotesFromFolder(id: String, order: Order) {
-        getFolderNotesJob?.cancel()
-        getFolderNotesJob = getFolderNotes(id, order)
-            .onEach { notes ->
-                val noteFolder = getNoteFolder(id)
-                notesUiState = notesUiState.copy(
-                    folderNotes = notes,
-                    folder = noteFolder
-                )
-            }
-            .launchIn(viewModelScope)
     }
 }

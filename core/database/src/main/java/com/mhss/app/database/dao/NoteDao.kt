@@ -72,6 +72,9 @@ interface NoteDao {
     @Query("SELECT * FROM note_folders WHERE id = :folderId")
     fun getNoteFolder(folderId: String): NoteFolderEntity?
 
+    @Query("SELECT * FROM note_folders WHERE name = :name")
+    suspend fun getNoteFolderByName(name: String): NoteFolderEntity?
+
     @Query("SELECT * FROM note_folders WHERE name LIKE '%' || :name || '%'")
     fun searchFolderByName(name: String): List<NoteFolderEntity>
 }

@@ -29,9 +29,9 @@
 - Create Notes that supports markdown which enables you to use Headers, lists, links etc..
 - Record your mood daily and view your mood summary with beautiful graphs.
 - Save bookmarks for later by using the share menu from any other app.
-- View your calendar events in a modern view and also with a beautiful home screen widget.
+- View your calendar events in a modern list and monthly views with a beautiful home screen widget.
 - Dashboard screen to see your tasks, calendar events, and more to see your day at a glance.
-- AI assistant to help you with your daily workflow. You can chat and attach notes, tasks, or calendar events to your conversations—or even combine them all for comprehensive planning.
+- AI assistant and Agent to help you with your daily workflow. You can chat and attach objects and also ask the AI to create and find items for you.
 
 ## Technologies
 - 100% Kotlin.
@@ -49,6 +49,7 @@
 - Alarm Manager
 - Content Provider
 - Biometric Authentication
+- Koog
 
 ## Translation
 Project localisation is managed via [Crowdin](https://crowdin.com/project/my-brain-app)

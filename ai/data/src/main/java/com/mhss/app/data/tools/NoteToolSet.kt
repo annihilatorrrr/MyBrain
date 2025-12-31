@@ -6,6 +6,7 @@ import ai.koog.agents.core.tools.reflect.ToolSet
 import com.mhss.app.data.nowMillis
 import com.mhss.app.domain.model.Note
 import com.mhss.app.domain.model.NoteFolder
+import com.mhss.app.domain.use_case.CreateNoteFolderUseCase
 import com.mhss.app.domain.use_case.GetNoteFolderUseCase
 import com.mhss.app.domain.use_case.GetNoteUseCase
 import com.mhss.app.domain.use_case.SearchNoteFoldersByNameUseCase
@@ -21,15 +22,10 @@ class NoteToolSet(
     private val upsertNotes: UpsertNotesUseCase,
     private val searchNotesByName: SearchNotesUseCase,
     private val getNote: GetNoteUseCase,
+    private val createFolderUseCase: CreateNoteFolderUseCase,
     private val searchNoteFoldersByName: SearchNoteFoldersByNameUseCase,
     private val getNoteFolder: GetNoteFolderUseCase
 ) : ToolSet {
-
-    @Tool(SEARCH_NOTE_FOLDERS_TOOL)
-    @LLMDescription("Search folders by name (partial match). Returns folder IDs.")
-    suspend fun searchFolders(
-        @LLMDescription("Folder name query") name: String
-    ) = SearchNoteFoldersResult(searchNoteFoldersByName(name))
 
     @Tool(SEARCH_NOTES_TOOL)
     @LLMDescription("Search notes by title/content (partial match, content truncated to 100 chars). If the query is empty, returns all notes.")
@@ -46,7 +42,7 @@ class NoteToolSet(
         pinned: Boolean = false
     ): NoteIdResult {
         if (folderId != null) {
-           getNoteFolder(folderId) ?: throw IllegalArgumentException("No folder found with ID: '$folderId'. The note was not created.. folderId must be a valid ID. If you only have folder name, use the $SEARCH_NOTE_FOLDERS_TOOL tool to find the folder's ID or keep the folderId null to put in the root folder.")
+           runCatching { getNoteFolder(folderId) }.getOrNull() ?: throw IllegalArgumentException("No folder found with ID: '$folderId'. The note was not created.. folderId must be a valid ID. If you only have folder name, use the $SEARCH_NOTE_FOLDERS_TOOL tool to find the folder's ID or keep the folderId null to put in the root folder.")
         }
         val note = Note(
             title = title,
@@ -66,7 +62,7 @@ class NoteToolSet(
     ): NoteIdsResult {
         notes.forEach { input ->
             if (input.folderId != null) {
-                getNoteFolder(input.folderId)
+                runCatching { getNoteFolder(input.folderId) }.getOrNull()
                     ?: throw IllegalArgumentException("No folder found with ID: '${input.folderId}'. folderId must be a valid ID. If you only have the folder name, use the $SEARCH_NOTE_FOLDERS_TOOL tool to find the folder's ID first. The notes were not created.")
             }
         }
@@ -90,6 +86,23 @@ class NoteToolSet(
     ): NoteResult {
         return NoteResult(getNote(id) ?: throw IllegalArgumentException("No note found with ID: '$id'. id must be a valid ID. If you only have the note title, use the $SEARCH_NOTES_TOOL tool to find the note's ID first. The operation did not proceed."))
     }
+
+    @Tool(SEARCH_NOTE_FOLDERS_TOOL)
+    @LLMDescription("Search folders by name (partial match). Returns folder IDs.")
+    suspend fun searchFolders(
+        @LLMDescription("Folder name query") name: String
+    ) = SearchNoteFoldersResult(searchNoteFoldersByName(name))
+
+    @Tool(CREATE_NOTE_FOLDER_TOOL)
+    @LLMDescription("Create a note folder. Returns ID.")
+    suspend fun createFolder(
+        @LLMDescription("Folder name") name: String
+    ): CreateNoteFolderResult {
+        return CreateNoteFolderResult(
+            folderId = createFolderUseCase(folderName = name)
+        )
+    }
+
 }
 
 @Serializable
@@ -114,3 +127,6 @@ data class NoteIdsResult(val createdNoteIds: List<String>)
 
 @Serializable
 data class NoteResult(val note: Note)
+
+@Serializable
+data class CreateNoteFolderResult(val folderId: String)

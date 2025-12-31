@@ -21,7 +21,7 @@ class MarkdownNoteRepositoryImpl(
         return markdownFileManager.getAllNotesFlow(rootUri)
     }
 
-    override suspend fun getNote(id: String): Note? {
+    override suspend fun getNote(id: String): Note {
         return markdownFileManager.getNote(id.toUri())
     }
 
@@ -47,12 +47,12 @@ class MarkdownNoteRepositoryImpl(
         markdownFileManager.deleteNote(note, rootUri)
     }
 
-    override suspend fun insertNoteFolder(folder: NoteFolder) {
-        markdownFileManager.createFolder(folder.name, rootUri)
+    override suspend fun insertNoteFolder(folderName: String): String {
+        return markdownFileManager.createFolder(folderName, rootUri)
     }
 
     override suspend fun updateNoteFolder(folder: NoteFolder) {
-        markdownFileManager.updateFolder(folder.id.toUri(), folder.name, rootUri)
+        markdownFileManager.updateFolder(folder.id.toUri(), folder.name.trim(), rootUri)
     }
 
     override suspend fun deleteNoteFolder(folder: NoteFolder) {

@@ -37,7 +37,7 @@ class TaskToolSet(
     ): SearchTasksResult = SearchTasksResult(searchTasksByName(query).first())
 
     @Tool(CREATE_TASK_TOOL)
-    @LLMDescription("Create a task. Returns ID.")
+    @LLMDescription("Create a task. `isCompleted` = false initially. Returns ID.")
     suspend fun createTask(
         title: String,
         description: String = "",

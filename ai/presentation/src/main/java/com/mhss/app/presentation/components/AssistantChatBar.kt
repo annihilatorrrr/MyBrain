@@ -5,10 +5,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -93,8 +93,9 @@ fun AssistantChatBar(
     onCancel: () -> Unit,
 ) {
     var isFocused by remember { mutableStateOf(false) }
+    val isExpanded = isFocused || text.isNotBlank()
     val cornerRadius by animateDpAsState(
-        if (isFocused || text.isNotBlank()) 24.dp else 99.dp,
+        if (isExpanded) 24.dp else 99.dp,
         animationSpec = tween(durationMillis = 400, easing = EaseInOut),
     )
     val shape = RoundedCornerShape(cornerRadius)
@@ -126,15 +127,18 @@ fun AssistantChatBar(
 
             Column(
                 modifier = Modifier
-                    .clearGlass(liquidState, shape)
-                    .drawAnimatedGradient(loading = loading)
-                    .animateContentSize(
-                        animationSpec = spring(dampingRatio = 0.6f, stiffness = 100f)
+                    .clearGlass(
+                        liquidState = liquidState,
+                        shape = { shape },
+                        edge = { if (isExpanded) 0.012f else 0.03f },
                     )
+                    .drawAnimatedGradient(loading = loading)
                     .fillMaxWidth(),
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .animateContentSize(tween(durationMillis = 300, easing = FastOutSlowInEasing)),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     TextField(
@@ -204,7 +208,7 @@ fun AssistantChatBar(
                         }
                     }
                 }
-                if (isFocused) {
+                AnimatedVisibility(isFocused) {
                     LeftToRight {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,

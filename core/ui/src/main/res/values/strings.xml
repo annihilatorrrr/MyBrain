@@ -147,7 +147,7 @@
     <string name="delete_event_confirmation_message">Are you sure you want do delete this event?</string>
     <string name="folders">Folders</string>
     <string name="create_folder">Create folder</string>
-    <string name="error_folder_exists">Folder already exists</string>
+    <string name="error_folder_exists">Folder name already exists</string>
     <string name="name">Name</string>
     <string name="change_folder">Change folder</string>
     <string name="none">None</string>
@@ -189,6 +189,7 @@
     <string name="anthropic" translatable="false">Anthropic</string>
     <string name="openrouter" translatable="false">OpenRouter</string>
     <string name="ollama" translatable="false">Ollama</string>
+    <string name="lm_studio" translatable="false">LM Studio</string>
     <string name="openai">OpenAI</string>
     <string name="model">Model</string>
     <string name="custom_url">Custom URL</string>

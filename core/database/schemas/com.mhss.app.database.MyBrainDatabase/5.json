@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 5,
-    "identityHash": "6becba632a7aa6f329e1bb1225808a16",
+    "identityHash": "6a27f27800b8b11d58580e3301999b17",
     "entities": [
       {
         "tableName": "notes",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`title` TEXT NOT NULL, `content` TEXT NOT NULL, `created_date` INTEGER NOT NULL, `updated_date` INTEGER NOT NULL, `pinned` INTEGER NOT NULL, `folder_id` TEXT, `id` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`folder_id`) REFERENCES `note_folders`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`title` TEXT NOT NULL, `content` TEXT NOT NULL, `created_date` INTEGER NOT NULL, `updated_date` INTEGER NOT NULL, `pinned` INTEGER NOT NULL, `folder_id` TEXT, `id` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "title",
@@ -55,20 +55,7 @@
           "columnNames": [
             "id"
           ]
-        },
-        "foreignKeys": [
-          {
-            "table": "note_folders",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "folder_id"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          }
-        ]
+        }
       },
       {
         "tableName": "tasks",
@@ -306,7 +293,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6becba632a7aa6f329e1bb1225808a16')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6a27f27800b8b11d58580e3301999b17')"
     ]
   }
 }

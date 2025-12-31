@@ -53,7 +53,9 @@ fun LiquidFloatingActionButton(
         Icon(
             painter = iconPainter,
             contentDescription = contentDescription,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                alpha = 0.8f
+            ),
             modifier = Modifier
                 .padding(16.dp)
                 .size(24.dp)

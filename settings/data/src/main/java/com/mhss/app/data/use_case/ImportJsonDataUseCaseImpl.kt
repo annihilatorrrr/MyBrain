@@ -4,11 +4,11 @@ import android.content.Context
 import androidx.core.net.toUri
 import androidx.core.text.isDigitsOnly
 import androidx.room.withTransaction
+import com.mhss.app.data.model.JsonBackupData
 import com.mhss.app.database.MyBrainDatabase
 import com.mhss.app.database.entity.toTask
 import com.mhss.app.domain.use_case.UpsertTaskUseCase
 import com.mhss.app.domain.use_case.`interface`.ImportJsonDataUseCase
-import com.mhss.app.data.model.JsonBackupData
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -16,7 +16,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Named
-import kotlin.collections.get
 import kotlin.uuid.Uuid
 
 @Factory
@@ -91,6 +90,7 @@ class ImportJsonDataUseCaseImpl(
         return if (this == "null") null else this
     }
 
+    // to handle older backup files where id was an integer
     private fun String.toUuidIfNumber(): String {
         return if (this.isDigitsOnly()) {
             Uuid.random().toString()

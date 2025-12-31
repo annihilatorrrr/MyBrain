@@ -3,7 +3,8 @@ package com.mhss.app.util.errors
 sealed class NoteException : Throwable() {
     data object FileNotFound : NoteException()
     data object CreateFileFailed : NoteException()
-    data object FileWithSameNameExists : NoteException()
+    data object NoteWithSameNameAlreadyExists : NoteException()
+    data object FolderWithSameNameExists : NoteException()
     data object WriteFileFailed : NoteException()
     data object RenameFileFailed : NoteException()
     data object MoveFileFailed : NoteException()

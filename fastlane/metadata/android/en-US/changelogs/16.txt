@@ -1,0 +1,9 @@
+- Added tool calling features to assistant and enhanced ai provider settings
+- Added external markdown notes support (Experimental)
+- Added monthly view to calendar
+- Added periodic auto backup feature
+- Added Notes widget
+- Added sorting task by done status
+- UI refresh in multiple areas
+- Update all types to use uuid id
+- Bug fixes

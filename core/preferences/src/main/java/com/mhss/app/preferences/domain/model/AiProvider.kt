@@ -10,6 +10,8 @@ enum class AiProvider(
     val keyInfoUrl: String? = null,
     val modelsInfoUrl: String? = null,
     val supportsCustomUrl: Boolean = false,
+    val requiresCustomUrl: Boolean = false,
+    val isLocalProvider: Boolean = false,
     val customUrlPref: String? = null,
     val customUrlEnabledPref: String? = null,
     val defaultBaseUrl: String? = null
@@ -51,17 +53,31 @@ enum class AiProvider(
         keyInfoUrl = "https://openrouter.ai/keys",
         modelsInfoUrl = "https://openrouter.ai/models"
     ),
-    Ollama(
+    LmStudio(
         id = 5,
+        keyPref = null,
+        modelPref = PrefsConstants.LM_STUDIO_MODEL_KEY,
+        defaultModel = "openai/gpt-oss-20b",
+        keyInfoUrl = "",
+        modelsInfoUrl = "https://lmstudio.ai/models",
+        supportsCustomUrl = true,
+        requiresCustomUrl = true,
+        isLocalProvider = true,
+        customUrlPref = PrefsConstants.LM_STUDIO_URL_KEY,
+        defaultBaseUrl = "http://192.168.1.100:1234"
+    ),
+    Ollama(
+        id = 6,
         keyPref = null,
         modelPref = PrefsConstants.OLLAMA_MODEL_KEY,
         defaultModel = "gpt-oss:latest",
         keyInfoUrl = "",
         modelsInfoUrl = "https://ollama.com/library",
         supportsCustomUrl = true,
+        requiresCustomUrl = true,
+        isLocalProvider = true,
         customUrlPref = PrefsConstants.OLLAMA_URL_KEY,
-        customUrlEnabledPref = PrefsConstants.OLLAMA_USE_URL_KEY,
-        defaultBaseUrl = "http://localhost:11434"
+        defaultBaseUrl = "http://192.168.1.100:11434"
     );
 }
 

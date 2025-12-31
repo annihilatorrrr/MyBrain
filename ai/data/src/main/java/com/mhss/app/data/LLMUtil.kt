@@ -61,23 +61,26 @@ fun Message.Tool.Call.toAiMessage(toolCallResult: Result<AiMessage.ToolCall>): A
         )
 }
 
-fun String.toLLModel(provider: AiProvider, withTools: Boolean) = LLModel(
-    provider = provider.toLLMProvider(),
-    id = this,
-    capabilities = buildList {
-        if (withTools) {
-            add(LLMCapability.Tools)
-            add(LLMCapability.ToolChoice)
-        }
-        add(LLMCapability.Completion)
-        if (provider == AiProvider.OpenAI){
-            add(LLMCapability.OpenAIEndpoint.Responses)
-            add(LLMCapability.OpenAIEndpoint.Completions)
-        }
-    },
-    contextLength = 128_000,
-    maxOutputTokens = 32_000,
-)
+fun String.toLLModel(provider: AiProvider, withTools: Boolean): LLModel {
+    val llmProvider = provider.toLLMProvider()
+    return LLModel(
+        provider = llmProvider,
+        id = this,
+        capabilities = buildList {
+            if (withTools) {
+                add(LLMCapability.Tools)
+                add(LLMCapability.ToolChoice)
+            }
+            add(LLMCapability.Completion)
+            if (llmProvider == LLMProvider.OpenAI){
+                add(LLMCapability.OpenAIEndpoint.Responses)
+                add(LLMCapability.OpenAIEndpoint.Completions)
+            }
+        },
+        contextLength = 128_000,
+        maxOutputTokens = 32_000,
+    )
+}
 
 fun AiProvider.toLLMProvider() = when (this) {
     AiProvider.OpenAI -> LLMProvider.OpenAI
@@ -85,6 +88,7 @@ fun AiProvider.toLLMProvider() = when (this) {
     AiProvider.Anthropic -> LLMProvider.Anthropic
     AiProvider.OpenRouter -> LLMProvider.OpenRouter
     AiProvider.Ollama -> LLMProvider.Ollama
+    AiProvider.LmStudio -> LLMProvider.OpenAI
     AiProvider.None -> LLMProvider.OpenAI // just a placeholder
 }
 

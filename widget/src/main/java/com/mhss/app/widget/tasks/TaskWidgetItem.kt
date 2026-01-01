@@ -1,5 +1,6 @@
 package com.mhss.app.widget.tasks
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
@@ -16,20 +17,29 @@ import androidx.glance.action.actionParametersOf
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.background
-import androidx.glance.layout.*
+import androidx.glance.layout.Alignment
+import androidx.glance.layout.Box
+import androidx.glance.layout.Column
+import androidx.glance.layout.Row
+import androidx.glance.layout.Spacer
+import androidx.glance.layout.fillMaxWidth
+import androidx.glance.layout.padding
+import androidx.glance.layout.size
+import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.mhss.app.domain.model.Priority
-import com.mhss.app.ui.R
 import com.mhss.app.domain.model.Task
+import com.mhss.app.ui.R
 import com.mhss.app.ui.color
 import com.mhss.app.util.date.formatDateDependingOnDay
 import com.mhss.app.util.date.isDueDateOverdue
 import com.mhss.app.widget.smallBackgroundBasedOnVersion
 
+@SuppressLint("RestrictedApi")
 @Composable
 fun TaskWidgetItem(
     task: Task

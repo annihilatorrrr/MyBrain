@@ -1,48 +1,21 @@
 package com.mhss.app.domain.use_case
 
-import com.mhss.app.domain.AiConstants
-import com.mhss.app.network.NetworkResult
-import com.mhss.app.domain.repository.AiApi
-import com.mhss.app.preferences.domain.model.AiProvider
-import org.koin.core.annotation.Named
-import org.koin.core.annotation.Single
+import com.mhss.app.domain.model.AssistantResult
+import com.mhss.app.domain.repository.AiRepository
+import org.koin.core.annotation.Factory
 import java.io.IOException
 
-@Single
-class SendAiPromptUseCase(
-    @Named("openaiApi") private val openai: AiApi,
-    @Named("geminiApi") private val gemini: AiApi
-) {
-    suspend operator fun invoke(
-        prompt: String,
-        key: String,
-        model: String,
-        provider: AiProvider,
-        baseURL: String = ""
-    ): NetworkResult<String> {
-        if (key.isBlank()) return NetworkResult.InvalidKey
+@Factory
+class SendAiPromptUseCase(private val aiRepository: AiRepository) {
+    suspend operator fun invoke(prompt: String): AssistantResult<String> {
         return try {
-            when (provider) {
-                AiProvider.OpenAI -> openai.sendPrompt(
-                    baseUrl = baseURL,
-                    prompt = prompt,
-                    model = model,
-                    key = key
-                )
-                AiProvider.Gemini -> gemini.sendPrompt(
-                    baseUrl = AiConstants.GEMINI_BASE_URL,
-                    prompt = prompt,
-                    model = model,
-                    key = key
-                )
-                else -> throw IllegalStateException("No AI provider is chosen")
-            }
+            aiRepository.sendPrompt(prompt)
         } catch (e: IOException) {
             e.printStackTrace()
-            NetworkResult.InternetError
+            AssistantResult.InternetError
         } catch (e: Exception) {
             e.printStackTrace()
-            NetworkResult.OtherError()
+            AssistantResult.OtherError()
         }
     }
 }

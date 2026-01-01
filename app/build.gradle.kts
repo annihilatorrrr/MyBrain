@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -8,14 +10,14 @@ plugins {
 
 android {
     namespace = "com.mhss.app.mybrain"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.mhss.app.mybrain"
         minSdk = 26
         targetSdk = 35
-        versionCode = 15
-        versionName = "2.0.6"
+        versionCode = 16
+        versionName = "3.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -42,9 +44,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_17
+        }
     }
     buildFeatures {
         compose = true
@@ -53,6 +56,11 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/INDEX.LIST"
+            excludes += "/META-INF/io.netty.versions.properties"
+            excludes += "/META-INF/DEPENDENCIES"
+            excludes += "/META-INF/LICENSE.md"
+            excludes += "/META-INF/NOTICE.md"
         }
     }
     androidResources {
@@ -95,7 +103,6 @@ dependencies {
     implementation(project(":widget"))
     implementation(project(":core:preferences"))
     implementation(project(":core:util"))
-    implementation(project(":core:network"))
 
     implementation(platform(libs.compose.bom))
     androidTestImplementation(platform(libs.compose.bom))

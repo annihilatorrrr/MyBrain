@@ -3,16 +3,48 @@ package com.mhss.app.presentation
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.*
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SecondaryTabRow
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Tab
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,35 +58,37 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.navigation.NavHostController
-import com.mhss.app.ui.R
 import com.mhss.app.domain.model.Priority
 import com.mhss.app.domain.model.SubTask
-import com.mhss.app.domain.model.Task
 import com.mhss.app.domain.model.TaskFrequency
-import com.mhss.app.util.permissions.Permission
+import com.mhss.app.ui.R
+import com.mhss.app.ui.color
 import com.mhss.app.ui.components.common.AnimatedTabIndicator
 import com.mhss.app.ui.components.common.DateTimeDialog
-import com.mhss.app.ui.color
 import com.mhss.app.ui.components.common.MyBrainAppBar
+import com.mhss.app.ui.components.common.NumberPicker
 import com.mhss.app.ui.components.tasks.TaskCheckBox
+import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
+import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.ui.titleRes
 import com.mhss.app.util.date.formatDateDependingOnDay
 import com.mhss.app.util.date.now
+import com.mhss.app.util.permissions.Permission
 import com.mhss.app.util.permissions.rememberPermissionState
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.uuid.Uuid
 
+@Suppress("AssignedValueIsNeverRead")
 @Composable
 fun TaskDetailScreen(
     navController: NavHostController,
-    taskId: Int,
+    taskId: String,
     viewModel: TaskDetailsViewModel = koinViewModel(parameters = { parametersOf(taskId) }),
 ) {
     val alarmPermissionState = rememberPermissionState(Permission.SCHEDULE_ALARMS)
     val uiState = viewModel.taskDetailsUiState
-    val snackbarHostState = remember {
-        SnackbarHostState()
-    }
+    val snackbarHostState = uiState.snackbarHostState
     var openDialog by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
 
@@ -70,9 +104,7 @@ fun TaskDetailScreen(
     val subTasks = remember { mutableStateListOf<SubTask>() }
     val priorities = listOf(Priority.LOW, Priority.MEDIUM, Priority.HIGH)
     val formattedDate by remember {
-        derivedStateOf {
-            dueDate.formatDateDependingOnDay(context)
-        }
+        derivedStateOf { dueDate.formatDateDependingOnDay(context) }
     }
 
     LaunchedEffect(uiState.task) {
@@ -90,17 +122,14 @@ fun TaskDetailScreen(
             subTasks.addAll(uiState.task.subTasks)
         }
     }
-    LaunchedEffect(uiState.navigateUp, uiState.error, uiState.errorAlarm) {
+    LaunchedEffect(uiState.navigateUp, uiState.alarmError) {
         if (uiState.navigateUp) {
             openDialog = false
             navController.navigateUp()
         }
-        if (uiState.error != null) {
-            if (uiState.errorAlarm) dueDateExists = false
-            val snackbarResult = snackbarHostState.showSnackbar(
-                context.getString(uiState.error),
-                if (uiState.errorAlarm) context.getString(R.string.grant_permission) else null
-            )
+        if (uiState.alarmError) {
+            dueDateExists = false
+            val snackbarResult = snackbarHostState.showSnackbar(R.string.no_alarm_permission, R.string.grant_permission)
             if (snackbarResult == SnackbarResult.ActionPerformed) {
                 alarmPermissionState.launchRequest()
             }
@@ -109,25 +138,30 @@ fun TaskDetailScreen(
     }
     LifecycleStartEffect(Unit) {
         onStopOrDispose {
-            viewModel.onEvent(
-                TaskDetailsEvent.ScreenOnStop(
-                    Task(
-                        title = title,
-                        description = description,
-                        isCompleted = completed,
-                        dueDate = if (dueDateExists) dueDate else 0L,
-                        priority = priority,
-                        subTasks = subTasks,
-                        recurring = recurring,
-                        frequency = frequency,
-                        frequencyAmount = frequencyAmount
+            if (!uiState.navigateUp) {
+                uiState.task?.let {task ->
+                    viewModel.onEvent(
+                        TaskDetailsEvent.ScreenOnStop(
+                            task.copy(
+                                title = title,
+                                description = description,
+                                isCompleted = completed,
+                                dueDate = if (dueDateExists) dueDate else 0L,
+                                priority = priority,
+                                subTasks = subTasks,
+                                recurring = recurring,
+                                frequency = frequency,
+                                frequencyAmount = frequencyAmount,
+                                id = Uuid.random().toString()
+                            )
+                        )
                     )
-                )
-            )
+                }
+            }
         }
     }
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = { LocalisedSnackbarHost(snackbarHostState) },
         topBar = {
             MyBrainAppBar(
                 title = "",
@@ -159,9 +193,12 @@ fun TaskDetailScreen(
             onTitleChange = { title = it },
             onDescriptionChange = { description = it },
             onPriorityChange = { priority = it },
-            onDueDateExist = {
-                dueDateExists = it
-                if (it) dueDate = now()
+            onDueDateExist = { checked ->
+                dueDateExists = checked
+                if (checked) {
+                    dueDate = now()
+                    viewModel.onEvent(TaskDetailsEvent.DueDateEnabled)
+                }
             },
             onDueDateChange = { dueDate = it },
             onRecurringChange = { recurring = it },
@@ -436,12 +473,12 @@ fun PriorityTabRow(
     selectedPriority: Priority,
     onChange: (Priority) -> Unit
 ) {
-    val indicator = @Composable { tabPositions: List<TabPosition> ->
-        AnimatedTabIndicator(Modifier.tabIndicatorOffset(tabPositions[selectedPriority.value]))
-    }
-    TabRow(
+    SecondaryTabRow(
         selectedTabIndex = selectedPriority.value,
-        indicator = indicator,
+        indicator = {
+            AnimatedTabIndicator(Modifier.tabIndicatorOffset(selectedPriority.value))
+        },
+        divider = {},
         modifier = Modifier.clip(RoundedCornerShape(14.dp))
     ) {
         priorities.forEach {

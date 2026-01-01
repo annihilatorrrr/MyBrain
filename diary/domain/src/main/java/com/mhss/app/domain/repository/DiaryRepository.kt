@@ -7,11 +7,11 @@ interface DiaryRepository {
 
     fun getAllEntries(): Flow<List<DiaryEntry>>
 
-    suspend fun getEntry(id: Int): DiaryEntry
+    suspend fun getEntry(id: String): DiaryEntry?
 
     suspend fun searchEntries(title: String): List<DiaryEntry>
 
-    suspend fun addEntry(diary: DiaryEntry): Long
+    suspend fun addEntry(diary: DiaryEntry)
 
     suspend fun updateEntry(diary: DiaryEntry)
 

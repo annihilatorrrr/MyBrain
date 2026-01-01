@@ -48,11 +48,11 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.mhss.app.domain.model.Note
-import com.mhss.app.ui.R
 import com.mhss.app.domain.model.AiMessageAttachment
+import com.mhss.app.domain.model.Note
 import com.mhss.app.domain.model.SubTask
 import com.mhss.app.domain.model.Task
+import com.mhss.app.ui.R
 import com.mhss.app.ui.color
 import com.mhss.app.ui.theme.MyBrainTheme
 import com.mhss.app.util.date.formatDateDependingOnDay
@@ -74,6 +74,7 @@ fun AiAttachmentsSection(
                 .padding(top = 5.dp, end = 5.dp)
                 .horizontalScroll(rememberScrollState()),
         ) {
+            Spacer(Modifier.width(4.dp))
             attachments.forEachIndexed { i, it ->
                 when (it) {
                     is AiMessageAttachment.Note -> NoteAttachmentCard(
@@ -147,7 +148,7 @@ fun NoteAttachmentCard(
     ) {
         Card(
             shape = RoundedCornerShape(12.dp),
-            elevation = CardDefaults.cardElevation(6.dp)
+            elevation = CardDefaults.cardElevation(2.dp)
         ) {
             Text(
                 text = note.title,
@@ -182,7 +183,7 @@ internal fun TaskAttachmentCard(
     ) {
         Card(
             shape = RoundedCornerShape(12.dp),
-            elevation = CardDefaults.cardElevation(6.dp)
+            elevation = CardDefaults.cardElevation(2.dp)
         ) {
             Column(
                 Modifier
@@ -275,7 +276,7 @@ fun CalendarEventsAttachmentCard(
     ) {
         Card(
             shape = RoundedCornerShape(12.dp),
-            elevation = CardDefaults.cardElevation(6.dp)
+            elevation = CardDefaults.cardElevation(2.dp)
         ) {
             Row(
                 Modifier.padding(8.dp),
@@ -333,7 +334,7 @@ private fun NoteAttachmentPreview() {
     MyBrainTheme {
         NoteAttachmentCard(
             note = Note(
-                id = 1,
+                id = "1",
                 title = "Test note Note Title".repeat(3),
                 content = "Note Content",
             ),
@@ -348,7 +349,7 @@ private fun TaskAttachmentPreview() {
     MyBrainTheme {
         TaskAttachmentCard(
             task = Task(
-                id = 1,
+                id = "1",
                 title = "Test task Task Title".repeat(3),
                 description = "Task Description",
                 isCompleted = false,

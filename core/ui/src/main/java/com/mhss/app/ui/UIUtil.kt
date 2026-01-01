@@ -5,9 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
+import com.mhss.app.domain.model.BackupFrequency
 import com.mhss.app.domain.model.Priority
 import com.mhss.app.domain.model.TaskFrequency
-import com.mhss.app.network.NetworkResult
 import com.mhss.app.preferences.domain.model.Order
 import com.mhss.app.preferences.domain.model.OrderType
 import com.mhss.app.ui.navigation.Screen
@@ -113,6 +113,7 @@ val Order.titleRes: Int
         is Order.DateModified -> R.string.date_modified
         is Order.Priority -> R.string.priority
         is Order.DueDate -> R.string.due_date
+        is Order.Done -> R.string.done
     }
 
 val OrderType.titleRes: Int
@@ -131,6 +132,14 @@ val TaskFrequency.titleRes: Int
         TaskFrequency.ANNUAL -> R.string.every_year
     }
 
+val BackupFrequency.titleRes: Int
+    get() = when (this) {
+        BackupFrequency.HOURLY -> R.string.every_hour
+        BackupFrequency.DAILY -> R.string.every_day
+        BackupFrequency.WEEKLY -> R.string.every_week
+        BackupFrequency.MONTHLY -> R.string.every_month
+    }
+
 val Priority.titleRes: Int
     get() = when (this) {
         Priority.LOW -> R.string.low
@@ -146,13 +155,4 @@ val Priority.color: Color
     }
 
 fun Set<String>.toIntList() = this.toList().map { it.toInt() }
-
-@Composable
-fun NetworkResult.Failure.toUserMessage(): String {
-    return when (this) {
-        NetworkResult.InvalidKey -> stringResource(R.string.invalid_api_key)
-        NetworkResult.InternetError -> stringResource(R.string.no_internet_connection)
-        is NetworkResult.OtherError -> if (message != null) message.toString() else stringResource(R.string.unexpected_error)
-    }
-}
 

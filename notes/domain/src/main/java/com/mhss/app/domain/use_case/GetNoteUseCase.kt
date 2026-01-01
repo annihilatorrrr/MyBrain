@@ -1,11 +1,11 @@
 package com.mhss.app.domain.use_case
 
 import com.mhss.app.domain.repository.NoteRepository
-import org.koin.core.annotation.Single
+import org.koin.core.annotation.Factory
 
-@Single
+@Factory
 class GetNoteUseCase(
     private val notesRepository: NoteRepository
 ) {
-    suspend operator fun invoke(id: Int) = notesRepository.getNote(id)
+    suspend operator fun invoke(id: String) = notesRepository.getNote(id)
 }

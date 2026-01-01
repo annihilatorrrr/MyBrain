@@ -15,7 +15,17 @@ import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
-import androidx.glance.layout.*
+import androidx.glance.layout.Alignment
+import androidx.glance.layout.Box
+import androidx.glance.layout.Column
+import androidx.glance.layout.Row
+import androidx.glance.layout.Spacer
+import androidx.glance.layout.fillMaxSize
+import androidx.glance.layout.fillMaxWidth
+import androidx.glance.layout.height
+import androidx.glance.layout.padding
+import androidx.glance.layout.size
+import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
@@ -23,12 +33,7 @@ import com.mhss.app.domain.model.CalendarEvent
 import com.mhss.app.ui.R
 import com.mhss.app.util.date.formatTime
 import com.mhss.app.widget.smallBackgroundBasedOnVersion
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
 
-@OptIn(ExperimentalEncodingApi::class)
 @Composable
 fun CalendarEventWidgetItem(
     event: CalendarEvent,
@@ -96,8 +101,7 @@ fun CalendarEventWidgetItem(
                 GlanceModifier.fillMaxSize().clickable(
                     actionRunCallback<CalendarWidgetItemClick>(
                         parameters = actionParametersOf(
-                            // Base64 encoding to avoid crashing when content contains a url
-                            eventJson to Base64.encode(Json.encodeToString(event).toByteArray())
+                            eventIdKey to event.id
                         )
                     )
                 )

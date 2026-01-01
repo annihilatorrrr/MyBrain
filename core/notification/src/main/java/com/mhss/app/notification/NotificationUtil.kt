@@ -20,7 +20,7 @@ fun NotificationManager.sendNotification(task: Task, context: Context, id: Int) 
     val completePendingIntent: PendingIntent =
         PendingIntent.getBroadcast(
             context,
-            task.id,
+            task.alarmId ?: return,
             completeIntent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )

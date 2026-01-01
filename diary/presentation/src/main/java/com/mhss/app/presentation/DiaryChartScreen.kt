@@ -1,16 +1,26 @@
 package com.mhss.app.presentation
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabPosition
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,18 +58,16 @@ fun DiaryChartScreen(
 fun MonthlyOrYearlyTab(
     onChange: (Boolean) -> Unit
 ) {
-    var selected by remember {
-        mutableIntStateOf(R.string.last_30_days)
-    }
-    val indicator = @Composable { tabPositions: List<TabPosition> ->
-        AnimatedTabIndicator(Modifier.tabIndicatorOffset(tabPositions[if (selected == R.string.last_30_days) 0 else 1]))
-    }
+    var selected by remember { mutableIntStateOf(R.string.last_30_days) }
     LaunchedEffect(true){
         onChange(true)
     }
-    TabRow(
+    PrimaryTabRow(
         selectedTabIndex = if (selected == R.string.last_30_days) 0 else 1,
-        indicator = indicator,
+        indicator = {
+            AnimatedTabIndicator(Modifier.tabIndicatorOffset(if (selected == R.string.last_30_days) 0 else 1))
+        },
+        divider = {},
         modifier = Modifier.clip(RoundedCornerShape(14.dp))
     ) {
         Tab(

@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -7,7 +9,7 @@ plugins {
 
 android {
     namespace = "com.mhss.app.data"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 26
@@ -29,14 +31,19 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_1_8
+        }
     }
 }
 
 dependencies {
     implementation(project(":core:database"))
+    implementation(project(":core:preferences"))
     implementation(project(":settings:domain"))
+    implementation(project(":tasks:domain"))
+    implementation(project(":diary:domain"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -44,9 +51,11 @@ dependencies {
     implementation(platform(libs.koin.bom))
     implementation(libs.bundles.koin)
     implementation(libs.koin.android)
+    implementation(libs.koin.android.workmanager)
     ksp(libs.koin.ksp.compiler)
 
     implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.androidx.documentfile)
+    implementation(libs.androidx.work.runtime.ktx)
 }

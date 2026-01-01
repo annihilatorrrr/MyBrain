@@ -1,12 +1,18 @@
 package com.mhss.app.presentation
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mhss.app.domain.model.DiaryEntry
-import com.mhss.app.domain.use_case.*
+import com.mhss.app.domain.use_case.AddDiaryEntryUseCase
+import com.mhss.app.domain.use_case.DeleteDiaryEntryUseCase
+import com.mhss.app.domain.use_case.GetDiaryEntryUseCase
+import com.mhss.app.domain.use_case.UpdateDiaryEntryUseCase
+import com.mhss.app.ui.R
+import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.util.date.now
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -20,7 +26,7 @@ class DiaryDetailsViewModel(
     private val updateEntry: UpdateDiaryEntryUseCase,
     private val deleteEntry: DeleteDiaryEntryUseCase,
     @Named("applicationScope") private val applicationScope: CoroutineScope,
-    entryId: Int
+    entryId: String
 ) : ViewModel() {
 
     var uiState by mutableStateOf(UiState())
@@ -28,10 +34,14 @@ class DiaryDetailsViewModel(
 
     init {
         viewModelScope.launch {
-            if (entryId != -1) {
+            if (entryId.isNotBlank()) {
+                val entry = getEntry(entryId)
+                if (entry == null) {
+                    uiState.snackbarHostState.showSnackbar(R.string.error_item_not_found)
+                }
                 uiState = uiState.copy(
-                    entry = getEntry(entryId),
-                    readingMode = true
+                    entry = entry,
+                    readingMode = entry != null
                 )
             }
         }
@@ -56,8 +66,8 @@ class DiaryDetailsViewModel(
                             val entry = event.currentEntry.copy(
                                 updatedDate = now()
                             )
-                            val id = addEntry(entry)
-                            uiState = uiState.copy(entry = entry.copy(id = id.toInt()))
+                            addEntry(entry)
+                            uiState = uiState.copy(entry = entry)
                         }
                     } else if (entryChanged(uiState.entry!!, event.currentEntry)) {
                         val newEntry = uiState.entry!!.copy(
@@ -85,6 +95,7 @@ class DiaryDetailsViewModel(
     data class UiState(
         val entry: DiaryEntry? = null,
         val navigateUp: Boolean = false,
-        val readingMode: Boolean = false
+        val readingMode: Boolean = false,
+        val snackbarHostState: SnackbarHostState = SnackbarHostState()
     )
 }

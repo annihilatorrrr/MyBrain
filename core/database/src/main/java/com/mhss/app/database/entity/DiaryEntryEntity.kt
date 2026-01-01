@@ -3,6 +3,7 @@ package com.mhss.app.database.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.mhss.app.database.converters.IdSerializer
 import com.mhss.app.domain.model.Mood
 import com.mhss.app.domain.model.DiaryEntry
 import kotlinx.serialization.SerialName
@@ -24,8 +25,9 @@ data class DiaryEntryEntity(
     @SerialName("mood")
     val mood: Mood,
     @SerialName("id")
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0
+    @PrimaryKey
+    @Serializable(IdSerializer::class)
+    val id: String
 )
 
 fun DiaryEntryEntity.toDiaryEntry() = DiaryEntry(
@@ -45,5 +47,3 @@ fun DiaryEntry.toDiaryEntryEntity() = DiaryEntryEntity(
     mood = mood,
     id = id
 )
-
-fun List<DiaryEntryEntity>.withoutIds() = map { it.copy(id = 0) }

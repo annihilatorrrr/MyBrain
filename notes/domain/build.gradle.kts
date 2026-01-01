@@ -6,6 +6,7 @@ plugins {
 
 dependencies {
     implementation(project(":core:preferences"))
+    implementation(project(":settings:domain"))
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.serialization.json)
 

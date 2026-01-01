@@ -3,6 +3,7 @@ package com.mhss.app.database.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.mhss.app.database.converters.IdSerializer
 import com.mhss.app.domain.model.Priority
 import com.mhss.app.domain.model.SubTask
 import com.mhss.app.domain.model.Task
@@ -40,9 +41,12 @@ data class TaskEntity(
     @SerialName("frequencyAmount")
     @ColumnInfo(name = "frequency_amount")
     val frequencyAmount: Int = 1,
+    @SerialName("alarmId")
+    val alarmId: Int? = null,
     @SerialName("id")
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0
+    @PrimaryKey
+    @Serializable(IdSerializer::class)
+    val id: String
 )
 
 fun TaskEntity.toTask() = Task(
@@ -57,6 +61,7 @@ fun TaskEntity.toTask() = Task(
     recurring = recurring,
     frequency = TaskFrequency.entries.firstOrNull { it.value == frequency } ?: TaskFrequency.DAILY,
     frequencyAmount = frequencyAmount,
+    alarmId = alarmId,
     id = id
 )
 
@@ -72,7 +77,6 @@ fun Task.toTaskEntity() = TaskEntity(
     recurring = recurring,
     frequency = frequency.value,
     frequencyAmount = frequencyAmount,
+    alarmId = alarmId,
     id = id
 )
-
-fun List<TaskEntity>.withoutIds() = map { it.copy(id = 0) }

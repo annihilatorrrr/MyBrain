@@ -1,6 +1,10 @@
 package com.mhss.app.database.dao
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Query
+import androidx.room.Update
+import androidx.room.Upsert
 import com.mhss.app.database.entity.TaskEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -10,17 +14,23 @@ interface TaskDao {
     @Query("SELECT * FROM tasks")
     fun getAllTasks(): Flow<List<TaskEntity>>
 
+    @Query("SELECT * FROM tasks")
+    suspend fun getAllFullTasks(): List<TaskEntity>
+
     @Query("SELECT * FROM tasks WHERE id = :id")
-    suspend fun getTask(id: Int): TaskEntity
+    suspend fun getTask(id: String): TaskEntity?
+
+    @Query("SELECT * FROM tasks WHERE alarmId = :alarmId")
+    suspend fun getTaskByAlarm(alarmId: Int): TaskEntity?
 
     @Query("SELECT * FROM tasks WHERE title LIKE '%' || :title || '%'")
     fun getTasksByTitle(title: String): Flow<List<TaskEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertTask(task: TaskEntity): Long
+    @Upsert
+    suspend fun upsertTask(task: TaskEntity)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertTasks(tasks: List<TaskEntity>)
+    @Upsert
+    suspend fun upsertTasks(tasks: List<TaskEntity>)
 
     @Update
     suspend fun updateTask(task: TaskEntity)
@@ -29,6 +39,6 @@ interface TaskDao {
     suspend fun deleteTask(task: TaskEntity)
 
     @Query("UPDATE tasks SET is_completed = :completed WHERE id = :id")
-    suspend fun updateCompleted(id: Int, completed: Boolean)
+    suspend fun updateCompleted(id: String, completed: Boolean)
 
 }

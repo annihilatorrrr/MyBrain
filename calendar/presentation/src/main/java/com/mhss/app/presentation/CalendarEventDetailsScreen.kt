@@ -2,14 +2,47 @@ package com.mhss.app.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,54 +54,49 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.mhss.app.ui.R
 import com.mhss.app.domain.model.Calendar
 import com.mhss.app.domain.model.CalendarEvent
 import com.mhss.app.domain.model.CalendarEventFrequency
-import com.mhss.app.util.permissions.Permission
+import com.mhss.app.ui.R
 import com.mhss.app.ui.components.common.DateTimeDialog
 import com.mhss.app.ui.components.common.MyBrainAppBar
+import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
 import com.mhss.app.util.date.HOUR_MILLIS
 import com.mhss.app.util.date.formatDate
 import com.mhss.app.util.date.formatTime
 import com.mhss.app.util.date.now
+import com.mhss.app.util.permissions.Permission
 import com.mhss.app.util.permissions.rememberPermissionState
-import kotlinx.serialization.json.Json
 import org.koin.androidx.compose.koinViewModel
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
+import org.koin.core.parameter.parametersOf
 
-@OptIn(ExperimentalEncodingApi::class)
 @Composable
 fun CalendarEventDetailsScreen(
     navController: NavHostController,
-    eventJson: String?,
-    viewModel: CalendarViewModel = koinViewModel()
+    eventId: Long?,
+    viewModel: CalendarEventDetailsViewModel = koinViewModel(
+        parameters = { parametersOf(eventId) }
+    )
 ) {
-    val context = LocalContext.current
     val state = viewModel.uiState
     val writeCalendarPermissionState = rememberPermissionState(
         Permission.WRITE_CALENDAR
     )
     var openDeleteDialog by rememberSaveable { mutableStateOf(false) }
-    val event = remember {
-        eventJson?.let {
-            Json.decodeFromString<CalendarEvent>(Base64.decode(it).decodeToString())
-        }
-    }
-    var title by rememberSaveable { mutableStateOf(event?.title ?: "") }
-    var description by rememberSaveable { mutableStateOf(event?.description ?: "") }
-    var startDate by rememberSaveable {
+    val event = state.event
+    var title by rememberSaveable(event) { mutableStateOf(event?.title ?: "") }
+    var description by rememberSaveable(event) { mutableStateOf(event?.description ?: "") }
+    var startDate by rememberSaveable(event) {
         mutableLongStateOf(
             event?.start ?: (now() + HOUR_MILLIS)
         )
     }
-    var endDate by rememberSaveable {
+    var endDate by rememberSaveable(event) {
         mutableLongStateOf(
             event?.end ?: (now() + 2 * HOUR_MILLIS)
         )
     }
-    var frequency by rememberSaveable {
+    var frequency by rememberSaveable(event) {
         mutableStateOf(
             event?.frequency ?: CalendarEventFrequency.NEVER
         )
@@ -83,10 +111,12 @@ fun CalendarEventDetailsScreen(
             )
         )
     }
-    LaunchedEffect(state.calendarsList) {
+    LaunchedEffect(state.calendarsList, event) {
         if (event != null) {
             if (state.calendarsList.isNotEmpty()) {
-                calendar = state.calendarsList.first { it.id == event.calendarId }
+                state.calendarsList.firstOrNull { it.id == event.calendarId }?.let {
+                    calendar = it
+                }
             }
         } else {
             if (state.calendarsList.isNotEmpty()) {
@@ -95,24 +125,18 @@ fun CalendarEventDetailsScreen(
         }
     }
 
-    var allDay by rememberSaveable { mutableStateOf(event?.allDay ?: false) }
-    var location by rememberSaveable { mutableStateOf(event?.location ?: "") }
-    val snackbarHostState = remember { SnackbarHostState() }
+    var allDay by rememberSaveable(event) { mutableStateOf(event?.allDay ?: false) }
+    var location by rememberSaveable(event) { mutableStateOf(event?.location ?: "") }
+    val snackbarHostState = state.snackbarHostState
     if (writeCalendarPermissionState.isGranted) {
-        LaunchedEffect(true) { viewModel.onEvent(CalendarViewModelEvent.ReadPermissionChanged(true)) }
         LaunchedEffect(state) {
             if (state.navigateUp) {
                 openDeleteDialog = false
                 navController.navigateUp()
             }
-            if (state.error != null) {
-                snackbarHostState.showSnackbar(
-                    context.getString(state.error)
-                )
-                viewModel.onEvent(CalendarViewModelEvent.ErrorDisplayed)
-            }
         }
         Scaffold(
+            snackbarHost = { LocalisedSnackbarHost(snackbarHostState) },
             topBar = {
                 if (event != null) MyBrainAppBar(
                     title = "",
@@ -127,7 +151,7 @@ fun CalendarEventDetailsScreen(
                 )
             },
             floatingActionButton = {
-                FloatingActionButton(onClick = {
+                if (!state.isLoading) FloatingActionButton(onClick = {
                     val newEvent = CalendarEvent(
                         id = event?.id ?: 0,
                         title = title,
@@ -141,9 +165,9 @@ fun CalendarEventDetailsScreen(
                         frequency = frequency
                     )
                     if (event != null) {
-                        viewModel.onEvent(CalendarViewModelEvent.EditEvent(newEvent))
+                        viewModel.onEvent(CalendarEventDetailsEvent.EditEvent(newEvent))
                     } else {
-                        viewModel.onEvent(CalendarViewModelEvent.AddEvent(newEvent))
+                        viewModel.onEvent(CalendarEventDetailsEvent.AddEvent(newEvent))
                     }
                 }) {
                     Icon(
@@ -155,7 +179,7 @@ fun CalendarEventDetailsScreen(
         ) { paddingValues ->
             DeleteEventDialog(
                 openDeleteDialog,
-                onDelete = { viewModel.onEvent(CalendarViewModelEvent.DeleteEvent(event!!)) },
+                onDelete = { viewModel.onEvent(CalendarEventDetailsEvent.DeleteEvent(event!!)) },
                 onDismiss = { openDeleteDialog = false }
             )
             Column(
@@ -215,7 +239,6 @@ fun CalendarEventDetailsScreen(
             }
         }
     } else {
-        LaunchedEffect(true) { viewModel.onEvent(CalendarViewModelEvent.ReadPermissionChanged(false)) }
         NoWriteCalendarPermissionMessage(
             shouldShowRationale = writeCalendarPermissionState.shouldShowRationale,
             onOpenSettings = {
@@ -344,6 +367,18 @@ fun EventTimeSection(
     onFrequencySelected: (CalendarEventFrequency) -> Unit
 ) {
     val context = LocalContext.current
+    val formattedStartDate by remember(startMillis) {
+        derivedStateOf { startMillis.formatDate() }
+    }
+    val formattedStartTime by remember(startMillis) {
+        derivedStateOf { startMillis.formatTime(context) }
+    }
+    val formattedEndDate by remember(endMillis) {
+        derivedStateOf { endMillis.formatDate() }
+    }
+    val formattedEndTime by remember(endMillis) {
+        derivedStateOf { endMillis.formatTime(context) }
+    }
     var showStartDateDialog by remember {
         mutableStateOf(false)
     }
@@ -379,7 +414,7 @@ fun EventTimeSection(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = startMillis.formatDate(),
+                text = formattedStartDate,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
                     .clickable {
@@ -388,7 +423,7 @@ fun EventTimeSection(
                     .padding(horizontal = 28.dp, vertical = 16.dp)
             )
             Text(
-                text = startMillis.formatTime(context),
+                text = formattedStartTime,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
                     .clickable {
@@ -403,7 +438,7 @@ fun EventTimeSection(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = endMillis.formatDate(),
+                text = formattedEndDate,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
                     .clickable {
@@ -412,7 +447,7 @@ fun EventTimeSection(
                     .padding(horizontal = 28.dp, vertical = 16.dp)
             )
             Text(
-                text = endMillis.formatTime(context),
+                text = formattedEndTime,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
                     .clickable {

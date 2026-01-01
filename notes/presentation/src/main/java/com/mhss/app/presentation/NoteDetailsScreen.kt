@@ -15,14 +15,42 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,23 +59,24 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.mhss.app.ui.R
 import com.mhss.app.presentation.components.AiResultSheet
 import com.mhss.app.presentation.components.GradientIconButton
 import com.mhss.app.presentation.components.ShareNoteAsPlainTextOption
+import com.mhss.app.ui.R
 import com.mhss.app.ui.components.common.MyBrainAppBar
+import com.mhss.app.ui.components.common.defaultMarkdownTypography
+import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
 import com.mhss.app.ui.theme.Orange
-import com.mhss.app.ui.toUserMessage
 import com.mhss.app.util.date.formatDateDependingOnDay
 import com.mikepenz.markdown.coil2.Coil2ImageTransformerImpl
 import com.mikepenz.markdown.m3.Markdown
-import com.mikepenz.markdown.m3.markdownColor
-import com.mikepenz.markdown.m3.markdownTypography
+import io.github.fletchmckee.liquid.liquefiable
+import io.github.fletchmckee.liquid.rememberLiquidState
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -55,10 +84,10 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun NoteDetailsScreen(
     navController: NavHostController,
-    noteId: Int,
-    folderId: Int,
+    noteId: String?,
+    folderId: String?,
     viewModel: NoteDetailsViewModel = koinViewModel(
-        parameters = { parametersOf(noteId, folderId) }
+        parameters = { parametersOf(noteId.orEmpty(), folderId.orEmpty()) }
     ),
 ) {
     val state = viewModel.noteUiState
@@ -74,20 +103,20 @@ fun NoteDetailsScreen(
     val pinned = state.pinned
     val readingMode = state.readingMode
     val folder = state.folder
-    var lastModified by remember { mutableStateOf("") }
+    val lastModified by remember(state.note?.updatedDate) {
+        derivedStateOf {
+            state.note?.updatedDate?.formatDateDependingOnDay(context) ?: ""
+        }
+    }
     var wordCountString by remember { mutableStateOf("") }
     val aiEnabled by viewModel.aiEnabled.collectAsStateWithLifecycle()
     val aiState = viewModel.aiState
     val showAiSheet = aiState.showAiSheet
 
+    val liquidState = rememberLiquidState()
     LaunchedEffect(content) {
         delay(500)
         wordCountString = content.countWords().toString()
-    }
-    LaunchedEffect(state.note) {
-        if (state.note != null) {
-            lastModified = state.note.updatedDate.formatDateDependingOnDay(context)
-        }
     }
     LaunchedEffect(state.navigateUp) {
         if (state.navigateUp) {
@@ -97,9 +126,7 @@ fun NoteDetailsScreen(
     }
     LifecycleStartEffect(Unit) {
         onStopOrDispose {
-            viewModel.onEvent(
-                NoteDetailsEvent.ScreenOnStop
-            )
+            viewModel.onEvent(NoteDetailsEvent.ScreenOnStop)
         }
     }
     Scaffold(
@@ -110,21 +137,26 @@ fun NoteDetailsScreen(
                     if (folder != null) {
                         Row(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(25.dp))
+                                .clip(CircleShape)
                                 .border(1.dp, Color.Gray, RoundedCornerShape(25.dp))
-                                .clickable { openFolderDialog = true },
+                                .clickable { openFolderDialog = true }
+                                .weight(1f, fill = false),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
                                 painterResource(R.drawable.ic_folder),
                                 stringResource(R.string.folders),
-                                modifier = Modifier.padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
+                                modifier = Modifier
+                                    .padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
+                                    .size(16.dp),
                             )
-                            Spacer(Modifier.width(8.dp))
+                            Spacer(Modifier.width(4.dp))
                             Text(
                                 text = folder.name,
                                 modifier = Modifier.padding(end = 8.dp, top = 8.dp, bottom = 8.dp),
-                                style = MaterialTheme.typography.bodyLarge
+                                style = MaterialTheme.typography.bodyMedium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     } else {
@@ -132,6 +164,7 @@ fun NoteDetailsScreen(
                             Icon(
                                 painterResource(R.drawable.ic_create_folder),
                                 stringResource(R.string.folders),
+                                modifier = Modifier.size(18.dp)
                             )
                         }
                     }
@@ -139,6 +172,7 @@ fun NoteDetailsScreen(
                         Icon(
                             painterResource(R.drawable.ic_share),
                             stringResource(R.string.share_note),
+                            modifier = Modifier.size(18.dp),
                         )
                         DropdownMenu(
                             expanded = showShareMenu,
@@ -154,7 +188,8 @@ fun NoteDetailsScreen(
                     if (state.note != null) IconButton(onClick = { openDeleteDialog = true }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_delete),
-                            contentDescription = stringResource(R.string.delete_task)
+                            contentDescription = stringResource(R.string.delete_task),
+                            modifier = Modifier.size(18.dp),
                         )
                     }
                     IconButton(onClick = {
@@ -164,7 +199,7 @@ fun NoteDetailsScreen(
                             painter = if (pinned) painterResource(id = R.drawable.ic_pin_filled)
                             else painterResource(id = R.drawable.ic_pin),
                             contentDescription = stringResource(R.string.pin_note),
-                            modifier = Modifier.size(24.dp),
+                            modifier = Modifier.size(18.dp),
                             tint = Orange
                         )
                     }
@@ -174,13 +209,16 @@ fun NoteDetailsScreen(
                         Icon(
                             painter = painterResource(id = R.drawable.ic_read_mode),
                             contentDescription = stringResource(R.string.reading_mode),
-                            modifier = Modifier.size(24.dp),
+                            modifier = Modifier.size(18.dp),
                             tint = if (readingMode) Color.Green else Color.Gray
                         )
                     }
                 }
             )
         },
+        snackbarHost = {
+            LocalisedSnackbarHost(state.snackbarHostState)
+        }
     ) { paddingValues ->
         Column(
             Modifier
@@ -240,20 +278,10 @@ fun NoteDetailsScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 6.dp)
-                        .padding(8.dp),
+                        .padding(8.dp)
+                        .liquefiable(liquidState),
                     imageTransformer = Coil2ImageTransformerImpl,
-                    colors = markdownColor(
-                        linkText = Color.Blue
-                    ),
-                    typography = markdownTypography(
-                        text = MaterialTheme.typography.bodyMedium,
-                        h1 = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
-                        h2 = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                        h3 = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                        h4 = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        h5 = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        h6 = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
-                    )
+                    typography = defaultMarkdownTypography()
                 )
             else
                 OutlinedTextField(
@@ -319,6 +347,7 @@ fun NoteDetailsScreen(
                         viewModel.onEvent(NoteDetailsEvent.UpdateContent(aiState.result.toString()))
                         viewModel.onEvent(NoteDetailsEvent.AiResultHandled)
                     },
+                    liquidState = liquidState,
                     onAddToNoteClick = {
                         viewModel.onEvent(NoteDetailsEvent.UpdateContent(aiState.result + "\n" + content))
                         viewModel.onEvent(NoteDetailsEvent.AiResultHandled)

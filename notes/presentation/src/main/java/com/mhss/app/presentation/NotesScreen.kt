@@ -6,9 +6,21 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
@@ -16,53 +28,70 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.mhss.app.ui.R
-import com.mhss.app.domain.model.*
+import com.mhss.app.domain.model.NoteFolder
 import com.mhss.app.preferences.domain.model.Order
 import com.mhss.app.preferences.domain.model.OrderType
 import com.mhss.app.ui.ItemView
+import com.mhss.app.ui.R
+import com.mhss.app.ui.components.common.LiquidFloatingActionButton
 import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.components.notes.NoteCard
 import com.mhss.app.ui.navigation.Screen
+import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
 import com.mhss.app.ui.titleRes
+import io.github.fletchmckee.liquid.liquefiable
+import io.github.fletchmckee.liquid.rememberLiquidState
 import org.koin.androidx.compose.koinViewModel
 
+@Suppress("AssignedValueIsNeverRead")
 @Composable
 fun NotesScreen(
     navController: NavHostController,
     viewModel: NotesViewModel = koinViewModel()
 ) {
-    val context = LocalContext.current
-    val uiState = viewModel.notesUiState
+    val uiState by viewModel.notesUiState.collectAsStateWithLifecycle()
     var orderSettingsVisible by remember { mutableStateOf(false) }
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
     var openCreateFolderDialog by remember { mutableStateOf(false) }
-    val snackbarHostState = remember { SnackbarHostState() }
-    LaunchedEffect(uiState.error) {
-        uiState.error?.let {
-            snackbarHostState.showSnackbar(
-                context.getString(it)
-            )
-            viewModel.onEvent(NoteEvent.ErrorDisplayed)
-        }
-    }
+    val liquidState = rememberLiquidState()
     Scaffold(
         snackbarHost = {
-            SnackbarHost(snackbarHostState)
+            LocalisedSnackbarHost(uiState.snackbarHostState)
         },
         topBar = {
             MyBrainAppBar(
@@ -72,33 +101,27 @@ fun NotesScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
+            LiquidFloatingActionButton(
                 onClick = {
                     if (selectedTab == 0) {
-                        navController.navigate(
-                            Screen.NoteDetailsScreen()
-                        )
+                        navController.navigate(Screen.NoteDetailsScreen())
                     } else {
                         openCreateFolderDialog = true
                     }
                 },
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(
-                    modifier = Modifier.size(25.dp),
-                    painter = if (selectedTab == 0) painterResource(R.drawable.ic_add) else painterResource(
-                        R.drawable.ic_create_folder
-                    ),
-                    contentDescription = stringResource(R.string.add_note),
-                    tint = Color.White
-                )
-            }
+                iconPainter = if (selectedTab == 0) painterResource(R.drawable.ic_add) else painterResource(
+                    R.drawable.ic_create_folder
+                ),
+                contentDescription = stringResource(R.string.add_note),
+                liquidState = liquidState
+            )
+
         },
     ) { paddingValues ->
-        Column(modifier = Modifier.padding(paddingValues)) {
-            TabRow(
+        Column(modifier = Modifier.liquefiable(liquidState).padding(paddingValues).fillMaxSize()) {
+            PrimaryTabRow(
                 selectedTabIndex = selectedTab,
-                containerColor = MaterialTheme.colorScheme.background
+                containerColor = MaterialTheme.colorScheme.background,
             ) {
                 Tab(
                     text = {
@@ -156,11 +179,15 @@ fun NotesScreen(
                     NotesSettingsSection(
                         uiState.notesOrder,
                         uiState.noteView,
+                        uiState.showAllNotes,
                         onOrderChange = {
                             viewModel.onEvent(NoteEvent.UpdateOrder(it))
                         },
                         onViewChange = {
                             viewModel.onEvent(NoteEvent.UpdateView(it))
+                        },
+                        onShowAllNotesChange = {
+                            viewModel.onEvent(NoteEvent.ShowAllNotes(it))
                         }
                     )
                 }
@@ -172,7 +199,8 @@ fun NotesScreen(
                             bottom = 24.dp,
                             start = 12.dp,
                             end = 12.dp
-                        )
+                        ),
+                        modifier = Modifier.weight(1f)
                     ) {
                         items(uiState.notes, key = { it.id }) { note ->
                             NoteCard(
@@ -181,6 +209,7 @@ fun NotesScreen(
                                     navController.navigate(
                                         Screen.NoteDetailsScreen(
                                             noteId = note.id,
+                                            folderId = note.folderId
                                         )
                                     )
                                 },
@@ -192,7 +221,8 @@ fun NotesScreen(
                     LazyVerticalStaggeredGrid(
                         columns = StaggeredGridCells.Adaptive(150.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        contentPadding = PaddingValues(12.dp)
+                        contentPadding = PaddingValues(12.dp),
+                        modifier = Modifier.weight(1f)
                     ) {
                         items(uiState.notes) { note ->
                             key(note.id) {
@@ -201,7 +231,8 @@ fun NotesScreen(
                                     onClick = {
                                         navController.navigate(
                                             Screen.NoteDetailsScreen(
-                                                noteId = note.id
+                                                noteId = note.id,
+                                                folderId = note.folderId
                                             )
                                         )
                                     },
@@ -222,7 +253,9 @@ fun NotesScreen(
                 if (openCreateFolderDialog)
                     CreateFolderDialog(
                         onCreate = {
-                            viewModel.onEvent(NoteEvent.CreateFolder(NoteFolder(it.trim())))
+                            viewModel.onEvent(
+                                NoteEvent.CreateFolder(name = it.trim())
+                            )
                             openCreateFolderDialog = false
                         },
                         onDismiss = {
@@ -289,8 +322,10 @@ fun FoldersTab(
 fun NotesSettingsSection(
     order: Order,
     view: ItemView,
+    showAllNotes: Boolean,
     onOrderChange: (Order) -> Unit,
-    onViewChange: (ItemView) -> Unit
+    onViewChange: (ItemView) -> Unit,
+    onShowAllNotesChange: (Boolean) -> Unit
 ) {
     val orders = remember {
         listOf(
@@ -387,6 +422,15 @@ fun NotesSettingsSection(
                 }
             }
         }
+        HorizontalDivider()
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(checked = showAllNotes, onCheckedChange = { onShowAllNotesChange(it) })
+            Text(
+                text = stringResource(R.string.show_all_notes),
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(start = 8.dp)
+            )
+        }
         Spacer(Modifier.height(8.dp))
     }
 }
@@ -414,6 +458,7 @@ fun NoNotesMessage() {
     }
 }
 
+@Suppress("AssignedValueIsNeverRead")
 @Composable
 fun CreateFolderDialog(
     onCreate: (String) -> Unit,

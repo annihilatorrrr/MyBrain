@@ -20,6 +20,7 @@ import com.mhss.app.domain.model.Task
 import com.mhss.app.domain.model.TaskFrequency
 import com.mhss.app.util.date.formatDateDependingOnDay
 import com.mhss.app.util.date.now
+import kotlin.uuid.Uuid
 
 @Composable
 fun AddTaskBottomSheetContent(
@@ -95,7 +96,8 @@ fun AddTaskBottomSheetContent(
                                 frequencyAmount = frequencyAmount,
                                 createdDate = now(),
                                 updatedDate = now(),
-                                subTasks = subTasks.toList()
+                                subTasks = subTasks.toList(),
+                                id = Uuid.random().toString()
                             )
                         )
                         title = ""

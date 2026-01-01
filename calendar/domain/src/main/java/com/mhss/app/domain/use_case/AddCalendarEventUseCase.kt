@@ -10,9 +10,9 @@ class AddCalendarEventUseCase(
     private val calendarEventRepository: CalendarRepository,
     private val widgetUpdater: WidgetUpdater
 ) {
-    suspend operator fun invoke(calendarEvent: CalendarEvent) {
+    suspend operator fun invoke(calendarEvent: CalendarEvent): Long? {
         val calendars = calendarEventRepository.getCalendars()
-        if (calendars.isNotEmpty()) {
+        val id = if (calendars.isNotEmpty()) {
             calendarEventRepository.addEvent(calendarEvent)
         } else {
             calendarEventRepository.createCalendar()
@@ -20,6 +20,7 @@ class AddCalendarEventUseCase(
             calendarEventRepository.addEvent(calendarEvent.copy(calendarId = calendar.id))
         }
         widgetUpdater.updateAll(WidgetUpdater.WidgetType.Calendar)
+        return id
     }
 
 }

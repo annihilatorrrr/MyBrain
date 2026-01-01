@@ -26,6 +26,7 @@ class GetAllTasksUseCase(
                         is Order.DateModified -> tasks.sortedBy { it.updatedDate }
                         is Order.Priority -> tasks.sortedBy { it.priority }
                         is Order.DueDate -> tasks.sortedWith(compareBy({ it.dueDate == 0L }, { it.dueDate }))
+                        is Order.Done -> tasks.sortedBy { it.isCompleted }
                     }
                 }
                 is OrderType.DESC -> {
@@ -35,6 +36,7 @@ class GetAllTasksUseCase(
                         is Order.DateModified -> tasks.sortedByDescending { it.updatedDate }
                         is Order.Priority -> tasks.sortedByDescending { it.priority }
                         is Order.DueDate -> tasks.sortedWith(compareBy({ it.dueDate == 0L }, { it.dueDate })).reversed()
+                        is Order.Done -> tasks.sortedByDescending { it.isCompleted }
                     }
                 }
             }

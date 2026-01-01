@@ -9,6 +9,6 @@ data class Note(
     val createdDate: Long = 0L,
     val updatedDate: Long = 0L,
     val pinned: Boolean = false,
-    val folderId: Int? = null,
-    val id: Int = 0,
+    val folderId: String? = null,
+    val id: String = "",
 )

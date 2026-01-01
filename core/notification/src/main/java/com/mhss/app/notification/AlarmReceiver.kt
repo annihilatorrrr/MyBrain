@@ -4,13 +4,13 @@ import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.mhss.app.alarm.model.Alarm
-import com.mhss.app.alarm.use_case.AddAlarmUseCase
 import com.mhss.app.alarm.use_case.DeleteAlarmUseCase
-import com.mhss.app.util.Constants
+import com.mhss.app.alarm.use_case.UpsertAlarmUseCase
+import com.mhss.app.domain.model.Task
 import com.mhss.app.domain.model.TaskFrequency
-import com.mhss.app.domain.use_case.UpdateTaskUseCase
-import com.mhss.app.domain.use_case.GetTaskByIdUseCase
+import com.mhss.app.domain.use_case.GetTaskByAlarmUseCase
+import com.mhss.app.domain.use_case.UpsertTaskUseCase
+import com.mhss.app.util.Constants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,26 +21,25 @@ import java.util.Calendar
 class AlarmReceiver : BroadcastReceiver(), KoinComponent {
 
     private val deleteAlarmUseCase: DeleteAlarmUseCase by inject()
-    private val addAlarmUseCase: AddAlarmUseCase by inject()
-    private val getTaskByIdUseCase: GetTaskByIdUseCase by inject()
-    private val updateTaskUseCase: UpdateTaskUseCase by inject()
+    private val upsertAlarmUseCase: UpsertAlarmUseCase by inject()
+    private val getTaskByAlarm: GetTaskByAlarmUseCase by inject()
+    private val upsertTask: UpsertTaskUseCase by inject()
 
     private val scope = CoroutineScope(Dispatchers.Default)
 
     override fun onReceive(context: Context?, intent: Intent?) {
         val pendingResult = goAsync()
+
         scope.launch {
-            val task =
-                intent?.getIntExtra(Constants.TASK_ID_EXTRA, 0)?.let { getTaskByIdUseCase(it) }
-                    ?: kotlin.run {
-                        pendingResult.finish()
-                        return@launch
-                    }
+            val task = intent?.getTaskBackwardsCompat() ?: run {
+                pendingResult.finish()
+                return@launch
+            }
             val notificationJob = launch {
                 val manager =
                     context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                manager.sendNotification(task, context, task.id)
-                if (!task.recurring) deleteAlarmUseCase(task.id)
+                manager.sendNotification(task, context, task.alarmId ?: return@launch)
+                if (!task.recurring) deleteAlarmUseCase(task.alarmId ?: return@launch)
             }
             val recurrenceJob = launch {
                 if (task.recurring) {
@@ -56,8 +55,8 @@ class AlarmReceiver : BroadcastReceiver(), KoinComponent {
                     val newTask = task.copy(
                         dueDate = calendar.timeInMillis,
                     )
-                    updateTaskUseCase(newTask, true)
-                    addAlarmUseCase(Alarm(newTask.id, newTask.dueDate))
+                    upsertTask(task = newTask, previousTask = task)
+                    upsertAlarmUseCase(newTask.alarmId ?: return@launch, newTask.dueDate)
                 }
             }
 
@@ -66,4 +65,14 @@ class AlarmReceiver : BroadcastReceiver(), KoinComponent {
             pendingResult.finish()
         }
     }
+
+
+    // Newly used name is alarm id but previous versions use task id name
+    private suspend fun Intent.getTaskBackwardsCompat(): Task? {
+        val alarmId =
+            getIntExtra(Constants.ALARM_ID_EXTRA, -1).takeIf { it != -1 }
+                ?: getIntExtra(Constants.TASK_ID_EXTRA, -1).takeIf { it != -1 }
+        return alarmId?.let { getTaskByAlarm(it) }
+    }
+
 }

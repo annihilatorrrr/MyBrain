@@ -1,27 +1,27 @@
 package com.mhss.app.mybrain.presentation.main
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.*
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.mhss.app.ui.R
 import com.mhss.app.presentation.CalendarDashboardWidget
 import com.mhss.app.presentation.MoodCircularBar
 import com.mhss.app.presentation.TasksDashboardWidget
+import com.mhss.app.ui.R
 import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.navigation.Screen
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.koin.androidx.compose.koinViewModel
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
 
-@OptIn(ExperimentalEncodingApi::class)
+
 @Composable
 fun DashboardScreen(
     navController: NavHostController,
@@ -56,7 +56,7 @@ fun DashboardScreen(
                     onEventClicked = {
                         navController.navigate(
                             Screen.CalendarEventDetailsScreen(
-                                Base64.encode(Json.encodeToString(it).toByteArray())
+                                it.id
                             )
                         )
                     }

@@ -5,12 +5,32 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -20,26 +40,29 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.mhss.app.util.Constants
-import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.mybrain.BuildConfig
-import com.mhss.app.ui.R
 import com.mhss.app.mybrain.presentation.app_lock.AppLockManager
-import com.mhss.app.preferences.domain.model.*
-import com.mhss.app.presentation.SettingsBasicLinkItem
-import com.mhss.app.presentation.SettingsItemCard
-import com.mhss.app.presentation.SettingsSwitchCard
+import com.mhss.app.preferences.PrefsConstants
+import com.mhss.app.preferences.domain.model.booleanPreferencesKey
+import com.mhss.app.preferences.domain.model.intPreferencesKey
 import com.mhss.app.presentation.SettingsViewModel
+import com.mhss.app.presentation.components.SettingsBasicLinkItem
+import com.mhss.app.presentation.components.SettingsItemCard
+import com.mhss.app.presentation.components.SettingsSwitchCard
 import com.mhss.app.ui.FontSizeSettings
+import com.mhss.app.ui.R
 import com.mhss.app.ui.StartUpScreenSettings
 import com.mhss.app.ui.ThemeSettings
 import com.mhss.app.ui.components.common.MyBrainAppBar
+import com.mhss.app.ui.getFontSizeName
 import com.mhss.app.ui.getName
 import com.mhss.app.ui.navigation.Screen
+import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
+import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.ui.theme.Rubik
-import com.mhss.app.ui.getFontSizeName
 import com.mhss.app.ui.toFontFamily
 import com.mhss.app.ui.toInt
+import com.mhss.app.util.Constants
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -58,7 +81,7 @@ fun SettingsScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = { LocalisedSnackbarHost(snackbarHostState) },
         topBar = {
             MyBrainAppBar(stringResource(R.string.settings))
         }
@@ -176,9 +199,7 @@ fun SettingsScreen(
                         )
                     } else {
                         scope.launch {
-                            snackbarHostState.showSnackbar(
-                                context.getString(R.string.no_auth_method)
-                            )
+                            snackbarHostState.showSnackbar(R.string.no_auth_method)
                         }
                     }
                 }

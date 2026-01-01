@@ -5,6 +5,7 @@ object Constants {
     // Alarm & Notification
     const val REMINDERS_CHANNEL_ID = "reminders_notification_channel"
     const val TASK_ID_EXTRA = "task_Id"
+    const val ALARM_ID_EXTRA = "alarm_Id"
     const val ACTION_COMPLETE = "com.mhss.app.mybrain.COMPLETE_ACTION"
 
     // Navigation
@@ -14,7 +15,10 @@ object Constants {
     const val TASKS_SCREEN_URI = "app://com.mhss.app.mybrain.tasks"
     const val CALENDAR_SCREEN_URI = "app://com.mhss.app.mybrain.calendar"
     const val CALENDAR_DETAILS_SCREEN_URI = "app://com.mhss.app.mybrain.calendar_event_details"
-    const val CALENDAR_EVENT_ARG = "eventJson"
+    const val CALENDAR_EVENT_ID_ARG = "eventId"
+    const val NOTES_SCREEN_URI = "app://com.mhss.app.mybrain.notes"
+    const val NOTE_DETAILS_URI = "app://com.mhss.app.mybrain.note_details"
+    const val NOTE_ID_ARG = "noteId"
 
     // lINKS
     const val PROJECT_GITHUB_LINK = "https://github.com/mhss1/ByBrain"

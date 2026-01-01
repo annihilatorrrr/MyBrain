@@ -7,5 +7,5 @@ import org.koin.core.annotation.Single
 class GetDiaryEntryUseCase(
     private val diaryRepository: DiaryRepository
 ) {
-    suspend operator fun invoke(id: Int) = diaryRepository.getEntry(id)
+    suspend operator fun invoke(id: String) = diaryRepository.getEntry(id)
 }

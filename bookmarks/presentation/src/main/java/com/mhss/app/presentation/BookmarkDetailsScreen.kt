@@ -1,10 +1,29 @@
 package com.mhss.app.presentation
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -14,23 +33,26 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.navigation.NavHostController
-import com.mhss.app.ui.R
 import com.mhss.app.domain.model.Bookmark
+import com.mhss.app.ui.R
 import com.mhss.app.ui.components.common.MyBrainAppBar
+import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
+import com.mhss.app.ui.snackbar.showSnackbar
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.uuid.Uuid
 
 @Composable
 fun BookmarkDetailsScreen(
     navController: NavHostController,
-    bookmarkId: Int,
-    viewModel: BookmarkDetailsViewModel = koinViewModel(parameters = { parametersOf(bookmarkId) }),
+    bookmarkId: String?,
+    viewModel: BookmarkDetailsViewModel = koinViewModel(parameters = { parametersOf(bookmarkId.orEmpty()) }),
 ) {
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
     val state = viewModel.bookmarkDetailsUiState
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarHostState = state.snackbarHostState
     var openDialog by rememberSaveable { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
@@ -45,16 +67,10 @@ fun BookmarkDetailsScreen(
             url = state.bookmark.url
         }
     }
-    LaunchedEffect(state) {
+    LaunchedEffect(state.navigateUp) {
         if (state.navigateUp) {
             openDialog = false
             navController.navigateUp()
-        }
-        if (state.error != null) {
-            snackbarHostState.showSnackbar(
-                context.getString(state.error)
-            )
-            viewModel.onEvent(BookmarkDetailsEvent.ErrorDisplayed)
         }
     }
     LifecycleStartEffect(Unit) {
@@ -64,14 +80,15 @@ fun BookmarkDetailsScreen(
                     Bookmark(
                         title = title,
                         description = description,
-                        url = url
+                        url = url,
+                        id = bookmarkId ?: Uuid.random().toString()
                     )
                 )
             )
         }
     }
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = { LocalisedSnackbarHost(snackbarHostState) },
         topBar = {
             MyBrainAppBar(
                 title = "",
@@ -86,9 +103,7 @@ fun BookmarkDetailsScreen(
                         if (url.isValidUrl()) {
                             uriHandler.openUri(if (!url.startsWith("https://") && !url.startsWith("http://")) "http://$url" else url)
                         } else scope.launch {
-                            snackbarHostState.showSnackbar(
-                                context.getString(R.string.invalid_url)
-                            )
+                            snackbarHostState.showSnackbar(R.string.invalid_url)
                         }
                     }) {
                         Icon(

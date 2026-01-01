@@ -1,23 +1,17 @@
 package com.mhss.app.domain
 
-object AiConstants {
-    const val OPENAI_BASE_URL = "https://api.openai.com/v1"
-    const val GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
+const val MAX_CONSECUTIVE_TOOL_CALLS = 15
 
-    const val OPENAI_DEFAULT_MODEL = "gpt-4o"
-    const val GEMINI_DEFAULT_MODEL = "gemini-1.5-pro"
-
-    const val GEMINI_KEY_INFO_URL = "https://ai.google.dev/gemini-api/docs/api-key"
-    const val OPENAI_KEY_INFO_URL = "https://platform.openai.com/api-keys"
-
-    const val GEMINI_MODELS_INFO_URL = "https://ai.google.dev/gemini-api/docs/models/gemini"
-    const val OPENAI_MODELS_INFO_URL = "https://platform.openai.com/docs/models"
-}
-
-val systemMessage = """
+val baseChatSystemMessage = """
     You are a personal AI assistant.
-    You help users with their requests and provide detailed explanations if needed.
-    Users might attach notes, tasks, or calendar events. Use this attached data as a context for your response.
+    You help users with their questions and requests and provide detailed explanations if needed.
+""".trimIndent()
+
+val toolsSystemMessage = """
+    You can make multiple tool calls after each other to fulfill the user's request.
+    no need to ask the user to proceed after each tool.
+    it's highly encouraged to make multiple tool calls in one response when possible.
+    after you no need to make tool calls any more, give the user a short summary of what you did.
 """.trimIndent()
 
 

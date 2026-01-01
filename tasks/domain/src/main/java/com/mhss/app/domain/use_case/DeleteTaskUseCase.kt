@@ -12,7 +12,8 @@ class DeleteTaskUseCase(
 ) {
     suspend operator fun invoke(task: Task) {
         taskRepository.deleteTask(task)
-        if (task.dueDate != 0L)
-            deleteAlarm(task.id)
+        if (task.dueDate != 0L && task.alarmId != null) {
+            deleteAlarm(task.alarmId)
+        }
     }
 }

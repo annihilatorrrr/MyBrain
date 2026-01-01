@@ -1,19 +1,34 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.mhss.app.util.date
 
 import android.content.Context
-import android.text.format.DateFormat
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import android.text.format.DateFormat.is24HourFormat
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.daysUntil
 import kotlinx.datetime.toInstant
+import kotlinx.datetime.toJavaDayOfWeek
+import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.yearsUntil
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
 import java.util.Locale
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
+
+val CALENDAR_EVENTS_DAY_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, MMM d", Locale.getDefault())
+
+val kotlinx.datetime.LocalDate.formattedEventsDayName: String
+    get() = CALENDAR_EVENTS_DAY_FORMATTER.format(toJavaLocalDate())
+
+fun currentLocalDate() = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
 
 val Long.localDateTime
     get() = Instant.fromEpochMilliseconds(this).toLocalDateTime(
@@ -74,6 +89,23 @@ fun Long.monthName(): String {
     return formatter.format(localDT.toJavaLocalDateTime())
 }
 
+fun DayOfWeek.getDisplayName(): String {
+    return toJavaDayOfWeek().getDisplayName(
+        TextStyle.SHORT,
+        Locale.getDefault()
+    )
+}
+
+fun kotlinx.datetime.LocalDate.monthName(): String {
+    val javaDateTime = toJavaLocalDate()
+    val formatter = if (javaDateTime.isCurrentYear()) {
+        DateTimeFormatter.ofPattern("MMMM", Locale.getDefault())
+    } else {
+        DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault())
+    }
+    return formatter.format(javaDateTime)
+}
+
 fun Long.inTheLast30Days(): Boolean {
     return Instant.fromEpochMilliseconds(this).daysUntil(
         Clock.System.now(),
@@ -98,6 +130,11 @@ fun Long.inTheLastWeek(): Boolean {
 fun LocalDateTime.isCurrentYear(): Boolean {
     return year == now().localDateTime.year
 }
+
+fun LocalDate.isCurrentYear(): Boolean {
+    return year == now().localDateTime.year
+}
+
 
 fun Long.isDueDateOverdue(): Boolean {
     return this < now()
@@ -134,7 +171,7 @@ fun LocalDateTime.isToday(): Boolean {
     val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
     return today.year == year
             && today.month == month
-            && today.dayOfMonth == dayOfMonth
+            && today.day == day
 }
 
 val Long.hour: Int
@@ -148,10 +185,11 @@ fun Long.at(hours: Int, minutes: Int): Long {
     return LocalDateTime(
         year = date.year,
         month = date.month,
-        dayOfMonth = date.dayOfMonth,
+        day = date.day,
         hour = hours,
         minute = minutes,
         second = 0,
+        nanosecond = 0
     ).toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
 }
 
@@ -159,7 +197,7 @@ private var is24Hour: Boolean? = null
 
 fun is24HourFormat(context: Context): Boolean {
     if (is24Hour == null) {
-        is24Hour = DateFormat.is24HourFormat(context)
+        is24Hour = is24HourFormat(context)
     }
     return is24Hour!!
 }

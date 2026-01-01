@@ -24,8 +24,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyBrain"
-        android:usesCleartextTraffic="true"
-        >
+        android:usesCleartextTraffic="true">
         <activity
             android:name=".presentation.main.MainActivity"
             android:exported="true"
@@ -38,13 +37,17 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:scheme="app"/>
-                <data android:host="com.mhss.app.mybrain.task_details"/>
-                <data android:host="com.mhss.app.mybrain.tasks"/>
-                <data android:host="com.mhss.app.mybrain.calendar"/>
-                <data android:host="com.mhss.app.mybrain.calendar_event_details"/>
+
+                <data android:scheme="app" />
+                <data android:host="com.mhss.app.mybrain.task_details" />
+                <data android:host="com.mhss.app.mybrain.tasks" />
+                <data android:host="com.mhss.app.mybrain.calendar" />
+                <data android:host="com.mhss.app.mybrain.calendar_event_details" />
+                <data android:host="com.mhss.app.mybrain.notes" />
+                <data android:host="com.mhss.app.mybrain.note_details" />
             </intent-filter>
 
         </activity>
@@ -154,6 +157,20 @@
             android:name="com.mhss.app.widget.tasks.CompleteTaskWidgetReceiver"
             android:enabled="@bool/glance_appwidget_available"
             android:exported="false" />
+
+        <!-- Notes widget-->
+        <receiver
+            android:name="com.mhss.app.widget.notes.NotesWidgetReceiver"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false"
+            android:label="@string/notes">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/notes_widget_info" />
+        </receiver>
 
         <provider
             android:name="androidx.startup.InitializationProvider"

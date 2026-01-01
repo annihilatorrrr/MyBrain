@@ -36,6 +36,12 @@ sealed class Order(val orderType: OrderType) {
             return this.copy(type = orderType)
         }
     }
+
+    data class Done(val type: OrderType = OrderType.ASC) : Order(type) {
+        override fun copyOrder(orderType: OrderType): Order {
+            return this.copy(type = orderType)
+        }
+    }
 }
 
 fun Int.toOrder(): Order {
@@ -45,11 +51,13 @@ fun Int.toOrder(): Order {
         2 -> Order.DateModified(OrderType.ASC)
         3 -> Order.Priority(OrderType.ASC)
         8 -> Order.DueDate(OrderType.ASC)
+        10 -> Order.Done(OrderType.ASC)
         4 -> Order.Alphabetical(OrderType.DESC)
         5 -> Order.DateCreated(OrderType.DESC)
         6 -> Order.DateModified(OrderType.DESC)
         7 -> Order.Priority(OrderType.DESC)
         9 -> Order.DueDate(OrderType.DESC)
+        11 -> Order.Done(OrderType.DESC)
         else -> Order.Alphabetical(OrderType.ASC)
     }
 }
@@ -62,6 +70,7 @@ fun Order.toInt(): Int {
                 is Order.DateModified -> 2
                 is Order.Priority -> 3
                 is Order.DueDate -> 8
+                is Order.Done -> 10
             }
         }
         is OrderType.DESC -> {
@@ -71,6 +80,7 @@ fun Order.toInt(): Int {
                 is Order.DateModified -> 6
                 is Order.Priority -> 7
                 is Order.DueDate -> 9
+                is Order.Done -> 11
             }
         }
     }

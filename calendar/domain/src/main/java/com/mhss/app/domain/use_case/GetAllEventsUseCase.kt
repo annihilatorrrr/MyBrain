@@ -20,11 +20,7 @@ class GetAllEventsUseCase(
     ): Map<String, List<CalendarEvent>> {
         return withContext(defaultDispatcher) {
             try {
-                calendarRepository.getEvents()
-                    .filter { event ->
-                        (until?.let { event.start <= it } ?: true) &&
-                        event.calendarId.toInt() !in excluded
-                    }
+                calendarRepository.getEvents(excluded, until)
                     .run {
                         if (fromWidget) take(25).groupBy(groupBySelector)
                         else groupBy(groupBySelector)

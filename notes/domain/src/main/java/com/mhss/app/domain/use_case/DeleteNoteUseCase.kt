@@ -2,9 +2,9 @@ package com.mhss.app.domain.use_case
 
 import com.mhss.app.domain.model.Note
 import com.mhss.app.domain.repository.NoteRepository
-import org.koin.core.annotation.Single
+import org.koin.core.annotation.Factory
 
-@Single
+@Factory
 class DeleteNoteUseCase(
     private val repository: NoteRepository
 ) {

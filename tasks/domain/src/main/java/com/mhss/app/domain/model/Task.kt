@@ -15,7 +15,8 @@ data class Task(
     val recurring: Boolean = false,
     val frequency: TaskFrequency = TaskFrequency.DAILY,
     val frequencyAmount: Int = 1,
-    val id: Int = 0
+    val alarmId: Int? = null,
+    val id: String
 )
 
 enum class TaskFrequency(val value: Int) {

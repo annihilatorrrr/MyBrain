@@ -9,8 +9,8 @@ interface AlarmDao {
     @Query("SELECT * FROM alarms")
     suspend fun getAll(): List<AlarmEntity>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(alarm: AlarmEntity)
+    @Upsert
+    suspend fun upsert(alarm: AlarmEntity): Long
 
     @Delete
     suspend fun delete(alarm: AlarmEntity)

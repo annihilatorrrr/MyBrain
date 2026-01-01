@@ -1,29 +1,41 @@
 package com.mhss.app.presentation
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.mhss.app.ui.R
 import com.mhss.app.ui.ItemView
+import com.mhss.app.ui.R
 import com.mhss.app.ui.navigation.Screen
+import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
+import com.mhss.app.ui.snackbar.showSnackbar
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -32,12 +44,11 @@ fun BookmarkSearchScreen(
     navController: NavHostController,
     viewModel: BookmarksViewModel = koinViewModel()
 ) {
-    val context = LocalContext.current
     val state = viewModel.uiState
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = { LocalisedSnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -77,9 +88,7 @@ fun BookmarkSearchScreen(
                             },
                             onInvalidUrl = {
                                 scope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        context.getString(R.string.invalid_url)
-                                    )
+                                    snackbarHostState.showSnackbar(R.string.invalid_url)
                                 }
                             }
                         )
@@ -105,9 +114,7 @@ fun BookmarkSearchScreen(
                                 },
                                 onInvalidUrl = {
                                     scope.launch {
-                                        snackbarHostState.showSnackbar(
-                                            context.getString(R.string.invalid_url)
-                                        )
+                                        snackbarHostState.showSnackbar(R.string.invalid_url)
                                     }
                                 },
                                 modifier = Modifier.animateItem()

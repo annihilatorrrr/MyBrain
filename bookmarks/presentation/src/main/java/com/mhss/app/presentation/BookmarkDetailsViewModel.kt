@@ -1,5 +1,6 @@
 package com.mhss.app.presentation
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,6 +11,8 @@ import com.mhss.app.domain.use_case.AddBookmarkUseCase
 import com.mhss.app.domain.use_case.DeleteBookmarkUseCase
 import com.mhss.app.domain.use_case.GetBookmarkUseCase
 import com.mhss.app.domain.use_case.UpdateBookmarkUseCase
+import com.mhss.app.ui.R
+import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.util.date.now
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -23,7 +26,7 @@ class BookmarkDetailsViewModel(
     private val addBookmark: AddBookmarkUseCase,
     private val deleteBookmark: DeleteBookmarkUseCase,
     @Named("applicationScope") private val applicationScope: CoroutineScope,
-    bookmarkId: Int,
+    bookmarkId: String,
 ) : ViewModel() {
 
     var bookmarkDetailsUiState by mutableStateOf(BookmarkDetailsUiState())
@@ -31,7 +34,10 @@ class BookmarkDetailsViewModel(
 
     init {
         viewModelScope.launch {
-            val bookmark = if (bookmarkId != -1) getBookmark(bookmarkId) else null
+            val bookmark = if (bookmarkId.isNotBlank()) getBookmark(bookmarkId) else null
+            if (bookmarkId.isNotBlank() && bookmark == null) {
+                bookmarkDetailsUiState.snackbarHostState.showSnackbar(R.string.error_item_not_found)
+            }
             bookmarkDetailsUiState = bookmarkDetailsUiState.copy(
                 bookmark = bookmark
             )
@@ -40,9 +46,6 @@ class BookmarkDetailsViewModel(
 
     fun onEvent(event: BookmarkDetailsEvent) {
         when (event) {
-            BookmarkDetailsEvent.ErrorDisplayed -> {
-                bookmarkDetailsUiState = bookmarkDetailsUiState.copy(error = null)
-            }
             // Using applicationScope to avoid cancelling when the user exits the screen
             // and the view model is cleared before the job finishes
             is BookmarkDetailsEvent.ScreenOnStop -> applicationScope.launch {
@@ -56,9 +59,9 @@ class BookmarkDetailsViewModel(
                                 createdDate = now(),
                                 updatedDate = now()
                             )
-                            val id = addBookmark(bookmark)
+                            addBookmark(bookmark)
                             bookmarkDetailsUiState =
-                                bookmarkDetailsUiState.copy(bookmark = bookmark.copy(id = id.toInt()))
+                                bookmarkDetailsUiState.copy(bookmark = bookmark)
                         }
                     } else if (bookmarkChanged(bookmarkDetailsUiState.bookmark!!, event.bookmark)) {
                         val newBookmark = bookmarkDetailsUiState.bookmark!!.copy(
@@ -83,7 +86,7 @@ class BookmarkDetailsViewModel(
     data class BookmarkDetailsUiState(
         val bookmark: Bookmark? = null,
         val navigateUp: Boolean = false,
-        val error: Int? = null,
+        val snackbarHostState: SnackbarHostState = SnackbarHostState()
     )
 
     private fun bookmarkChanged(

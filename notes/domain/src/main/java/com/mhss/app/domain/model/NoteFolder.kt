@@ -5,5 +5,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class NoteFolder(
     val name: String,
-    val id: Int = 0
+    val id: String
 )

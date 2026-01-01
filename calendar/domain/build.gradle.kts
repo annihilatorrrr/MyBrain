@@ -13,4 +13,6 @@ dependencies {
     implementation(platform(libs.koin.bom))
     implementation(libs.bundles.koin)
     ksp(libs.koin.ksp.compiler)
+
+    implementation(libs.kotlinx.datetime)
 }

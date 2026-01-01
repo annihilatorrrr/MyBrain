@@ -1,14 +1,18 @@
 package com.mhss.app.presentation
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mhss.app.domain.model.Task
+import com.mhss.app.domain.use_case.CanScheduleAlarmsUseCase
 import com.mhss.app.domain.use_case.DeleteTaskUseCase
 import com.mhss.app.domain.use_case.GetTaskByIdUseCase
-import com.mhss.app.domain.use_case.UpdateTaskUseCase
+import com.mhss.app.domain.use_case.UpsertTaskUseCase
+import com.mhss.app.ui.R
+import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.util.date.now
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -18,10 +22,11 @@ import org.koin.core.annotation.Named
 @KoinViewModel
 class TaskDetailsViewModel(
     private val getTask: GetTaskByIdUseCase,
-    private val updateTask: UpdateTaskUseCase,
+    private val upsertTask: UpsertTaskUseCase,
     private val deleteTask: DeleteTaskUseCase,
+    private val canScheduleAlarms: CanScheduleAlarmsUseCase,
     @Named("applicationScope") private val applicationScope: CoroutineScope,
-    taskId: Int
+    taskId: String
 ) : ViewModel() {
 
     var taskDetailsUiState by mutableStateOf(TaskDetailsUiState())
@@ -30,6 +35,9 @@ class TaskDetailsViewModel(
     init {
         viewModelScope.launch {
             val task = getTask(taskId)
+            if (taskId.isNotBlank() && task == null) {
+                taskDetailsUiState.snackbarHostState.showSnackbar(R.string.error_item_not_found)
+            }
             taskDetailsUiState = taskDetailsUiState.copy(
                task = task
             )
@@ -40,7 +48,7 @@ class TaskDetailsViewModel(
         when (event) {
 
             TaskDetailsEvent.ErrorDisplayed -> {
-                taskDetailsUiState = taskDetailsUiState.copy(error = null, errorAlarm = false)
+                taskDetailsUiState = taskDetailsUiState.copy(alarmError = false)
             }
             // Using applicationScope to avoid cancelling when the user exits the screen
             // and the view model is cleared before the job finishes
@@ -59,9 +67,9 @@ class TaskDetailsViewModel(
                             isCompleted = event.task.isCompleted,
                             updatedDate = now()
                         )
-                        updateTask(
-                            newTask,
-                            event.task.dueDate != taskDetailsUiState.task!!.dueDate
+                        upsertTask(
+                            task = newTask,
+                            previousTask = taskDetailsUiState.task
                         )
                         taskDetailsUiState = taskDetailsUiState.copy(task = newTask)
                     }
@@ -72,14 +80,20 @@ class TaskDetailsViewModel(
                 deleteTask(taskDetailsUiState.task!!)
                 taskDetailsUiState = taskDetailsUiState.copy(navigateUp = true)
             }
+
+            TaskDetailsEvent.DueDateEnabled -> {
+                if (!canScheduleAlarms()) {
+                    taskDetailsUiState = taskDetailsUiState.copy(alarmError = true)
+                }
+            }
         }
     }
 
     data class TaskDetailsUiState(
         val task: Task? = null,
         val navigateUp: Boolean = false,
-        val error: Int? = null,
-        val errorAlarm: Boolean = false,
+        val alarmError: Boolean = false,
+        val snackbarHostState: SnackbarHostState = SnackbarHostState()
     )
 
     private fun taskChanged(

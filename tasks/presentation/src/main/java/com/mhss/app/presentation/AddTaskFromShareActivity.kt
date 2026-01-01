@@ -8,6 +8,7 @@ import com.mhss.app.domain.model.Task
 import com.mhss.app.ui.R
 import com.mhss.app.util.date.now
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import kotlin.uuid.Uuid
 
 class AddTaskFromShareActivity : ComponentActivity() {
 
@@ -24,7 +25,8 @@ class AddTaskFromShareActivity : ComponentActivity() {
                             Task(
                                 title = title,
                                 createdDate = now(),
-                                updatedDate = now()
+                                updatedDate = now(),
+                                id = Uuid.random().toString()
                             )
                         )
                     )

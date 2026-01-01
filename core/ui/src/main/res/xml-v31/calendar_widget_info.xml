@@ -10,5 +10,5 @@
     android:minResizeWidth="110dp"
     android:minWidth="110dp"
     android:widgetCategory="home_screen"
-    android:updatePeriodMillis="86400000"
+    android:updatePeriodMillis="43200000"
     />

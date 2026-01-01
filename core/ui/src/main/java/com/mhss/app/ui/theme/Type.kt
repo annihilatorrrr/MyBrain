@@ -34,6 +34,16 @@ fun getTypography(font: FontFamily, fontSizeScale: Float = 1.0f) = Typography(
         fontSize = (14 * fontSizeScale).sp,
         fontFamily = font
     ),
+    labelMedium = TextStyle(
+        fontWeight = FontWeight.W500,
+        fontSize = (12 * fontSizeScale).sp,
+        fontFamily = font
+    ),
+    labelSmall = TextStyle(
+        fontWeight = FontWeight.W500,
+        fontSize = (10 * fontSizeScale).sp,
+        fontFamily = font
+    ),
     displayLarge = TextStyle(
         fontWeight = FontWeight.Normal,
         fontSize = (96 * fontSizeScale).sp,

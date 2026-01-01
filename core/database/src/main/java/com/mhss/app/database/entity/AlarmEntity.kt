@@ -6,7 +6,7 @@ import com.mhss.app.alarm.model.Alarm
 
 @Entity(tableName = "alarms")
 data class AlarmEntity(
-    @PrimaryKey(autoGenerate = false)
+    @PrimaryKey(autoGenerate = true)
     val id: Int,
     val time: Long,
 )

@@ -13,19 +13,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.mhss.app.ui.R
 import com.mhss.app.mybrain.presentation.main.components.SpaceCard
 import com.mhss.app.presentation.components.drawAiGradientRadials
+import com.mhss.app.ui.R
 import com.mhss.app.ui.components.common.MyBrainAppBar
+import com.mhss.app.ui.components.common.singleGradientBackground
 import com.mhss.app.ui.navigation.Screen
 import com.mhss.app.ui.theme.Blue
-import com.mhss.app.ui.theme.DarkGray
 import com.mhss.app.ui.theme.Green
 import com.mhss.app.ui.theme.MyBrainTheme
 import com.mhss.app.ui.theme.Orange
@@ -58,29 +57,33 @@ fun SpacesScreen(
                 SpaceCard(
                     title = stringResource(title),
                     image = image,
-                    backgroundColor = color,
                     onClick = {
                         navController.navigate(screen)
-                    }
+                    },
+                    contentModifier = Modifier.singleGradientBackground(
+                        gradientColor = color,
+                        background = MaterialTheme.colorScheme.surfaceVariant,
+                        backgroundAlpha = 0.35f,
+                    )
                 )
             }
             item {
                 SpaceCard(
+                    modifier = Modifier,
                     title = stringResource(R.string.assistant),
                     image = R.drawable.ai_chat_img,
-                    backgroundColor = Color.Transparent,
                     onClick = {
                         navController.navigate(Screen.AssistantScreen)
                     },
-                    contentModifier = Modifier.drawBehind {
-                        drawAiGradientRadials(
-                            background = surfaceVariant
-                                .copy(alpha = 0.1f)
-                                .compositeOver(DarkGray),
-                            backgroundAlpha = 0.5f
-                        )
-                    }
+                    contentModifier = Modifier
+                        .drawBehind {
+                            drawAiGradientRadials(
+                                background = surfaceVariant,
+                                backgroundAlpha = 0.4f
+                            )
+                        }
                 )
+
             }
         }
     }

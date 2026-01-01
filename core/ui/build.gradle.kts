@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -7,7 +9,7 @@ plugins {
 
 android {
     namespace = "com.mhss.app.ui"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 26
@@ -29,8 +31,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_1_8
+        }
     }
     buildFeatures {
         compose = true
@@ -40,10 +44,10 @@ android {
 dependencies {
     implementation(project(":tasks:domain"))
     implementation(project(":notes:domain"))
+    implementation(project(":settings:domain"))
 
     implementation(project(":core:util"))
     implementation(project(":core:preferences"))
-    implementation(project(":core:network"))
     implementation(platform(libs.compose.bom))
 
     implementation(libs.androidx.core.ktx)
@@ -55,4 +59,6 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     implementation(libs.kotlinx.serialization.json)
+    api(libs.liquid)
+    api(libs.squircle.shape)
 }

@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.mhss.app.ui.components.notes.NoteSearchContent
 import com.mhss.app.ui.navigation.Screen
@@ -16,7 +18,7 @@ fun NotesSearchScreen(
     navController: NavHostController,
     viewModel: NotesViewModel = koinViewModel()
 ) {
-    val state = viewModel.notesUiState
+    val state by viewModel.notesUiState.collectAsStateWithLifecycle()
     NoteSearchContent(
         modifier = Modifier.padding(WindowInsets.statusBars.asPaddingValues()),
         notes = state.searchNotes,
@@ -24,7 +26,8 @@ fun NotesSearchScreen(
         onNoteClick = {
             navController.navigate(
                 Screen.NoteDetailsScreen(
-                    noteId = it.id
+                    noteId = it.id,
+                    folderId = it.folderId
                 )
             )
         },

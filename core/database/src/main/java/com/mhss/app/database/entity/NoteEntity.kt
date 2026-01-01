@@ -2,24 +2,13 @@ package com.mhss.app.database.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import com.mhss.app.database.converters.IdSerializer
 import com.mhss.app.domain.model.Note
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Entity(
-    tableName = "notes",
-    foreignKeys = [
-        ForeignKey(
-            entity = NoteFolderEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["folder_id"],
-            onDelete = ForeignKey.CASCADE,
-            onUpdate = ForeignKey.NO_ACTION
-        )
-    ]
-)
+@Entity(tableName = "notes")
 @Serializable
 data class NoteEntity(
     @SerialName("title")
@@ -36,10 +25,12 @@ data class NoteEntity(
     val pinned: Boolean = false,
     @ColumnInfo(name = "folder_id")
     @SerialName("folderId")
-    val folderId: Int? = null,
-    @PrimaryKey(autoGenerate = true)
+    @Serializable(IdSerializer::class)
+    val folderId: String? = null,
+    @PrimaryKey
     @SerialName("id")
-    val id: Int = 0,
+    @Serializable(IdSerializer::class)
+    val id: String,
 )
 
 fun NoteEntity.toNote(): Note {
@@ -65,5 +56,3 @@ fun Note.toNoteEntity(): NoteEntity {
         id = id
     )
 }
-
-fun List<NoteEntity>.withoutIds() = map { it.copy(id = 0) }

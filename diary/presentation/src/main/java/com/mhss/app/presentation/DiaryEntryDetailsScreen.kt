@@ -2,13 +2,38 @@ package com.mhss.app.presentation
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,23 +50,23 @@ import com.mhss.app.domain.model.Mood
 import com.mhss.app.ui.R
 import com.mhss.app.ui.components.common.DateTimeDialog
 import com.mhss.app.ui.components.common.MyBrainAppBar
+import com.mhss.app.ui.components.common.defaultMarkdownTypography
+import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
 import com.mhss.app.util.date.fullDate
 import com.mhss.app.util.date.now
 import com.mikepenz.markdown.coil2.Coil2ImageTransformerImpl
 import com.mikepenz.markdown.m3.Markdown
-import com.mikepenz.markdown.m3.markdownColor
-import com.mikepenz.markdown.m3.markdownTypography
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.uuid.Uuid
 
 @Composable
 fun DiaryEntryDetailsScreen(
     navController: NavHostController,
-    entryId: Int,
-    viewModel: DiaryDetailsViewModel = koinViewModel(parameters = { parametersOf(entryId) })
+    entryId: String?,
+    viewModel: DiaryDetailsViewModel = koinViewModel(parameters = { parametersOf(entryId.orEmpty()) })
 ) {
     val state = viewModel.uiState
-    val snackbarHostState = remember { SnackbarHostState() }
     var openDialog by rememberSaveable { mutableStateOf(false) }
 
     var title by remember { mutableStateOf("") }
@@ -76,14 +101,15 @@ fun DiaryEntryDetailsScreen(
                         title = title,
                         content = content,
                         mood = mood,
-                        createdDate = date
+                        createdDate = date,
+                        id = entryId ?: Uuid.random().toString()
                     )
                 )
             )
         }
     }
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = { LocalisedSnackbarHost(state.snackbarHostState) },
         topBar = {
             MyBrainAppBar(
                 title = "",
@@ -151,18 +177,7 @@ fun DiaryEntryDetailsScreen(
                         .padding(vertical = 6.dp)
                         .padding(8.dp),
                     imageTransformer = Coil2ImageTransformerImpl,
-                    colors = markdownColor(
-                        linkText = Color.Blue
-                    ),
-                    typography = markdownTypography(
-                        text = MaterialTheme.typography.bodyMedium,
-                        h1 = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
-                        h2 = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                        h3 = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                        h4 = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        h5 = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        h6 = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
-                    )
+                    typography = defaultMarkdownTypography()
                 )
             } else {
                 OutlinedTextField(

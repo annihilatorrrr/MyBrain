@@ -83,7 +83,7 @@ class NoteDetailsViewModel(
     init {
         viewModelScope.launch(exceptionHandler) {
             val note: Note? = if (id.isNotBlank()) getNote(id) else null
-            val folderId = folderId.ifBlank { null } ?: note?.folderId
+            val folderId = note?.folderId ?: folderId.ifBlank { null }
             val folder = folderId?.let { getNoteFolder(it) }
             val folders = getAllFolders().first()
 

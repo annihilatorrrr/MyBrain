@@ -10,9 +10,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
@@ -116,7 +118,7 @@ private fun LazyItemScope.UserMessageCard(
                 bottomStart = 24.dp,
                 bottomEnd = 14.dp
             ),
-            elevation = CardDefaults.cardElevation(8.dp),
+            elevation = CardDefaults.cardElevation(5.dp),
             onClick = { showContextMenu = true }
         ) {
             val surfaceVariant = MaterialTheme.colorScheme.surfaceVariant
@@ -239,7 +241,7 @@ private fun LazyItemScope.ToolCallCard(
         horizontalArrangement = Arrangement.Start,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(end = 48.dp, start = 8.dp, bottom = 4.dp, top = 8.dp)
+            .padding(end = 48.dp, start = 8.dp)
             .animateItem(
                 fadeInSpec = spring(
                     dampingRatio = Spring.DampingRatioLowBouncy,
@@ -256,7 +258,7 @@ private fun LazyItemScope.ToolCallCard(
             ),
             onClick = { expanded = !expanded }
         ) {
-            Column(modifier = Modifier.padding(12.dp)) {
+            Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -267,13 +269,13 @@ private fun LazyItemScope.ToolCallCard(
                             painter = painterResource(id = R.drawable.ic_tools),
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                            modifier = Modifier.size(18.dp)
+                            modifier = Modifier.size(16.dp)
                         )
+                        Spacer(modifier = Modifier.width(5.dp))
                         Text(
                             text = toolCall.name,
                             style = MaterialTheme.typography.titleSmall,
                             color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            modifier = Modifier.padding(start = 8.dp),
                             textDecoration = if (toolCall.isFailed) TextDecoration.LineThrough else null
                         )
                     }
@@ -409,6 +411,22 @@ fun MessageCardPreview() {
                 MessageCard(
                     message = AiMessage.ToolCall(
                         id = "test-id",
+                        name = "searchNotes",
+                        rawContent = "{\"query\": \"meeting notes\"}",
+                        resultRawContent = "[{\"id\": 1, \"title\": \"Meeting Notes\", \"content\": \"Discussion about project...\"}]",
+                        time = 1111111113,
+                        uuid = "890"
+                    ),
+                    onCopy = {},
+                    onNoteClick = {},
+                    onTaskClick = {},
+                    onEventClick = {}
+                )
+            }
+            item {
+                MessageCard(
+                    message = AiMessage.ToolCall(
+                        id = "test-id-",
                         name = "searchNotes",
                         rawContent = "{\"query\": \"meeting notes\"}",
                         resultRawContent = "[{\"id\": 1, \"title\": \"Meeting Notes\", \"content\": \"Discussion about project...\"}]",

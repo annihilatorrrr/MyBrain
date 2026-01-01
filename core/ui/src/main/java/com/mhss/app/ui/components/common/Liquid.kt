@@ -25,8 +25,8 @@ fun Modifier.frostedGlass(
 @Composable
 fun Modifier.clearGlass(liquidState: LiquidState, shape: () -> Shape = { RoundedCornerShape(28.dp) }, edge: () ->Float = { 0.03f }) = liquid(liquidState) {
     this.shape = shape()
-    refraction = 0.12f
-    curve = 0.24f
+    refraction = 0.14f
+    curve = 0.26f
     frost = 3.dp
     this.edge = edge()
     dispersion = 0.08f
@@ -34,9 +34,9 @@ fun Modifier.clearGlass(liquidState: LiquidState, shape: () -> Shape = { Rounded
 
 fun Modifier.iconButtonGlass(liquidState: LiquidState, shape: Shape) = liquid(liquidState) {
     this.shape = shape
-    refraction = 0.32f
-    curve = 0.34f
+    refraction = 0.36f
+    curve = 0.44f
     frost = 2.5.dp
-    edge = 0.03f
+    edge = 0.05f
     dispersion = 0.09f
 }

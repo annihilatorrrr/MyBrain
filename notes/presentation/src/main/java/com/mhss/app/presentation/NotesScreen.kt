@@ -118,7 +118,7 @@ fun NotesScreen(
 
         },
     ) { paddingValues ->
-        Column(modifier = Modifier.padding(paddingValues).liquefiable(liquidState)) {
+        Column(modifier = Modifier.liquefiable(liquidState).padding(paddingValues).fillMaxSize()) {
             PrimaryTabRow(
                 selectedTabIndex = selectedTab,
                 containerColor = MaterialTheme.colorScheme.background,
@@ -199,7 +199,8 @@ fun NotesScreen(
                             bottom = 24.dp,
                             start = 12.dp,
                             end = 12.dp
-                        )
+                        ),
+                        modifier = Modifier.weight(1f)
                     ) {
                         items(uiState.notes, key = { it.id }) { note ->
                             NoteCard(
@@ -220,7 +221,8 @@ fun NotesScreen(
                     LazyVerticalStaggeredGrid(
                         columns = StaggeredGridCells.Adaptive(150.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        contentPadding = PaddingValues(12.dp)
+                        contentPadding = PaddingValues(12.dp),
+                        modifier = Modifier.weight(1f)
                     ) {
                         items(uiState.notes) { note ->
                             key(note.id) {

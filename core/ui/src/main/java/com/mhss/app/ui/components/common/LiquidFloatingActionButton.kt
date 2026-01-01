@@ -43,7 +43,7 @@ fun LiquidFloatingActionButton(
         shape = FloatingActionButtonDefaults.shape,
         modifier = modifier
             .dropShadow(FloatingActionButtonDefaults.shape) {
-                alpha = 0.12f
+                alpha = 0.05f
                 this.spread = 7f
                 radius = 36f
 
@@ -54,7 +54,7 @@ fun LiquidFloatingActionButton(
             painter = iconPainter,
             contentDescription = contentDescription,
             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                alpha = 0.8f
+                alpha = 0.7f
             ),
             modifier = Modifier
                 .padding(16.dp)

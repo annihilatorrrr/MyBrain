@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -58,6 +59,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -135,21 +137,26 @@ fun NoteDetailsScreen(
                     if (folder != null) {
                         Row(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(25.dp))
+                                .clip(CircleShape)
                                 .border(1.dp, Color.Gray, RoundedCornerShape(25.dp))
-                                .clickable { openFolderDialog = true },
+                                .clickable { openFolderDialog = true }
+                                .weight(1f, fill = false),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
                                 painterResource(R.drawable.ic_folder),
                                 stringResource(R.string.folders),
-                                modifier = Modifier.padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
+                                modifier = Modifier
+                                    .padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
+                                    .size(16.dp),
                             )
-                            Spacer(Modifier.width(8.dp))
+                            Spacer(Modifier.width(4.dp))
                             Text(
                                 text = folder.name,
                                 modifier = Modifier.padding(end = 8.dp, top = 8.dp, bottom = 8.dp),
-                                style = MaterialTheme.typography.bodyLarge
+                                style = MaterialTheme.typography.bodyMedium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     } else {
@@ -157,6 +164,7 @@ fun NoteDetailsScreen(
                             Icon(
                                 painterResource(R.drawable.ic_create_folder),
                                 stringResource(R.string.folders),
+                                modifier = Modifier.size(18.dp)
                             )
                         }
                     }
@@ -164,6 +172,7 @@ fun NoteDetailsScreen(
                         Icon(
                             painterResource(R.drawable.ic_share),
                             stringResource(R.string.share_note),
+                            modifier = Modifier.size(18.dp),
                         )
                         DropdownMenu(
                             expanded = showShareMenu,
@@ -179,7 +188,8 @@ fun NoteDetailsScreen(
                     if (state.note != null) IconButton(onClick = { openDeleteDialog = true }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_delete),
-                            contentDescription = stringResource(R.string.delete_task)
+                            contentDescription = stringResource(R.string.delete_task),
+                            modifier = Modifier.size(18.dp),
                         )
                     }
                     IconButton(onClick = {
@@ -189,7 +199,7 @@ fun NoteDetailsScreen(
                             painter = if (pinned) painterResource(id = R.drawable.ic_pin_filled)
                             else painterResource(id = R.drawable.ic_pin),
                             contentDescription = stringResource(R.string.pin_note),
-                            modifier = Modifier.size(24.dp),
+                            modifier = Modifier.size(18.dp),
                             tint = Orange
                         )
                     }
@@ -199,7 +209,7 @@ fun NoteDetailsScreen(
                         Icon(
                             painter = painterResource(id = R.drawable.ic_read_mode),
                             contentDescription = stringResource(R.string.reading_mode),
-                            modifier = Modifier.size(24.dp),
+                            modifier = Modifier.size(18.dp),
                             tint = if (readingMode) Color.Green else Color.Gray
                         )
                     }

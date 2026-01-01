@@ -20,5 +20,5 @@ val LightGray = Color(0xFFECECEC)
 val LightPurple = Color(0xFF743AD6)
 val DarkOrange = Color(0xFFE84200)
 
-val BackgroundColor = Color(0xffeaeaea)
+val LightBackgroundColor = Color(0xfff1f1f1)
 

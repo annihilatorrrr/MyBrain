@@ -38,7 +38,7 @@ class NoteToolSet(
     suspend fun createNote(
         title: String,
         content: String,
-        @LLMDescription("Optional Folder ID. If null, the note will be in the root folder. Use $SEARCH_NOTE_FOLDERS_TOOL to find an ID.") folderId: String? = null,
+        @LLMDescription("Optional Folder ID. If null, the note will be in the root folder. Use $SEARCH_NOTE_FOLDERS_TOOL to find an ID. Keep null if user didn't ask for specific folder.") folderId: String? = null,
         pinned: Boolean = false
     ): NoteIdResult {
         if (folderId != null) {
@@ -109,7 +109,7 @@ class NoteToolSet(
 data class NoteInput(
     val title: String,
     val content: String,
-    @param:LLMDescription("Folder ID (null = root)") val folderId: String? = null,
+    @param:LLMDescription("Folder ID (null = root), Keep null if user didn't ask for specific folder.") val folderId: String? = null,
     val pinned: Boolean = false
 )
 

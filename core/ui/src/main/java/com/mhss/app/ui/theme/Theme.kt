@@ -38,18 +38,18 @@ private val LightColorPalette = lightColorScheme(
     onPrimary = OnPrimary,
     secondary = SecondaryColor,
     tertiary = TertiaryColor,
-    background = BackgroundColor,
+    background = LightBackgroundColor,
     onBackground = DarkGray,
     onSurfaceVariant = DarkGray,
-    surfaceTint = BackgroundColor,
-    surfaceVariant = BackgroundColor,
-    surfaceContainerHighest = BackgroundColor,
-    surfaceContainerLow = BackgroundColor,
-    surfaceContainerLowest = BackgroundColor,
-    surfaceContainer = BackgroundColor,
-    surfaceContainerHigh = BackgroundColor,
-    surfaceDim = BackgroundColor,
-    surfaceBright = BackgroundColor
+    surfaceTint = LightBackgroundColor,
+    surfaceVariant = LightBackgroundColor,
+    surfaceContainerHighest = LightBackgroundColor,
+    surfaceContainerLow = LightBackgroundColor,
+    surfaceContainerLowest = LightBackgroundColor,
+    surfaceContainer = LightBackgroundColor,
+    surfaceContainerHigh = LightBackgroundColor,
+    surfaceDim = LightBackgroundColor,
+    surfaceBright = LightBackgroundColor
 )
 
 @Composable

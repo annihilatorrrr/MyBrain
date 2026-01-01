@@ -62,7 +62,7 @@ fun AiNoteCard(
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.elevatedCardElevation(8.dp),
+        elevation = CardDefaults.elevatedCardElevation(4.dp),
         onClick = { onClick(note) }
     ) {
         Column(
@@ -112,7 +112,7 @@ fun AiTaskCard(
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.elevatedCardElevation(8.dp),
+        elevation = CardDefaults.elevatedCardElevation(4.dp),
         onClick = onClick
     ) {
         Row(
@@ -171,13 +171,6 @@ fun AiTaskCard(
                         }
                     }
                 }
-//                if (task.dueDate != 0L) {
-//                    Text(
-//                        text = formattedDate,
-//                        style = MaterialTheme.typography.labelSmall,
-//                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-//                    )
-//                }
             }
         }
     }

@@ -1,18 +1,21 @@
-![Stars](https://img.shields.io/github/stars/mhss1/mybrain?style=social)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Crowdin](https://badges.crowdin.net/my-brain-app/localized.svg)](https://crowdin.com/project/my-brain-app)
-[![Bitcoin](https://img.shields.io/badge/bitcoin-F7931A?style=for-the-badge&logo=bitcoin&logoColor=white)](https://github.com/user-attachments/assets/95ad9c11-8bbf-42ab-aec5-a7ad93520985)
-[![Monero](https://img.shields.io/badge/monero-FF6600?style=for-the-badge&logo=monero&logoColor=white)](https://github.com/user-attachments/assets/3c9bf0d1-7fe6-43dd-aebe-c8c368d925b0)
+<p align="center">
+  <img alt="Stars" src="https://img.shields.io/github/stars/mhss1/mybrain?style=social" />
+  <a href="https://www.gnu.org/licenses/gpl-3.0"><img alt="License: GPL v3" src="https://img.shields.io/badge/License-GPLv3-blue.svg" /></a>
+  <a href="https://crowdin.com/project/my-brain-app"><img alt="Crowdin" src="https://badges.crowdin.net/my-brain-app/localized.svg" /></a>
+</p>
 
 
-<img align="left" width="80" height="80" src="https://user-images.githubusercontent.com/58703865/169863670-eee3c8f1-1308-4eb2-9aea-f7c0a47e6a31.png" alt="app icon">
-
-# My Brain
+<h1 align="center">
+  <a href="https://github.com/mhss1/MyBrain">
+    <img alt="My Brain" src="https://github.com/user-attachments/assets/3a33b973-0686-4ac5-b987-41bfb081ba81" width="180" />
+  </a>
+  <br>
+  My Brain
+</h1>
   
-### All-in-one productivity app and AI assistant with Tasks, Notes, Calendar, Diary and Bookmarks.
+<h3 align="center">All-in-one productivity app and AI assistant with Tasks, Notes, Calendar, Diary and Bookmarks.</h3>
 
 ![MyBrain banner](https://github.com/user-attachments/assets/4dabc54e-5925-4fd5-a940-fef4b2741787)
-
 
 [screenshots made by previewed](https://previewed.app/template/00CBF3F6)
 

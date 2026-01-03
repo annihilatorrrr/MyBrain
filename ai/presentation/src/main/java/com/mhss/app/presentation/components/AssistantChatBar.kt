@@ -10,6 +10,10 @@ import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -96,7 +100,7 @@ fun AssistantChatBar(
     val isExpanded = isFocused || text.isNotBlank()
     val cornerRadius by animateDpAsState(
         if (isExpanded) 24.dp else 99.dp,
-        animationSpec = tween(durationMillis = 400, easing = EaseInOut),
+        animationSpec = chatBarAnimationSpec(),
     )
     val shape = RoundedCornerShape(cornerRadius)
     Column(
@@ -138,7 +142,7 @@ fun AssistantChatBar(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .animateContentSize(tween(durationMillis = 300, easing = FastOutSlowInEasing)),
+                        .animateContentSize(chatBarAnimationSpec()),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     TextField(
@@ -208,7 +212,11 @@ fun AssistantChatBar(
                         }
                     }
                 }
-                AnimatedVisibility(isFocused) {
+                AnimatedVisibility(
+                    visible = isFocused,
+                    enter = fadeIn(chatBarAnimationSpec()) + expandVertically(chatBarAnimationSpec()),
+                    exit = fadeOut(chatBarAnimationSpec()) + shrinkVertically(chatBarAnimationSpec())
+                ) {
                     LeftToRight {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -250,6 +258,8 @@ fun AssistantChatBar(
 
     }
 }
+
+private inline fun <T> chatBarAnimationSpec() = tween<T>(durationMillis = 300, easing = FastOutSlowInEasing)
 
 fun Modifier.drawAnimatedGradient(
     loading: Boolean

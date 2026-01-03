@@ -104,12 +104,7 @@ private fun LazyItemScope.UserMessageCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(end = 8.dp, start = 48.dp, bottom = 4.dp, top = 8.dp)
-            .animateItem(
-                fadeInSpec = spring(
-                    dampingRatio = Spring.DampingRatioLowBouncy,
-                    stiffness = Spring.StiffnessVeryLow
-                )
-            )
+            .messageCardAnimatedPlacement()
     ) {
         Card(
             shape = RoundedCornerShape(
@@ -187,12 +182,7 @@ private fun LazyItemScope.AssistantMessageCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(end = 12.dp, start = 12.dp, bottom = 4.dp, top = 8.dp)
-            .animateItem(
-                fadeInSpec = spring(
-                    dampingRatio = Spring.DampingRatioLowBouncy,
-                    stiffness = Spring.StiffnessVeryLow
-                )
-            )
+            .messageCardAnimatedPlacement()
             .clickable { showContextMenu = true }
     ) {
         Column {
@@ -242,12 +232,7 @@ private fun LazyItemScope.ToolCallCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(end = 48.dp, start = 8.dp)
-            .animateItem(
-                fadeInSpec = spring(
-                    dampingRatio = Spring.DampingRatioLowBouncy,
-                    stiffness = Spring.StiffnessVeryLow
-                )
-            )
+            .messageCardAnimatedPlacement()
     ) {
         Card(
             shape = RoundedCornerShape(12.dp),
@@ -370,6 +355,21 @@ private fun ToolCallResultPreview(
             }
         }
     }
+}
+
+@Composable
+context(scope: LazyItemScope)
+private fun Modifier.messageCardAnimatedPlacement() = with(scope) {
+    this@messageCardAnimatedPlacement.animateItem(
+        fadeInSpec = spring(
+            dampingRatio = 0.95f,
+            stiffness = Spring.StiffnessMedium
+        ),
+        placementSpec = spring(
+            dampingRatio = 0.95f,
+            stiffness = Spring.StiffnessMedium
+        )
+    )
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)

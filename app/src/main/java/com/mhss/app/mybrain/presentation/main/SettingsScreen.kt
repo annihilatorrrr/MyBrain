@@ -49,6 +49,7 @@ import com.mhss.app.presentation.SettingsViewModel
 import com.mhss.app.presentation.components.SettingsBasicLinkItem
 import com.mhss.app.presentation.components.SettingsItemCard
 import com.mhss.app.presentation.components.SettingsSwitchCard
+import com.mhss.app.ui.FirstDayOfWeekSettings
 import com.mhss.app.ui.FontSizeSettings
 import com.mhss.app.ui.R
 import com.mhss.app.ui.StartUpScreenSettings
@@ -160,6 +161,21 @@ fun SettingsScreen(
                     viewModel.saveSettings(
                         intPreferencesKey(PrefsConstants.FONT_SIZE_KEY),
                         fontSizeValue
+                    )
+                }
+            }
+            item {
+                val firstDayOfWeek = viewModel
+                    .getSettings(
+                        intPreferencesKey(PrefsConstants.FIRST_DAY_OF_WEEK_KEY),
+                        FirstDayOfWeekSettings.SUNDAY.value
+                    ).collectAsStateWithLifecycle(FirstDayOfWeekSettings.SUNDAY.value)
+                FirstDayOfWeekSettingsItem(
+                    firstDayOfWeek.value,
+                ) { value ->
+                    viewModel.saveSettings(
+                        intPreferencesKey(PrefsConstants.FIRST_DAY_OF_WEEK_KEY),
+                        value
                     )
                 }
             }
@@ -562,6 +578,69 @@ fun FontSizeSettingsItem(
                         text = {
                             Text(
                                 text = stringResource(fontSizeItem.title),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun FirstDayOfWeekSettingsItem(
+    selectedDay: Int,
+    onDayChange: (Int) -> Unit = {}
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val options = FirstDayOfWeekSettings.entries
+    SettingsItemCard(
+        cornerRadius = 16.dp,
+        onClick = {
+            expanded = true
+        },
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_calendar),
+                contentDescription = stringResource(R.string.first_day_of_week),
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(Modifier.width(12.dp))
+            Text(
+                text = stringResource(R.string.first_day_of_week),
+                style = MaterialTheme.typography.bodyLarge,
+            )
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(),
+            contentAlignment = Alignment.CenterEnd
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(FirstDayOfWeekSettings.fromValue(selectedDay).title),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = null)
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                options.forEach { dayOption ->
+                    DropdownMenuItem(
+                        onClick = {
+                            onDayChange(dayOption.value)
+                            expanded = false
+                        },
+                        text = {
+                            Text(
+                                text = stringResource(dayOption.title),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         }

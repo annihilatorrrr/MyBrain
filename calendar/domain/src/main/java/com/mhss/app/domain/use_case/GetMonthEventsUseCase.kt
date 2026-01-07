@@ -24,11 +24,12 @@ class GetMonthEventsUseCase(
 ) {
     suspend operator fun invoke(
         month: YearMonth,
-        excludedCalendars: List<Int>
+        excludedCalendars: List<Int>,
+        firstDayOfWeek: DayOfWeek = DayOfWeek.SUNDAY
     ): List<CalendarDay> {
         return withContext(defaultDispatcher) {
             val firstOfMonth = month.firstDay
-            val startOffset = firstOfMonth.dayOfWeek.dayNumber % 7
+            val startOffset = firstOfMonth.dayOfWeek.dayNumberFrom(firstDayOfWeek)
             val startDate = firstOfMonth.minus(startOffset, DateTimeUnit.DAY)
 
             val gridDays = MONTH_GRID_CELL_COUNT.toLong()
@@ -55,14 +56,9 @@ class GetMonthEventsUseCase(
     }
 }
 
-val DayOfWeek.dayNumber: Int
-    get() = when (this) {
-        DayOfWeek.SUNDAY -> 1
-        DayOfWeek.MONDAY -> 2
-        DayOfWeek.TUESDAY -> 3
-        DayOfWeek.WEDNESDAY -> 4
-        DayOfWeek.THURSDAY -> 5
-        DayOfWeek.FRIDAY -> 6
-        DayOfWeek.SATURDAY -> 7
-    }
+fun DayOfWeek.dayNumberFrom(firstDayOfWeek: DayOfWeek): Int {
+    val thisDayOrdinal = this.ordinal
+    val firstDayOrdinal = firstDayOfWeek.ordinal
+    return (thisDayOrdinal - firstDayOrdinal + 7) % 7
+}
 

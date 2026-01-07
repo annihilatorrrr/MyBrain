@@ -241,4 +241,8 @@
     <string name="tool_call_limit_exceeded">توقف المساعد بعد العديد من الإجراءات المتتالية. إذا كنت تتوقع ذلك، يمكنك إرسال كلمة \"Continue\" للمساعد.</string>
     <string name="ask_assistant">اسأل المساعد…</string>
     <string name="error_item_not_found">حدث خطأ, لم يتم العثور على العنصر</string>
+    <string name="first_day_of_week">أول يوم في الأسبوع</string>
+    <string name="sunday">الأحد</string>
+    <string name="monday">الإثنين</string>
+    <string name="saturday">السبت</string>
 </resources>

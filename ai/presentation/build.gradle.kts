@@ -35,6 +35,7 @@ android {
     kotlin {
         compilerOptions {
             jvmTarget = JvmTarget.JVM_1_8
+            freeCompilerArgs = listOf("-XXLanguage:+ContextParameters")
         }
     }
     buildFeatures {

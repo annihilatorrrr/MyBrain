@@ -1,9 +1,6 @@
 package com.mhss.app.presentation
 
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mhss.app.domain.model.DiaryEntry
@@ -15,6 +12,9 @@ import com.mhss.app.ui.R
 import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.util.date.now
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 import org.koin.core.annotation.Named
@@ -29,20 +29,22 @@ class DiaryDetailsViewModel(
     entryId: String
 ) : ViewModel() {
 
-    var uiState by mutableStateOf(UiState())
-        private set
+    private val _uiState = MutableStateFlow(UiState())
+    val uiState = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch {
             if (entryId.isNotBlank()) {
                 val entry = getEntry(entryId)
                 if (entry == null) {
-                    uiState.snackbarHostState.showSnackbar(R.string.error_item_not_found)
+                    uiState.value.snackbarHostState.showSnackbar(R.string.error_item_not_found)
                 }
-                uiState = uiState.copy(
-                    entry = entry,
-                    readingMode = entry != null
-                )
+                _uiState.update {
+                    it.copy(
+                        entry = entry,
+                        readingMode = entry != null
+                    )
+                }
             }
         }
     }
@@ -50,27 +52,27 @@ class DiaryDetailsViewModel(
     fun onEvent(event: DiaryDetailsEvent) {
         when (event) {
             is DiaryDetailsEvent.DeleteEntry -> viewModelScope.launch {
-                deleteEntry(uiState.entry!!)
-                uiState = uiState.copy(navigateUp = true)
+                deleteEntry(uiState.value.entry!!)
+                _uiState.update { it.copy(navigateUp = true) }
             }
 
             is DiaryDetailsEvent.ToggleReadingMode -> {
-                uiState = uiState.copy(readingMode = !uiState.readingMode)
+                _uiState.update { it.copy(readingMode = !it.readingMode) }
             }
             // Using applicationScope to avoid cancelling when the user exits the screen
             // and the view model is cleared before the job finishes
             is DiaryDetailsEvent.ScreenOnStop -> applicationScope.launch {
-                if (!uiState.navigateUp) {
-                    if (uiState.entry == null) {
+                if (!uiState.value.navigateUp) {
+                    if (uiState.value.entry == null) {
                         if (event.currentEntry.title.isNotBlank() || event.currentEntry.content.isNotBlank()) {
                             val entry = event.currentEntry.copy(
                                 updatedDate = now()
                             )
                             addEntry(entry)
-                            uiState = uiState.copy(entry = entry)
+                            _uiState.update { it.copy(entry = entry) }
                         }
-                    } else if (entryChanged(uiState.entry!!, event.currentEntry)) {
-                        val newEntry = uiState.entry!!.copy(
+                    } else if (entryChanged(uiState.value.entry!!, event.currentEntry)) {
+                        val newEntry = uiState.value.entry!!.copy(
                             title = event.currentEntry.title,
                             content = event.currentEntry.content,
                             mood = event.currentEntry.mood,
@@ -78,7 +80,7 @@ class DiaryDetailsViewModel(
                             updatedDate = now()
                         )
                         updateEntry(newEntry)
-                        uiState = uiState.copy(entry = newEntry)
+                        _uiState.update { it.copy(entry = newEntry) }
                     }
                 }
             }

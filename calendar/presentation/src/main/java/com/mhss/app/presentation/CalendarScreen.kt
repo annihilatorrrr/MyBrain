@@ -38,6 +38,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -70,7 +71,7 @@ fun CalendarScreen(
     navController: NavHostController,
     viewModel: CalendarViewModel = koinViewModel()
 ) {
-    val state = viewModel.uiState
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     val listViewState = rememberLazyListState()
     val dayEventsState = rememberLazyListState()
     var settingsVisible by remember { mutableStateOf(false) }
@@ -227,6 +228,7 @@ fun CalendarScreen(
                         onLoadMonth = viewModel::loadMonth,
                         selectedDate = selectedDate,
                         today = today,
+                        firstDayOfWeek = state.firstDayOfWeek,
                         onDaySelected = { date ->
                             selectedDate = date
                         },

@@ -156,3 +156,14 @@ val Priority.color: Color
 
 fun Set<String>.toIntList() = this.toList().map { it.toInt() }
 
+enum class FirstDayOfWeekSettings(@StringRes val title: Int, val value: Int) {
+    SATURDAY(R.string.saturday, 0),
+    SUNDAY(R.string.sunday, 1),
+    MONDAY(R.string.monday, 2);
+
+    companion object {
+        fun fromValue(value: Int): FirstDayOfWeekSettings =
+            entries.firstOrNull { it.value == value } ?: SUNDAY
+    }
+}
+

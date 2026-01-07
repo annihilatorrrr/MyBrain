@@ -36,6 +36,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -77,7 +78,6 @@ import com.mhss.app.util.permissions.Permission
 import com.mhss.app.util.permissions.rememberPermissionState
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
-import kotlin.uuid.Uuid
 
 @Suppress("AssignedValueIsNeverRead")
 @Composable
@@ -87,7 +87,7 @@ fun TaskDetailScreen(
     viewModel: TaskDetailsViewModel = koinViewModel(parameters = { parametersOf(taskId) }),
 ) {
     val alarmPermissionState = rememberPermissionState(Permission.SCHEDULE_ALARMS)
-    val uiState = viewModel.taskDetailsUiState
+    val uiState by viewModel.taskDetailsUiState.collectAsState()
     val snackbarHostState = uiState.snackbarHostState
     var openDialog by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
@@ -108,18 +108,19 @@ fun TaskDetailScreen(
     }
 
     LaunchedEffect(uiState.task) {
-        if (uiState.task != null) {
-            title = uiState.task.title
-            description = uiState.task.description
-            priority = uiState.task.priority
-            dueDate = uiState.task.dueDate
-            dueDateExists = uiState.task.dueDate != 0L
-            completed = uiState.task.isCompleted
-            recurring = uiState.task.recurring
-            frequency = uiState.task.frequency
-            frequencyAmount = uiState.task.frequencyAmount
+        val task = uiState.task
+        if (task != null) {
+            title = task.title
+            description = task.description
+            priority = task.priority
+            dueDate = task.dueDate
+            dueDateExists = task.dueDate != 0L
+            completed = task.isCompleted
+            recurring = task.recurring
+            frequency = task.frequency
+            frequencyAmount = task.frequencyAmount
             subTasks.clear()
-            subTasks.addAll(uiState.task.subTasks)
+            subTasks.addAll(task.subTasks)
         }
     }
     LaunchedEffect(uiState.navigateUp, uiState.alarmError) {
@@ -138,8 +139,8 @@ fun TaskDetailScreen(
     }
     LifecycleStartEffect(Unit) {
         onStopOrDispose {
-            if (!uiState.navigateUp) {
-                uiState.task?.let {task ->
+            if (!viewModel.taskDetailsUiState.value.navigateUp) {
+                viewModel.taskDetailsUiState.value.task?.let {task ->
                     viewModel.onEvent(
                         TaskDetailsEvent.ScreenOnStop(
                             task.copy(
@@ -151,8 +152,7 @@ fun TaskDetailScreen(
                                 subTasks = subTasks,
                                 recurring = recurring,
                                 frequency = frequency,
-                                frequencyAmount = frequencyAmount,
-                                id = Uuid.random().toString()
+                                frequencyAmount = frequencyAmount
                             )
                         )
                     )
@@ -349,7 +349,7 @@ fun TaskDetailsContent(
         Spacer(Modifier.height(12.dp))
         PriorityTabRow(
             priorities = priorities,
-            priority,
+            selectedPriority = priority,
             onChange = onPriorityChange
         )
         Spacer(Modifier.height(12.dp))
@@ -437,7 +437,7 @@ fun TaskDetailsContent(
                             },
                             onClick = {
                                 frequencyMenuVisible = true
-                            })
+                           })
                         Spacer(Modifier.height(8.dp))
                         Row(
                             Modifier

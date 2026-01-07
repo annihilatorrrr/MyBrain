@@ -35,7 +35,7 @@ import kotlinx.datetime.number
 import kotlinx.datetime.plus
 import kotlinx.datetime.yearMonth
 
-private val WEEK_DAYS = listOf(
+private val ALL_WEEK_DAYS = listOf(
     DayOfWeek.SUNDAY,
     DayOfWeek.MONDAY,
     DayOfWeek.TUESDAY,
@@ -45,6 +45,12 @@ private val WEEK_DAYS = listOf(
     DayOfWeek.SATURDAY
 )
 
+fun getOrderedWeekDays(firstDayOfWeek: DayOfWeek): List<DayOfWeek> {
+    val startIndex = ALL_WEEK_DAYS.indexOf(firstDayOfWeek)
+    return if (startIndex <= 0) ALL_WEEK_DAYS
+    else ALL_WEEK_DAYS.drop(startIndex) + ALL_WEEK_DAYS.take(startIndex)
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MonthlyCalendar(
@@ -53,9 +59,11 @@ fun MonthlyCalendar(
     onLoadMonth: (YearMonth) -> Unit,
     selectedDate: CalendarDay,
     today: LocalDate,
+    firstDayOfWeek: DayOfWeek = DayOfWeek.SUNDAY,
     onDaySelected: (CalendarDay) -> Unit,
     onMonthChanged: (LocalDate) -> Unit
 ) {
+    val weekDays = remember(firstDayOfWeek) { getOrderedWeekDays(firstDayOfWeek) }
     val initialPage = CALENDAR_START_PAGE
     val pagerState = rememberPagerState(
         initialPage = initialPage,
@@ -82,7 +90,7 @@ fun MonthlyCalendar(
                 .padding(bottom = 4.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            WEEK_DAYS.forEach { day ->
+            weekDays.forEach { day ->
                 Text(
                     text = day.getDisplayName(),
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
@@ -115,7 +123,7 @@ fun MonthlyCalendar(
 
             if (monthData != null) {
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(WEEK_DAYS.size),
+                    columns = GridCells.Fixed(weekDays.size),
                     modifier = Modifier.fillMaxWidth(),
                     userScrollEnabled = false,
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -143,7 +151,7 @@ fun MonthlyCalendar(
                 }
             } else {
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(WEEK_DAYS.size),
+                    columns = GridCells.Fixed(weekDays.size),
                     modifier = Modifier.fillMaxWidth(),
                     userScrollEnabled = false,
                     horizontalArrangement = Arrangement.SpaceBetween,

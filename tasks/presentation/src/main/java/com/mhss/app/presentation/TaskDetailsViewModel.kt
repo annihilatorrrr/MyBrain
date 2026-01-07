@@ -1,9 +1,6 @@
 package com.mhss.app.presentation
 
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mhss.app.domain.model.Task
@@ -15,6 +12,9 @@ import com.mhss.app.ui.R
 import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.util.date.now
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 import org.koin.core.annotation.Named
@@ -29,18 +29,20 @@ class TaskDetailsViewModel(
     taskId: String
 ) : ViewModel() {
 
-    var taskDetailsUiState by mutableStateOf(TaskDetailsUiState())
-        private set
+    private val _taskDetailsUiState = MutableStateFlow(TaskDetailsUiState())
+    val taskDetailsUiState = _taskDetailsUiState.asStateFlow()
 
     init {
         viewModelScope.launch {
             val task = getTask(taskId)
             if (taskId.isNotBlank() && task == null) {
-                taskDetailsUiState.snackbarHostState.showSnackbar(R.string.error_item_not_found)
+                taskDetailsUiState.value.snackbarHostState.showSnackbar(R.string.error_item_not_found)
             }
-            taskDetailsUiState = taskDetailsUiState.copy(
-               task = task
-            )
+            _taskDetailsUiState.update {
+                it.copy(
+                   task = task
+                )
+            }
         }
     }
 
@@ -48,14 +50,14 @@ class TaskDetailsViewModel(
         when (event) {
 
             TaskDetailsEvent.ErrorDisplayed -> {
-                taskDetailsUiState = taskDetailsUiState.copy(alarmError = false)
+                _taskDetailsUiState.update { it.copy(alarmError = false) }
             }
             // Using applicationScope to avoid cancelling when the user exits the screen
             // and the view model is cleared before the job finishes
             is TaskDetailsEvent.ScreenOnStop -> applicationScope.launch {
-                if (!taskDetailsUiState.navigateUp) {
-                    if (taskChanged(taskDetailsUiState.task!!, event.task)) {
-                        val newTask = taskDetailsUiState.task!!.copy(
+                if (!taskDetailsUiState.value.navigateUp) {
+                    if (taskChanged(taskDetailsUiState.value.task!!, event.task)) {
+                        val newTask = taskDetailsUiState.value.task!!.copy(
                             title = event.task.title.ifBlank { "Untitled" },
                             description = event.task.description,
                             dueDate = event.task.dueDate,
@@ -69,21 +71,21 @@ class TaskDetailsViewModel(
                         )
                         upsertTask(
                             task = newTask,
-                            previousTask = taskDetailsUiState.task
+                            previousTask = taskDetailsUiState.value.task
                         )
-                        taskDetailsUiState = taskDetailsUiState.copy(task = newTask)
+                        _taskDetailsUiState.update { it.copy(task = newTask) }
                     }
                 }
             }
 
             is TaskDetailsEvent.DeleteTask -> viewModelScope.launch {
-                deleteTask(taskDetailsUiState.task!!)
-                taskDetailsUiState = taskDetailsUiState.copy(navigateUp = true)
+                deleteTask(taskDetailsUiState.value.task!!)
+                _taskDetailsUiState.update { it.copy(navigateUp = true) }
             }
 
             TaskDetailsEvent.DueDateEnabled -> {
                 if (!canScheduleAlarms()) {
-                    taskDetailsUiState = taskDetailsUiState.copy(alarmError = true)
+                    _taskDetailsUiState.update { it.copy(alarmError = true) }
                 }
             }
         }

@@ -90,7 +90,7 @@ fun NoteDetailsScreen(
         parameters = { parametersOf(noteId.orEmpty(), folderId.orEmpty()) }
     ),
 ) {
-    val state = viewModel.noteUiState
+    val state by viewModel.noteUiState.collectAsStateWithLifecycle()
     var openDeleteDialog by rememberSaveable { mutableStateOf(false) }
     var openFolderDialog by rememberSaveable { mutableStateOf(false) }
     var showShareMenu by rememberSaveable { mutableStateOf(false) }

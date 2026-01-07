@@ -33,7 +33,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
@@ -57,8 +57,8 @@ class NoteDetailsViewModel(
     folderId: String,
 ) : ViewModel() {
 
-    var noteUiState by mutableStateOf(UiState())
-        private set
+    private val _noteUiState = MutableStateFlow(UiState())
+    val noteUiState = _noteUiState.asStateFlow()
 
     var title by mutableStateOf("")
         private set
@@ -68,14 +68,14 @@ class NoteDetailsViewModel(
     private val exceptionHandler = CoroutineExceptionHandler { _, ex ->
         viewModelScope.launch {
             val exception = ex as? NoteException ?: NoteException.UnknownError
-            noteUiState.snackbarHostState.showSnackbar(exception.toSnackbarError())
+            noteUiState.value.snackbarHostState.showSnackbar(exception.toSnackbarError())
         }
     }
     private var autoSaveJob: Job? = null
     private val saveMutex = Mutex()
 
     private val _aiEnabled = MutableStateFlow(false)
-    val aiEnabled: StateFlow<Boolean> = _aiEnabled
+    val aiEnabled = _aiEnabled.asStateFlow()
     var aiState by mutableStateOf((AiState()))
         private set
     private var aiActionJob: Job? = null
@@ -88,7 +88,7 @@ class NoteDetailsViewModel(
             val folders = getAllFolders().first()
 
             if (id.isNotBlank() && note == null) {
-                noteUiState.snackbarHostState.showSnackbar(R.string.error_item_not_found)
+                noteUiState.value.snackbarHostState.showSnackbar(R.string.error_item_not_found)
             }
 
             if (note != null) {
@@ -96,13 +96,15 @@ class NoteDetailsViewModel(
                 content = note.content
             }
 
-            noteUiState = noteUiState.copy(
-                note = note?.copy(folderId = folder?.id ?: note.folderId),
-                folder = folder,
-                folders = folders,
-                readingMode = note != null,
-                pinned = note?.pinned ?: false
-            )
+            _noteUiState.update {
+                it.copy(
+                    note = note?.copy(folderId = folder?.id ?: note.folderId),
+                    folder = folder,
+                    folders = folders,
+                    readingMode = note != null,
+                    pinned = note?.pinned ?: false
+                )
+            }
         }
         viewModelScope.launch(exceptionHandler) {
             getPreference(intPreferencesKey(PrefsConstants.AI_PROVIDER_KEY), AiProvider.None.id)
@@ -116,16 +118,17 @@ class NoteDetailsViewModel(
     fun onEvent(event: NoteDetailsEvent) {
         when (event) {
             is NoteDetailsEvent.ScreenOnStop -> applicationScope.launch(exceptionHandler) {
-                if (!noteUiState.navigateUp) forceSaveNote()
+                if (!noteUiState.value.navigateUp) forceSaveNote()
             }
 
             is NoteDetailsEvent.DeleteNote -> viewModelScope.launch {
                 deleteNote(event.note)
-                noteUiState = noteUiState.copy(navigateUp = true)
+                _noteUiState.update { it.copy(navigateUp = true) }
             }
 
-            NoteDetailsEvent.ToggleReadingMode -> noteUiState =
-                noteUiState.copy(readingMode = !noteUiState.readingMode)
+            NoteDetailsEvent.ToggleReadingMode -> _noteUiState.update {
+                it.copy(readingMode = !it.readingMode)
+            }
 
             is NoteDetailsEvent.UpdateTitle -> {
                 title = event.title
@@ -138,14 +141,14 @@ class NoteDetailsViewModel(
             }
 
             is NoteDetailsEvent.UpdateFolder -> {
-                noteUiState = noteUiState.copy(folder = event.folder)
+                _noteUiState.update { it.copy(folder = event.folder) }
                 viewModelScope.launch(exceptionHandler) {
                     forceSaveNote()
                 }
             }
 
             is NoteDetailsEvent.UpdatePinned -> {
-                noteUiState = noteUiState.copy(pinned = event.pinned)
+                _noteUiState.update { it.copy(pinned = event.pinned) }
                 autoSaveNote()
             }
 
@@ -197,12 +200,12 @@ class NoteDetailsViewModel(
     }
 
     private suspend fun saveNote() {
-        if (noteUiState.navigateUp) return
+        if (noteUiState.value.navigateUp) return
 
-        val folderId = noteUiState.folder?.id
-        val pinned = noteUiState.pinned
+        val folderId = noteUiState.value.folder?.id
+        val pinned = noteUiState.value.pinned
 
-        if (noteUiState.note == null) {
+        if (noteUiState.value.note == null) {
             if (title.isNotBlank() || content.isNotBlank()) {
                 val note = Note(
                     title = title,
@@ -213,16 +216,18 @@ class NoteDetailsViewModel(
                     updatedDate = now()
                 )
                 val noteId = upsertNote(note, null)
-                noteUiState = noteUiState.copy(
-                    note = note.copy(
-                        id = noteId,
-                        title = title,
-                        content = content
+                _noteUiState.update {
+                    it.copy(
+                        note = note.copy(
+                            id = noteId,
+                            title = title,
+                            content = content
+                        )
                     )
-                )
+                }
             }
         } else {
-            val currentNote = noteUiState.note!!
+            val currentNote = noteUiState.value.note!!
             if (currentNote.title != title ||
                 currentNote.content != content ||
                 currentNote.folderId != folderId ||
@@ -236,9 +241,11 @@ class NoteDetailsViewModel(
                     updatedDate = now()
                 )
                 val noteId = upsertNote(newNote, currentNote.folderId)
-                noteUiState = noteUiState.copy(
-                    note = newNote.copy(id = noteId)
-                )
+                _noteUiState.update {
+                    it.copy(
+                        note = newNote.copy(id = noteId)
+                    )
+                }
             }
         }
     }

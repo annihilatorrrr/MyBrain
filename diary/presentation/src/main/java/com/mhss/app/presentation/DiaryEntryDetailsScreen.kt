@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -66,7 +67,7 @@ fun DiaryEntryDetailsScreen(
     entryId: String?,
     viewModel: DiaryDetailsViewModel = koinViewModel(parameters = { parametersOf(entryId.orEmpty()) })
 ) {
-    val state = viewModel.uiState
+    val state by viewModel.uiState.collectAsState()
     var openDialog by rememberSaveable { mutableStateOf(false) }
 
     var title by remember { mutableStateOf("") }
@@ -80,11 +81,12 @@ fun DiaryEntryDetailsScreen(
     val context = LocalContext.current
 
     LaunchedEffect(state.entry) {
-        if (state.entry != null) {
-            title = state.entry.title
-            content = state.entry.content
-            date = state.entry.createdDate
-            mood = state.entry.mood
+        val entry = state.entry
+        if (entry != null) {
+            title = entry.title
+            content = entry.content
+            date = entry.createdDate
+            mood = entry.mood
         }
     }
     LaunchedEffect(state.navigateUp) {

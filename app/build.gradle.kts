@@ -16,8 +16,8 @@ android {
         applicationId = "com.mhss.app.mybrain"
         minSdk = 26
         targetSdk = 35
-        versionCode = 16
-        versionName = "3.0.0"
+        versionCode = 17
+        versionName = "3.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

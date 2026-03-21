@@ -63,7 +63,7 @@ fun Message.Tool.Call.toAiMessage(
 ): AiMessage {
     return toolCallResult.getOrNull()?.copy(thoughtSignature = thoughtSignature)
         ?: AiMessage.ToolCall(
-            uuid = Uuid.random().toString(),
+            uuid = Uuid.generateV7().toString(),
             id = id,
             name = tool,
             rawContent = content,
@@ -110,7 +110,7 @@ fun AiProvider.toLLMProvider() = when (this) {
 }
 
 fun Message.Assistant.toNewAssistantMessage() = AiMessage.AssistantMessage(
-    uuid = Uuid.random().toString(),
+    uuid = Uuid.generateV7().toString(),
     content = content,
     time = nowMillis()
 )

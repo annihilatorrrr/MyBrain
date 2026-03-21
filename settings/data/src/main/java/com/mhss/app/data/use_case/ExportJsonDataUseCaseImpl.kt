@@ -3,9 +3,14 @@ package com.mhss.app.data.use_case
 import android.content.Context
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
-import com.mhss.app.data.model.JsonBackupData
+import com.mhss.app.data.mapper.toBackupBookmark
+import com.mhss.app.data.mapper.toBackupDiaryEntry
+import com.mhss.app.data.mapper.toBackupNote
+import com.mhss.app.data.mapper.toBackupNoteFolder
+import com.mhss.app.data.mapper.toBackupTask
 import com.mhss.app.database.MyBrainDatabase
 import com.mhss.app.domain.exception.BackupDataException
+import com.mhss.app.domain.model.backup.JsonBackupData
 import com.mhss.app.domain.use_case.`interface`.ExportJsonDataUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
@@ -50,13 +55,20 @@ class ExportJsonDataUseCaseImpl(
                 val bookmarks = if (exportBookmarks) database.bookmarkDao().getAllFullBookmarks()
                     else emptyList()
 
-                val backupData = JsonBackupData(notes, noteFolders, tasks, diary, bookmarks)
+                val backupData = JsonBackupData(
+                    schemaVersion = JsonBackupData.CURRENT_SCHEMA_VERSION,
+                    notes = notes.map { it.toBackupNote() },
+                    noteFolders = noteFolders.map { it.toBackupNoteFolder() },
+                    tasks = tasks.map { it.toBackupTask() },
+                    diary = diary.map { it.toBackupDiaryEntry() },
+                    bookmarks = bookmarks.map { it.toBackupBookmark() }
+                )
 
                 val outputStream = context.contentResolver.openOutputStream(destination.uri)
                     ?: throw BackupDataException.GenericError()
 
                 outputStream.use {
-                    Json.encodeToStream(backupData, it)
+                    json.encodeToStream(backupData, it)
                 }
             } catch (e: BackupDataException) {
                 throw e
@@ -64,5 +76,9 @@ class ExportJsonDataUseCaseImpl(
                 throw BackupDataException.GenericError()
             }
         }
+    }
+
+    private val json = Json {
+        encodeDefaults = true
     }
 }

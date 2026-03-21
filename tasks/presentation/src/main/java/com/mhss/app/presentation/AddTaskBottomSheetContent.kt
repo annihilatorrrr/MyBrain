@@ -1,10 +1,25 @@
 package com.mhss.app.presentation
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
@@ -13,11 +28,11 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.mhss.app.ui.R
 import com.mhss.app.domain.model.Priority
 import com.mhss.app.domain.model.SubTask
 import com.mhss.app.domain.model.Task
 import com.mhss.app.domain.model.TaskFrequency
+import com.mhss.app.ui.R
 import com.mhss.app.util.date.formatDate
 import com.mhss.app.util.date.formatTime
 import com.mhss.app.util.date.now
@@ -102,7 +117,7 @@ fun AddTaskBottomSheetContent(
                                 createdDate = now(),
                                 updatedDate = now(),
                                 subTasks = subTasks.toList(),
-                                id = Uuid.random().toString()
+                                id = Uuid.generateV7().toString()
                             )
                         )
                         title = ""
@@ -130,5 +145,5 @@ fun AddTaskBottomSheetContent(
 @Preview(showBackground = true)
 @Composable
 fun AddTaskSheetPreview() {
-    AddTaskBottomSheetContent(onAddTask = {}, FocusRequester())
+    AddTaskBottomSheetContent(onAddTask = {}, remember { FocusRequester() })
 }

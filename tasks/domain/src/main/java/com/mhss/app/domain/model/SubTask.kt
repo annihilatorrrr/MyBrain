@@ -1,6 +1,5 @@
 package com.mhss.app.domain.model
 
-import com.benasher44.uuid.Uuid
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
@@ -10,6 +9,7 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonNames
+import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -27,14 +27,14 @@ data class SubTask(
     @SerialName("id")
     @JsonNames("id", "c")
     @Serializable(with = UUIDSerializer::class)
-    val id: Uuid = Uuid.randomUUID()
+    val id: Uuid = Uuid.generateV7()
 )
 
 object UUIDSerializer : KSerializer<Uuid> {
     override val descriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): Uuid {
-        return Uuid.fromString(decoder.decodeString())
+        return Uuid.parse(decoder.decodeString())
     }
 
     override fun serialize(encoder: Encoder, value: Uuid) {

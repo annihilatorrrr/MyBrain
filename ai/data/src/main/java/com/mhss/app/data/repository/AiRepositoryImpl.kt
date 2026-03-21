@@ -273,7 +273,7 @@ class AiRepositoryImpl(
         val resultJson = tool.encodeResult(toolResult).toString()
         val resultObject = extractResultObject(tool.name, resultJson)
         AiMessage.ToolCall(
-            uuid = Uuid.random().toString(),
+            uuid = Uuid.generateV7().toString(),
             id = toolCall.id,
             name = tool.name,
             rawContent = toolCall.content,

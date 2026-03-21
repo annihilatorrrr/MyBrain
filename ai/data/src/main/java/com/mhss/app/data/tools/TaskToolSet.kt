@@ -48,7 +48,7 @@ class TaskToolSet(
         frequency: TaskFrequency = TaskFrequency.DAILY,
         frequencyAmount: Int = 1
     ): TaskIdResult {
-        val id = Uuid.random().toString()
+        val id = Uuid.generateV7().toString()
         val task = Task(
             title = title,
             description = description,
@@ -84,7 +84,7 @@ class TaskToolSet(
         tasks: List<TaskInput>
     ): TaskIdsResult {
         val taskModels = tasks.map { input ->
-            val id = Uuid.random().toString()
+            val id = Uuid.generateV7().toString()
             Task(
                 title = input.title,
                 description = input.description,

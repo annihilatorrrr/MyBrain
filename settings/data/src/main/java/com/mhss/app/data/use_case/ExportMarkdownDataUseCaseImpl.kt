@@ -3,17 +3,21 @@ package com.mhss.app.data.use_case
 import android.content.Context
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
+import com.mhss.app.data.mapper.toBackupBookmark
+import com.mhss.app.data.mapper.toBackupDiaryEntry
+import com.mhss.app.data.mapper.toBackupNote
+import com.mhss.app.data.mapper.toBackupNoteFolder
+import com.mhss.app.data.mapper.toBackupTask
 import com.mhss.app.database.MyBrainDatabase
-import com.mhss.app.database.entity.BookmarkEntity
-import com.mhss.app.database.entity.DiaryEntryEntity
-import com.mhss.app.database.entity.NoteEntity
-import com.mhss.app.database.entity.NoteFolderEntity
-import com.mhss.app.database.entity.TaskEntity
 import com.mhss.app.domain.exception.BackupDataException
-import com.mhss.app.domain.model.Mood
 import com.mhss.app.domain.model.Priority
-import com.mhss.app.domain.model.SubTask
 import com.mhss.app.domain.model.TaskFrequency
+import com.mhss.app.domain.model.backup.BackupBookmark
+import com.mhss.app.domain.model.backup.BackupDiaryEntry
+import com.mhss.app.domain.model.backup.BackupNote
+import com.mhss.app.domain.model.backup.BackupNoteFolder
+import com.mhss.app.domain.model.backup.BackupSubTask
+import com.mhss.app.domain.model.backup.BackupTask
 import com.mhss.app.domain.use_case.`interface`.ExportMarkdownDataUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
@@ -25,7 +29,7 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
- 
+
 @Factory
 class ExportMarkdownDataUseCaseImpl(
     private val context: Context,
@@ -59,13 +63,26 @@ class ExportMarkdownDataUseCaseImpl(
                 val diaryEntries = if (exportDiary) database.diaryDao().getAllFullEntries() else emptyList()
                 val bookmarks = if (exportBookmarks) database.bookmarkDao().getAllFullBookmarks() else emptyList()
  
-                if (exportNotes) exportNotesMarkdown(rootDir = exportRoot, notes = notes, folders = noteFolders)
+                if (exportNotes) exportNotesMarkdown(
+                    rootDir = exportRoot,
+                    notes = notes.map { it.toBackupNote() },
+                    folders = noteFolders.map { it.toBackupNoteFolder() }
+                )
                 yield()
-                if (exportTasks) exportTasksMarkdown(rootDir = exportRoot, tasks = tasks)
+                if (exportTasks) exportTasksMarkdown(
+                    rootDir = exportRoot,
+                    tasks = tasks.map { it.toBackupTask() }
+                )
                 yield()
-                if (exportDiary) exportDiaryMarkdown(rootDir = exportRoot, diaryEntries = diaryEntries)
+                if (exportDiary) exportDiaryMarkdown(
+                    rootDir = exportRoot,
+                    diaryEntries = diaryEntries.map { it.toBackupDiaryEntry() }
+                )
                 yield()
-                if (exportBookmarks) exportBookmarksMarkdown(rootDir = exportRoot, bookmarks = bookmarks)
+                if (exportBookmarks) exportBookmarksMarkdown(
+                    rootDir = exportRoot,
+                    bookmarks = bookmarks.map { it.toBackupBookmark() }
+                )
             } catch (e: BackupDataException) {
                 throw e
             } catch (e: Exception) {
@@ -76,8 +93,8 @@ class ExportMarkdownDataUseCaseImpl(
  
     private suspend fun exportNotesMarkdown(
         rootDir: DocumentFile,
-        notes: List<NoteEntity>,
-        folders: List<NoteFolderEntity>
+        notes: List<BackupNote>,
+        folders: List<BackupNoteFolder>
     ) {
         val notesDirName = "Notes"
         val notesDir = rootDir.createUniqueDirectory(notesDirName)
@@ -123,7 +140,7 @@ class ExportMarkdownDataUseCaseImpl(
  
     private suspend fun exportTasksMarkdown(
         rootDir: DocumentFile,
-        tasks: List<TaskEntity>
+        tasks: List<BackupTask>
     ) {
         val tasksDirName = "Tasks"
         val tasksDir = rootDir.createUniqueDirectory(tasksDirName)
@@ -146,7 +163,7 @@ class ExportMarkdownDataUseCaseImpl(
  
     private suspend fun exportDiaryMarkdown(
         rootDir: DocumentFile,
-        diaryEntries: List<DiaryEntryEntity>
+        diaryEntries: List<BackupDiaryEntry>
     ) {
         val diaryDirName = "Diary"
         val diaryDir = rootDir.createUniqueDirectory(diaryDirName)
@@ -169,7 +186,7 @@ class ExportMarkdownDataUseCaseImpl(
  
     private suspend fun exportBookmarksMarkdown(
         rootDir: DocumentFile,
-        bookmarks: List<BookmarkEntity>
+        bookmarks: List<BackupBookmark>
     ) {
         val bookmarksDirName = "Bookmarks"
         val bookmarksDir = rootDir.createUniqueDirectory(bookmarksDirName)
@@ -190,7 +207,7 @@ class ExportMarkdownDataUseCaseImpl(
         }
     }
  
-    private fun NoteEntity.toMarkdown(folderName: String? = null): String = buildString {
+    private fun BackupNote.toMarkdown(folderName: String? = null): String = buildString {
         appendLine("# ${title.ifBlank { "Untitled Note" }}")
         appendLine()
         appendLine("- **Pinned**: ${if (pinned) "Yes" else "No"}")
@@ -205,7 +222,7 @@ class ExportMarkdownDataUseCaseImpl(
         }
     }.trimEnd()
  
-    private fun DiaryEntryEntity.toMarkdown(): String = buildString {
+    private fun BackupDiaryEntry.toMarkdown(): String = buildString {
         appendLine("# ${title.ifBlank { "Untitled Diary Entry" }}")
         appendLine()
         appendLine("- **Mood**: ${mood.displayName()}")
@@ -217,7 +234,7 @@ class ExportMarkdownDataUseCaseImpl(
         }
     }.trimEnd()
  
-    private fun TaskEntity.toMarkdown(): String = buildString {
+    private fun BackupTask.toMarkdown(): String = buildString {
         appendLine("${if (isCompleted) "- [x]" else "- [ ]"} **${title.ifBlank { "Untitled Task" }}**")
         appendLine()
         appendLine("- **Priority**: ${priority.displayName()}")
@@ -246,7 +263,7 @@ class ExportMarkdownDataUseCaseImpl(
         }
     }.trimEnd()
  
-    private fun BookmarkEntity.toMarkdown(): String = buildString {
+    private fun BackupBookmark.toMarkdown(): String = buildString {
         appendLine("# ${title.ifBlank { "Untitled Bookmark" }}")
         appendLine()
         appendLine("- **URL**: <$url>")
@@ -260,7 +277,7 @@ class ExportMarkdownDataUseCaseImpl(
         }
     }.trimEnd()
  
-    private fun Mood.displayName(): String = name.lowercase()
+    private fun String.displayName(): String = lowercase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
  
     private fun Int.displayName(): String = when (this) {
@@ -278,7 +295,7 @@ class ExportMarkdownDataUseCaseImpl(
         else -> "Every $amount day${amount.pluralSuffix()}"
     }
  
-    private fun SubTask.toCheckboxText(): String =
+    private fun BackupSubTask.toCheckboxText(): String =
         "${if (isCompleted) "[x]" else "[ ]"} ${title.ifBlank { "Untitled subtask" }}"
  
     private fun Int.pluralSuffix(): String = if (this == 1) "" else "s"

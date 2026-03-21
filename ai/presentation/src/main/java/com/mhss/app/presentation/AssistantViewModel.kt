@@ -98,7 +98,7 @@ class AssistantViewModel(
                         attachments = event.attachments,
                         attachmentsText = getAttachmentText(event.attachments),
                         time = now(),
-                        uuid = Uuid.random().toString()
+                        uuid = Uuid.generateV7().toString()
                     )
 
                     _messages.add(0, message)

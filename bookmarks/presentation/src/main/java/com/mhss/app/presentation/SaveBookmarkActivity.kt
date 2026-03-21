@@ -28,7 +28,7 @@ class SaveBookmarkActivity : ComponentActivity() {
                                     title = title ?: "",
                                     createdDate = now(),
                                     updatedDate = now(),
-                                    id = Uuid.random().toString()
+                                    id = Uuid.generateV7().toString()
                                 )
                             )
                         )

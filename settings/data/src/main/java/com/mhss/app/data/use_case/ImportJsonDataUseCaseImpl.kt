@@ -4,10 +4,14 @@ import android.content.Context
 import androidx.core.net.toUri
 import androidx.core.text.isDigitsOnly
 import androidx.room.withTransaction
-import com.mhss.app.data.model.JsonBackupData
+import com.mhss.app.data.mapper.toBookmarkEntity
+import com.mhss.app.data.mapper.toDiaryEntryEntity
+import com.mhss.app.data.mapper.toNoteEntity
+import com.mhss.app.data.mapper.toNoteFolderEntity
+import com.mhss.app.data.mapper.toTask
 import com.mhss.app.database.MyBrainDatabase
-import com.mhss.app.database.entity.toTask
 import com.mhss.app.domain.exception.BackupDataException
+import com.mhss.app.domain.model.backup.JsonBackupData
 import com.mhss.app.domain.use_case.UpsertTaskUseCase
 import com.mhss.app.domain.use_case.`interface`.ImportJsonDataUseCase
 import kotlinx.coroutines.CoroutineDispatcher
@@ -36,48 +40,49 @@ class ImportJsonDataUseCaseImpl(
     ) {
         withContext(ioDispatcher) {
             try {
-                val json = Json {
-                    ignoreUnknownKeys = true
-                }
-                val backupData = context.contentResolver.openInputStream(fileUri.toUri())?.use {
+                val jsonBackupData = context.contentResolver.openInputStream(fileUri.toUri())?.use {
                         json.decodeFromStream<JsonBackupData>(it)
                     } ?: throw BackupDataException.CouldNotReadFile
 
                 database.withTransaction {
                     val noteFolderIdMap = HashMap<String, String>()
-                    val updatedNoteFolders = backupData.noteFolders.map { folder ->
-                        val id = if (folder.id.isDigitsOnly()) {
-                            Uuid.random().toString().also { noteFolderIdMap[folder.id] = it }
-                        } else {
-                            folder.id
+                    val updatedNoteFolders = jsonBackupData.noteFolders.map { folder ->
+                        val id = folder.id.toSafeBackupId()
+                        if (folder.id.isDigitsOnly()) {
+                            noteFolderIdMap[folder.id] = id
                         }
-                        folder.copy(id = id)
+                        folder.copy(id = id).toNoteFolderEntity()
                     }
                     database.noteDao().upsertNoteFolders(updatedNoteFolders)
 
-                    val updatedNotes = backupData.notes.map { note ->
+                    val updatedNotes = jsonBackupData.notes.map { note ->
+                        val folderId = note.folderId
                         val newFolderId =
-                            if (note.folderId?.isDigitsOnly() == true) noteFolderIdMap[note.folderId]
-                            else note.folderId.takeIfNotNull()
-                        note.copy(folderId = newFolderId, id = note.id.toUuidIfNumber())
+                            when {
+                                folderId == null -> null
+                                folderId.isBlank() -> null
+                                folderId.isDigitsOnly() -> noteFolderIdMap[folderId]
+                                else -> folderId
+                            }
+                        note.copy(folderId = newFolderId, id = note.id.toSafeBackupId()).toNoteEntity()
                     }
                     database.noteDao().upsertNotes(updatedNotes)
 
-                    backupData.tasks.forEach {
+                    jsonBackupData.tasks.forEach {
                         upsertTaskUseCase(
-                            task = it.toTask().copy(id = it.id.toUuidIfNumber()),
+                            task = it.copy(id = it.id.toSafeBackupId()).toTask(),
                             updateWidget = false
 
                         )
                     }
 
-                    val updatedDiaryEntries = backupData.diary.map { entry ->
-                        entry.copy(id = entry.id.toUuidIfNumber())
+                    val updatedDiaryEntries = jsonBackupData.diary.map { entry ->
+                        entry.copy(id = entry.id.toSafeBackupId()).toDiaryEntryEntity()
                     }
                     database.diaryDao().upsertEntries(updatedDiaryEntries)
 
-                    val updatedBookmarks = backupData.bookmarks.map { bookmark ->
-                        bookmark.copy(id = bookmark.id.toUuidIfNumber())
+                    val updatedBookmarks = jsonBackupData.bookmarks.map { bookmark ->
+                        bookmark.copy(id = bookmark.id.toSafeBackupId()).toBookmarkEntity()
                     }
                     database.bookmarkDao().upsertBookmarks(updatedBookmarks)
                 }
@@ -91,14 +96,15 @@ class ImportJsonDataUseCaseImpl(
         }
     }
 
-    private fun String?.takeIfNotNull(): String? {
-        return if (this == "null") null else this
+    private val json = Json {
+        ignoreUnknownKeys = true
+        explicitNulls = false
+        coerceInputValues = true
     }
 
-    // to handle older backup files where id was an integer
-    private fun String.toUuidIfNumber(): String {
-        return if (this.isDigitsOnly()) {
-            Uuid.random().toString()
+    private fun String.toSafeBackupId(): String {
+        return if (this.isBlank() || this == "null" || this.isDigitsOnly()) {
+            Uuid.generateV7().toString()
         } else {
             this
         }

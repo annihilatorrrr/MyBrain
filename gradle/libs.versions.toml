@@ -70,7 +70,6 @@ koin-core = { module = "io.insert-koin:koin-core" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose"}
 koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koinKSP" }
 koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref = "koinKSP" }
-uuid = { module = "com.benasher44:uuid", version.ref = "uuid" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime"}
 calf-file-picker = { module = "com.mohamedrejeb.calf:calf-file-picker", version.ref = "calf" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }

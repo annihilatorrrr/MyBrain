@@ -47,7 +47,7 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
         while (folderCursor.moveToNext()) {
             val oldId = folderCursor.getInt(folderCursor.getColumnIndexOrThrow("id"))
             val name = folderCursor.getString(folderCursor.getColumnIndexOrThrow("name"))
-            val newId = Uuid.random().toString()
+            val newId = Uuid.generateV7().toString()
 
             folderIdMapping[oldId] = newId
 
@@ -70,7 +70,7 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
                 notesCursor.getIntOrNull(notesCursor.getColumnIndexOrThrow("folder_id"))
             val newFolderId = oldFolderId?.let { folderIdMapping[it] }
 
-            val newId = Uuid.random().toString()
+            val newId = Uuid.generateV7().toString()
 
             db.execSQL(
                 "INSERT INTO notes_new (id, title, content, created_date, updated_date, pinned, folder_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -97,7 +97,7 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
                 bookmarksCursor.getLong(bookmarksCursor.getColumnIndexOrThrow("created_date"))
             val updatedDate =
                 bookmarksCursor.getLong(bookmarksCursor.getColumnIndexOrThrow("updated_date"))
-            val newId = Uuid.random().toString()
+            val newId = Uuid.generateV7().toString()
 
             db.execSQL(
                 "INSERT INTO bookmarks_new (id, url, title, description, created_date, updated_date) VALUES (?, ?, ?, ?, ?, ?)",
@@ -152,7 +152,7 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
 
             // old version was using the task id as the alarm id
             val alarmId = if (oldTaskId in alarmIdSet) oldTaskId else null
-            val newId = Uuid.random().toString()
+            val newId = Uuid.generateV7().toString()
 
             db.execSQL(
                 "INSERT INTO tasks_new (id, title, description, is_completed, priority, created_date, updated_date, sub_tasks, dueDate, recurring, frequency, frequency_amount, alarmId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -188,7 +188,7 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
             val createdDate = diaryCursor.getLong(diaryCursor.getColumnIndexOrThrow("created_date"))
             val updatedDate = diaryCursor.getLong(diaryCursor.getColumnIndexOrThrow("updated_date"))
             val mood = diaryCursor.getInt(diaryCursor.getColumnIndexOrThrow("mood"))
-            val newId = Uuid.random().toString()
+            val newId = Uuid.generateV7().toString()
 
             db.execSQL(
                 "INSERT INTO diary_new (id, title, content, created_date, updated_date, mood) VALUES (?, ?, ?, ?, ?, ?)",

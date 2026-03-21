@@ -105,7 +105,7 @@ fun DiaryEntryDetailsScreen(
                         content = content,
                         mood = mood,
                         createdDate = date,
-                        id = entryId ?: Uuid.random().toString()
+                        id = entryId ?: Uuid.generateV7().toString()
                     )
                 )
             )

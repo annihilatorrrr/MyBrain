@@ -25,7 +25,7 @@ class BookmarkToolSet(
         title: String = "",
         description: String = ""
     ): BookmarkIdResult {
-        val id = Uuid.random().toString()
+        val id = Uuid.generateV7().toString()
         val bookmark = Bookmark(
             url = url,
             title = title,

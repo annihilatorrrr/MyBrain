@@ -67,7 +67,7 @@ class RoomNoteRepositoryImpl(
 
     override suspend fun upsertNote(note: Note, currentFolderId: String?): String {
         return withContext(ioDispatcher) {
-            val id = note.id.ifBlank { Uuid.random().toString() }
+            val id = note.id.ifBlank { Uuid.generateV7().toString() }
             noteDao.upsertNote(note.copy(id = id).toNoteEntity())
             id
         }
@@ -76,7 +76,7 @@ class RoomNoteRepositoryImpl(
     override suspend fun upsertNotes(notes: List<Note>): List<String> {
         return withContext(ioDispatcher) {
             val notesWithIds = notes.map {
-                it.copy(id = it.id.ifBlank { Uuid.random().toString() })
+                it.copy(id = it.id.ifBlank { Uuid.generateV7().toString() })
             }
             noteDao.upsertNotes(notesWithIds.map { it.toNoteEntity() })
             notesWithIds.map { it.id }
@@ -94,7 +94,7 @@ class RoomNoteRepositoryImpl(
             if (noteDao.getNoteFolderByName(folderName) != null) {
                 throw NoteException.FolderWithSameNameExists
             }
-            val folderEntity = NoteFolderEntity(id = Uuid.random().toString(), name = folderName)
+            val folderEntity = NoteFolderEntity(id = Uuid.generateV7().toString(), name = folderName)
             noteDao.insertNoteFolder(folderEntity)
             folderEntity.id
         }

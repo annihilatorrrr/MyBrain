@@ -28,7 +28,7 @@ class DiaryToolSet(
         content: String,
         mood: Mood
     ): DiaryEntryIdResult {
-        val id = Uuid.random().toString()
+        val id = Uuid.generateV7().toString()
         val entry = DiaryEntry(
             title = title,
             content = content,

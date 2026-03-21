@@ -81,7 +81,7 @@ fun BookmarkDetailsScreen(
                         title = title,
                         description = description,
                         url = url,
-                        id = bookmarkId ?: Uuid.random().toString()
+                        id = bookmarkId ?: Uuid.generateV7().toString()
                     )
                 )
             )

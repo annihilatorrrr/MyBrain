@@ -10,7 +10,6 @@ dependencies {
     implementation(project(":core:widget"))
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.datetime)
-    implementation(libs.uuid)
     implementation(libs.kotlinx.serialization.json)
 
     implementation(platform(libs.koin.bom))

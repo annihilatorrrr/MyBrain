@@ -19,6 +19,8 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.serialization.json)
+
                 implementation(project.dependencies.platform(libs.koin.bom))
                 implementation(libs.bundles.koin)
             }
@@ -26,6 +28,7 @@ kotlin {
         androidMain {
             dependencies {
                 implementation(libs.androidx.core.ktx)
+                implementation(libs.androidx.documentfile)
             }
         }
     }

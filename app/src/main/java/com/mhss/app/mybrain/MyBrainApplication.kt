@@ -16,8 +16,10 @@ import com.mhss.app.alarm.di.AlarmModule
 import com.mhss.app.data.bookmarksDataModule
 import com.mhss.app.data.calendarDataModule
 import com.mhss.app.data.di.AiDataModule
+import com.mhss.app.data.di.SettingsDataModule
+import com.mhss.app.data.di.settingsDataAndroidModule
 import com.mhss.app.domain.di.AiDomainModule
-import com.mhss.app.data.di.settingsDataModule
+import com.mhss.app.domain.di.SettingsDomainModule
 import com.mhss.app.data.diaryDataModule
 import com.mhss.app.data.noteDataModule
 import com.mhss.app.data.noteMarkdownModule
@@ -81,7 +83,9 @@ class MyBrainApplication : Application() {
                 TasksPresentationModule().module,
                 tasksDataModule,
                 SettingsPresentationModule().module,
-                settingsDataModule,
+                SettingsDataModule().module,
+                settingsDataAndroidModule,
+                SettingsDomainModule().module,
                 CalendarPresentationModule().module,
                 calendarDataModule,
                 BookmarksPresentationModule().module,

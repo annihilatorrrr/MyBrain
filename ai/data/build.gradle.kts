@@ -19,7 +19,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                api(project(":ai:domain"))
+                implementation(project(":ai:domain"))
                 implementation(project(":core:preferences"))
                 implementation(project(":notes:domain"))
                 implementation(project(":tasks:domain"))

@@ -94,6 +94,8 @@ dependencies {
     implementation(project(":tasks:domain"))
     implementation(project(":calendar:domain"))
     implementation(project(":diary:domain"))
+    implementation(project(":settings:domain"))
+    implementation(project(":ai:domain"))
 
     implementation(project(":core:notification"))
     implementation(project(":core:ui"))
@@ -137,4 +139,3 @@ dependencies {
 
     implementation(libs.squircle.shape)
 }
-

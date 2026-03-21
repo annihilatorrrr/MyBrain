@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mhss.app.mybrain.presentation.app_lock.AppLockManager
 import com.mhss.app.ui.ThemeSettings
 import kotlinx.coroutines.flow.map
@@ -39,7 +40,7 @@ class MainActivity : AppCompatActivity() {
             val isDarkMode by viewModel.themeMode
                 .map {
                     it == ThemeSettings.DARK.value || (it == ThemeSettings.AUTO.value && isSystemDarkMode)
-                }.collectAsState(true)
+                }.collectAsStateWithLifecycle(true)
 
             LaunchedEffect(blockScreenshots) {
                 if (blockScreenshots) {

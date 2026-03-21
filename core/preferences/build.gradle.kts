@@ -1,13 +1,32 @@
 plugins {
-    alias(libs.plugins.jetbrains.kotlin.jvm)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.ksp)
 }
 
-dependencies {
-    implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.androidx.datastore.preferences)
+kotlin {
+    androidLibrary {
+        namespace = "com.mhss.app.preferences"
+        compileSdk {
+            version = release(36) {
+                minorApiLevel = 1
+            }
+        }
+        minSdk = 26
+    }
 
-    implementation(platform(libs.koin.bom))
-    implementation(libs.bundles.koin)
-    ksp(libs.koin.ksp.compiler)
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.androidx.datastore.preferences)
+                implementation(project.dependencies.platform(libs.koin.bom))
+                implementation(libs.bundles.koin)
+            }
+        }
+    }
+}
+
+dependencies {
+    add("kspAndroid", libs.koin.ksp.compiler)
 }

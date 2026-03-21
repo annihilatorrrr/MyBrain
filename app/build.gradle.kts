@@ -15,7 +15,7 @@ android {
     defaultConfig {
         applicationId = "com.mhss.app.mybrain"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 18
         versionName = "3.1.0"
 
@@ -102,6 +102,7 @@ dependencies {
     implementation(project(":core:database"))
     implementation(project(":widget"))
     implementation(project(":core:preferences"))
+    implementation(project(":core:storage"))
     implementation(project(":core:util"))
 
     implementation(platform(libs.compose.bom))

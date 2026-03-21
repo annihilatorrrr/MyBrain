@@ -1,7 +1,7 @@
 @file:OptIn(ExperimentalUuidApi::class)
 package com.mhss.app.database.migrations
 
-import androidx.core.database.getIntOrNull
+import android.database.Cursor
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlin.uuid.ExperimentalUuidApi
@@ -201,3 +201,5 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
         db.execSQL("ALTER TABLE diary_new RENAME TO diary")
     }
 }
+
+private inline fun Cursor.getIntOrNull(index: Int): Int? = if (isNull(index)) null else getInt(index)

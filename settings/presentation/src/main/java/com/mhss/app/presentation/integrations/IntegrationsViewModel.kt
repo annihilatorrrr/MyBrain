@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mhss.app.data.noteMarkdownModule
 import com.mhss.app.data.noteRoomModule
-import com.mhss.app.domain.repository.FileUtilsRepository
+import com.mhss.app.storage.FileUtilsRepository
 import com.mhss.app.domain.use_case.UpdateExternalNotesFolderUseCase
 import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.domain.model.AiProvider

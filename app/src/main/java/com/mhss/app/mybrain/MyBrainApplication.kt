@@ -15,7 +15,8 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.mhss.app.alarm.di.AlarmModule
 import com.mhss.app.data.bookmarksDataModule
 import com.mhss.app.data.calendarDataModule
-import com.mhss.app.data.di.aiDataModule
+import com.mhss.app.data.di.AiDataModule
+import com.mhss.app.domain.di.AiDomainModule
 import com.mhss.app.data.di.settingsDataModule
 import com.mhss.app.data.diaryDataModule
 import com.mhss.app.data.noteDataModule
@@ -28,6 +29,7 @@ import com.mhss.app.mybrain.di.MainPresentationModule
 import com.mhss.app.mybrain.di.platformModule
 import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.di.PreferencesModule
+import com.mhss.app.storage.di.StorageModule
 import com.mhss.app.preferences.domain.model.booleanPreferencesKey
 import com.mhss.app.preferences.domain.model.stringPreferencesKey
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
@@ -71,6 +73,7 @@ class MyBrainApplication : Application() {
                 databaseModule,
                 coroutinesModule,
                 PreferencesModule().module,
+                StorageModule().module,
                 NotePresentationModule().module,
                 noteDataModule,
                 DiaryPresentationModule().module,
@@ -84,7 +87,8 @@ class MyBrainApplication : Application() {
                 BookmarksPresentationModule().module,
                 bookmarksDataModule,
                 WidgetModule().module,
-                aiDataModule,
+                AiDataModule().module,
+                AiDomainModule().module,
                 AiPresentationModule().module
             )
             workManagerFactory()

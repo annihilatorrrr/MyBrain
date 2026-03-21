@@ -43,6 +43,12 @@ class RoomNoteRepositoryImpl(
             .flowOn(ioDispatcher)
     }
 
+    override suspend fun getAllFullNotes(): List<Note> {
+        return withContext(ioDispatcher) {
+            noteDao.getAllFullNotes().map { it.toNote() }
+        }
+    }
+
     override suspend fun getNote(id: String): Note? {
         return withContext(ioDispatcher) {
             noteDao.getNote(id)?.toNote()
@@ -86,6 +92,12 @@ class RoomNoteRepositoryImpl(
     override suspend fun deleteNote(note: Note) {
         withContext(ioDispatcher) {
             noteDao.deleteNote(note.toNoteEntity())
+        }
+    }
+
+    override suspend fun upsertNoteFolders(folders: List<NoteFolder>) {
+        withContext(ioDispatcher) {
+            noteDao.upsertNoteFolders(folders.map { it.toNoteFolderEntity() })
         }
     }
 

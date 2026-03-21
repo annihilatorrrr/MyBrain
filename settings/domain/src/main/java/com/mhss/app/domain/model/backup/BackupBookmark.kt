@@ -1,5 +1,6 @@
 package com.mhss.app.domain.model.backup
 
+import com.mhss.app.domain.model.Bookmark
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -18,4 +19,22 @@ data class BackupBookmark(
     @SerialName("id")
     @Serializable(BackupStringIdSerializer::class)
     val id: String = ""
+)
+
+fun Bookmark.toBackupBookmark() = BackupBookmark(
+    url = url,
+    title = title,
+    description = description,
+    createdDate = createdDate,
+    updatedDate = updatedDate,
+    id = id
+)
+
+fun BackupBookmark.toBookmark() = Bookmark(
+    url = url,
+    title = title,
+    description = description,
+    createdDate = createdDate,
+    updatedDate = updatedDate,
+    id = id
 )

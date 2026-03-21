@@ -1,7 +1,9 @@
 package com.mhss.app.database.di
 
 import androidx.room.Room
+import com.mhss.app.database.DatabaseTransactionProvider
 import com.mhss.app.database.MyBrainDatabase
+import com.mhss.app.database.RoomDatabaseTransactionProvider
 import com.mhss.app.database.migrations.MIGRATION_1_2
 import com.mhss.app.database.migrations.MIGRATION_2_3
 import com.mhss.app.database.migrations.MIGRATION_3_4
@@ -25,5 +27,7 @@ val databaseModule = module {
     single { get<MyBrainDatabase>().diaryDao() }
     single { get<MyBrainDatabase>().bookmarkDao() }
     single { get<MyBrainDatabase>().alarmDao() }
+
+    single<DatabaseTransactionProvider> { RoomDatabaseTransactionProvider(get()) }
 
 }

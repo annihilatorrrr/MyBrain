@@ -13,6 +13,8 @@ interface BookmarkRepository {
 
     suspend fun addBookmark(bookmark: Bookmark): Long
 
+    suspend fun upsertBookmarks(bookmarks: List<Bookmark>)
+
     suspend fun deleteBookmark(bookmark: Bookmark)
 
     suspend fun updateBookmark(bookmark: Bookmark)

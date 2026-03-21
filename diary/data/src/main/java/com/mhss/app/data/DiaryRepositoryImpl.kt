@@ -27,6 +27,12 @@ class DiaryRepositoryImpl(
             }
     }
 
+    override suspend fun getAllFullEntries(): List<DiaryEntry> {
+        return withContext(ioDispatcher) {
+            diaryDao.getAllFullEntries().map { it.toDiaryEntry() }
+        }
+    }
+
     override suspend fun getEntry(id: String): DiaryEntry? {
         return withContext(ioDispatcher) {
             diaryDao.getEntry(id)?.toDiaryEntry()
@@ -36,6 +42,12 @@ class DiaryRepositoryImpl(
     override suspend fun searchEntries(title: String): List<DiaryEntry> {
         return withContext(ioDispatcher) {
             diaryDao.getEntriesByTitle(title).map { it.toDiaryEntry() }
+        }
+    }
+
+    override suspend fun upsertEntries(entries: List<DiaryEntry>) {
+        withContext(ioDispatcher) {
+            diaryDao.upsertEntries(entries.map { it.toDiaryEntryEntity() })
         }
     }
 

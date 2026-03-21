@@ -93,6 +93,8 @@ kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", vers
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "androidGradlePlugin" }
 
 [bundles]
 koin = ["koin-core", "koin-annotations"]

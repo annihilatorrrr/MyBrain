@@ -1,5 +1,7 @@
 package com.mhss.app.domain.model.backup
 
+import com.mhss.app.domain.model.Note
+import com.mhss.app.domain.model.NoteFolder
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -30,4 +32,34 @@ data class BackupNoteFolder(
     @SerialName("id")
     @Serializable(BackupStringIdSerializer::class)
     val id: String = ""
+)
+
+fun Note.toBackupNote() = BackupNote(
+    title = title,
+    content = content,
+    createdDate = createdDate,
+    updatedDate = updatedDate,
+    pinned = pinned,
+    folderId = folderId,
+    id = id
+)
+
+fun NoteFolder.toBackupNoteFolder() = BackupNoteFolder(
+    name = name,
+    id = id
+)
+
+fun BackupNote.toNote() = Note(
+    title = title,
+    content = content,
+    createdDate = createdDate,
+    updatedDate = updatedDate,
+    pinned = pinned,
+    folderId = folderId,
+    id = id
+)
+
+fun BackupNoteFolder.toNoteFolder() = NoteFolder(
+    name = name,
+    id = id
 )

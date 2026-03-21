@@ -42,8 +42,10 @@ dependencies {
     implementation(project(":core:database"))
     implementation(project(":core:preferences"))
     implementation(project(":settings:domain"))
+    implementation(project(":notes:domain"))
     implementation(project(":tasks:domain"))
     implementation(project(":diary:domain"))
+    implementation(project(":bookmarks:domain"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

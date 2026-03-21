@@ -3,15 +3,17 @@ package com.mhss.app.data.use_case
 import android.content.Context
 import androidx.core.net.toUri
 import androidx.core.text.isDigitsOnly
-import androidx.room.withTransaction
-import com.mhss.app.data.mapper.toBookmarkEntity
-import com.mhss.app.data.mapper.toDiaryEntryEntity
-import com.mhss.app.data.mapper.toNoteEntity
-import com.mhss.app.data.mapper.toNoteFolderEntity
-import com.mhss.app.data.mapper.toTask
-import com.mhss.app.database.MyBrainDatabase
+import com.mhss.app.database.DatabaseTransactionProvider
 import com.mhss.app.domain.exception.BackupDataException
 import com.mhss.app.domain.model.backup.JsonBackupData
+import com.mhss.app.domain.model.backup.toBookmark
+import com.mhss.app.domain.model.backup.toDiaryEntry
+import com.mhss.app.domain.model.backup.toNote
+import com.mhss.app.domain.model.backup.toNoteFolder
+import com.mhss.app.domain.model.backup.toTask
+import com.mhss.app.domain.repository.BookmarkRepository
+import com.mhss.app.domain.repository.DiaryRepository
+import com.mhss.app.domain.repository.NoteRepository
 import com.mhss.app.domain.use_case.UpsertTaskUseCase
 import com.mhss.app.domain.use_case.`interface`.ImportJsonDataUseCase
 import kotlinx.coroutines.CoroutineDispatcher
@@ -27,8 +29,11 @@ import kotlin.uuid.Uuid
 @Factory
 class ImportJsonDataUseCaseImpl(
     private val context: Context,
-    private val database: MyBrainDatabase,
+    private val transactionProvider: DatabaseTransactionProvider,
+    private val noteRepository: NoteRepository,
     private val upsertTaskUseCase: UpsertTaskUseCase,
+    private val diaryRepository: DiaryRepository,
+    private val bookmarkRepository: BookmarkRepository,
     @Named("ioDispatcher") private val ioDispatcher: CoroutineDispatcher
 ): ImportJsonDataUseCase {
 
@@ -44,16 +49,16 @@ class ImportJsonDataUseCaseImpl(
                         json.decodeFromStream<JsonBackupData>(it)
                     } ?: throw BackupDataException.CouldNotReadFile
 
-                database.withTransaction {
+                transactionProvider.runInTransaction {
                     val noteFolderIdMap = HashMap<String, String>()
                     val updatedNoteFolders = jsonBackupData.noteFolders.map { folder ->
                         val id = folder.id.toSafeBackupId()
                         if (folder.id.isDigitsOnly()) {
                             noteFolderIdMap[folder.id] = id
                         }
-                        folder.copy(id = id).toNoteFolderEntity()
+                        folder.copy(id = id).toNoteFolder()
                     }
-                    database.noteDao().upsertNoteFolders(updatedNoteFolders)
+                    noteRepository.upsertNoteFolders(updatedNoteFolders)
 
                     val updatedNotes = jsonBackupData.notes.map { note ->
                         val folderId = note.folderId
@@ -64,27 +69,26 @@ class ImportJsonDataUseCaseImpl(
                                 folderId.isDigitsOnly() -> noteFolderIdMap[folderId]
                                 else -> folderId
                             }
-                        note.copy(folderId = newFolderId, id = note.id.toSafeBackupId()).toNoteEntity()
+                        note.copy(folderId = newFolderId, id = note.id.toSafeBackupId()).toNote()
                     }
-                    database.noteDao().upsertNotes(updatedNotes)
+                    noteRepository.upsertNotes(updatedNotes)
 
                     jsonBackupData.tasks.forEach {
                         upsertTaskUseCase(
                             task = it.copy(id = it.id.toSafeBackupId()).toTask(),
                             updateWidget = false
-
                         )
                     }
 
                     val updatedDiaryEntries = jsonBackupData.diary.map { entry ->
-                        entry.copy(id = entry.id.toSafeBackupId()).toDiaryEntryEntity()
+                        entry.copy(id = entry.id.toSafeBackupId()).toDiaryEntry()
                     }
-                    database.diaryDao().upsertEntries(updatedDiaryEntries)
+                    diaryRepository.upsertEntries(updatedDiaryEntries)
 
                     val updatedBookmarks = jsonBackupData.bookmarks.map { bookmark ->
-                        bookmark.copy(id = bookmark.id.toSafeBackupId()).toBookmarkEntity()
+                        bookmark.copy(id = bookmark.id.toSafeBackupId()).toBookmark()
                     }
-                    database.bookmarkDao().upsertBookmarks(updatedBookmarks)
+                    bookmarkRepository.upsertBookmarks(updatedBookmarks)
                 }
             } catch (_: SerializationException) {
                 throw BackupDataException.CouldNotReadFile

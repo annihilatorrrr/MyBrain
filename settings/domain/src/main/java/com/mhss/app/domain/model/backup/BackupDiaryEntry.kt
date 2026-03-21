@@ -1,5 +1,7 @@
 package com.mhss.app.domain.model.backup
 
+import com.mhss.app.domain.model.DiaryEntry
+import com.mhss.app.domain.model.Mood
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -18,4 +20,22 @@ data class BackupDiaryEntry(
     @SerialName("id")
     @Serializable(BackupStringIdSerializer::class)
     val id: String = ""
+)
+
+fun DiaryEntry.toBackupDiaryEntry() = BackupDiaryEntry(
+    title = title,
+    content = content,
+    createdDate = createdDate,
+    updatedDate = updatedDate,
+    mood = mood.name,
+    id = id
+)
+
+fun BackupDiaryEntry.toDiaryEntry() = DiaryEntry(
+    title = title,
+    content = content,
+    createdDate = createdDate,
+    updatedDate = updatedDate,
+    mood = Mood.entries.firstOrNull { it.name == mood } ?: Mood.OKAY,
+    id = id
 )

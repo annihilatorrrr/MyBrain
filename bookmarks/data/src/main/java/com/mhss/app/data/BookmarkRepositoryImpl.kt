@@ -41,6 +41,12 @@ class BookmarkRepositoryImpl(
         }
     }
 
+    override suspend fun upsertBookmarks(bookmarks: List<Bookmark>) {
+        withContext(ioDispatcher) {
+            bookmarkDao.upsertBookmarks(bookmarks.map { it.toBookmarkEntity() })
+        }
+    }
+
     override suspend fun addBookmark(bookmark: Bookmark): Long {
         return withContext(ioDispatcher) {
             bookmarkDao.insertBookmark(bookmark.toBookmarkEntity())

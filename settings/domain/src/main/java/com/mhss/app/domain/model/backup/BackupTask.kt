@@ -1,5 +1,9 @@
 package com.mhss.app.domain.model.backup
 
+import com.mhss.app.domain.model.Priority
+import com.mhss.app.domain.model.SubTask
+import com.mhss.app.domain.model.Task
+import com.mhss.app.domain.model.TaskFrequency
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -32,4 +36,36 @@ data class BackupTask(
     @SerialName("id")
     @Serializable(BackupStringIdSerializer::class)
     val id: String = ""
+)
+
+fun Task.toBackupTask() = BackupTask(
+    title = title,
+    description = description,
+    isCompleted = isCompleted,
+    priority = priority.value,
+    createdDate = createdDate,
+    updatedDate = updatedDate,
+    subTasks = subTasks.map(SubTask::toBackupSubTask),
+    dueDate = dueDate,
+    recurring = recurring,
+    frequency = frequency.value,
+    frequencyAmount = frequencyAmount,
+    alarmId = alarmId,
+    id = id
+)
+
+fun BackupTask.toTask() = Task(
+    title = title,
+    description = description,
+    isCompleted = isCompleted,
+    priority = Priority.entries.firstOrNull { it.value == priority } ?: Priority.LOW,
+    createdDate = createdDate,
+    updatedDate = updatedDate,
+    subTasks = subTasks.map(BackupSubTask::toSubTask),
+    dueDate = dueDate,
+    recurring = recurring,
+    frequency = TaskFrequency.entries.firstOrNull { it.value == frequency } ?: TaskFrequency.DAILY,
+    frequencyAmount = frequencyAmount,
+    alarmId = alarmId,
+    id = id
 )

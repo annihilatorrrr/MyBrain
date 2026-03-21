@@ -3,12 +3,6 @@ package com.mhss.app.data.use_case
 import android.content.Context
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
-import com.mhss.app.data.mapper.toBackupBookmark
-import com.mhss.app.data.mapper.toBackupDiaryEntry
-import com.mhss.app.data.mapper.toBackupNote
-import com.mhss.app.data.mapper.toBackupNoteFolder
-import com.mhss.app.data.mapper.toBackupTask
-import com.mhss.app.database.MyBrainDatabase
 import com.mhss.app.domain.exception.BackupDataException
 import com.mhss.app.domain.model.Priority
 import com.mhss.app.domain.model.TaskFrequency
@@ -18,6 +12,15 @@ import com.mhss.app.domain.model.backup.BackupNote
 import com.mhss.app.domain.model.backup.BackupNoteFolder
 import com.mhss.app.domain.model.backup.BackupSubTask
 import com.mhss.app.domain.model.backup.BackupTask
+import com.mhss.app.domain.model.backup.toBackupBookmark
+import com.mhss.app.domain.model.backup.toBackupDiaryEntry
+import com.mhss.app.domain.model.backup.toBackupNote
+import com.mhss.app.domain.model.backup.toBackupNoteFolder
+import com.mhss.app.domain.model.backup.toBackupTask
+import com.mhss.app.domain.repository.BookmarkRepository
+import com.mhss.app.domain.repository.DiaryRepository
+import com.mhss.app.domain.repository.NoteRepository
+import com.mhss.app.domain.repository.TaskRepository
 import com.mhss.app.domain.use_case.`interface`.ExportMarkdownDataUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
@@ -33,7 +36,10 @@ import java.util.Locale
 @Factory
 class ExportMarkdownDataUseCaseImpl(
     private val context: Context,
-    private val database: MyBrainDatabase,
+    private val noteRepository: NoteRepository,
+    private val taskRepository: TaskRepository,
+    private val diaryRepository: DiaryRepository,
+    private val bookmarkRepository: BookmarkRepository,
     @Named("ioDispatcher") private val ioDispatcher: CoroutineDispatcher
 ) : ExportMarkdownDataUseCase {
  
@@ -57,12 +63,12 @@ class ExportMarkdownDataUseCaseImpl(
                         parent = pickedDir.displayName(directoryUri)
                     )
 
-                val notes = if (exportNotes) database.noteDao().getAllFullNotes() else emptyList()
-                val noteFolders = if (exportNotes) database.noteDao().getAllNoteFolders().first() else emptyList()
-                val tasks = if (exportTasks) database.taskDao().getAllFullTasks() else emptyList()
-                val diaryEntries = if (exportDiary) database.diaryDao().getAllFullEntries() else emptyList()
-                val bookmarks = if (exportBookmarks) database.bookmarkDao().getAllFullBookmarks() else emptyList()
- 
+                val notes = if (exportNotes) noteRepository.getAllFullNotes() else emptyList()
+                val noteFolders = if (exportNotes) noteRepository.getAllNoteFolders().first() else emptyList()
+                val tasks = if (exportTasks) taskRepository.getAllTasks().first() else emptyList()
+                val diaryEntries = if (exportDiary) diaryRepository.getAllFullEntries() else emptyList()
+                val bookmarks = if (exportBookmarks) bookmarkRepository.getAllBookmarks().first() else emptyList()
+
                 if (exportNotes) exportNotesMarkdown(
                     rootDir = exportRoot,
                     notes = notes.map { it.toBackupNote() },

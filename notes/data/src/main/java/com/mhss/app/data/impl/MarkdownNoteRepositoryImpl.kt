@@ -7,6 +7,7 @@ import com.mhss.app.domain.model.Note
 import com.mhss.app.domain.model.NoteFolder
 import com.mhss.app.domain.repository.NoteRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 
 class MarkdownNoteRepositoryImpl(
     private val markdownFileManager: MarkdownFileManager,
@@ -19,6 +20,10 @@ class MarkdownNoteRepositoryImpl(
 
     override fun getAllNotes(): Flow<List<Note>> {
         return markdownFileManager.getAllNotesFlow(rootUri)
+    }
+
+    override suspend fun getAllFullNotes(): List<Note> {
+        return getAllNotes().first()
     }
 
     override suspend fun getNote(id: String): Note {
@@ -45,6 +50,12 @@ class MarkdownNoteRepositoryImpl(
 
     override suspend fun deleteNote(note: Note) {
         markdownFileManager.deleteNote(note, rootUri)
+    }
+
+    override suspend fun upsertNoteFolders(folders: List<NoteFolder>) {
+        folders.forEach {
+            markdownFileManager.createFolder(it.name, rootUri)
+        }
     }
 
     override suspend fun insertNoteFolder(folderName: String): String {

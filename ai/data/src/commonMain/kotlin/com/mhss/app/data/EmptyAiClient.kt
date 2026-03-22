@@ -8,7 +8,7 @@ import ai.koog.prompt.llm.LLMProvider
 import ai.koog.prompt.llm.LLModel
 import ai.koog.prompt.message.Message
 
-object EmptyAiClient : LLMClient {
+object EmptyAiClient : LLMClient() {
 
     override suspend fun execute(
         prompt: Prompt,

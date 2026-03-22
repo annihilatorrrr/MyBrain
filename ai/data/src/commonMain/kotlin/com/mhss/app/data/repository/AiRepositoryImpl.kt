@@ -18,6 +18,8 @@ import ai.koog.prompt.executor.ollama.client.OllamaClient
 import ai.koog.prompt.llm.LLModel
 import ai.koog.prompt.message.Message
 import ai.koog.prompt.params.LLMParams
+import ai.koog.serialization.kotlinx.KotlinxSerializer
+import ai.koog.serialization.kotlinx.toKoogJSONObject
 import com.mhss.app.data.EmptyAiClient
 import com.mhss.app.data.buildChatPrompt
 import com.mhss.app.data.buildChatSystemMessage
@@ -74,6 +76,7 @@ import kotlinx.io.IOException
 import kotlinx.serialization.json.Json
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Named
+import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @Factory
@@ -92,6 +95,7 @@ class AiRepositoryImpl(
 ) : AiRepository {
 
     private val json = Json { ignoreUnknownKeys = true }
+    val koogSerializer = KotlinxSerializer(json)
 
     private val toolRegistry = ToolRegistry {
         tools(noteToolSet)
@@ -264,13 +268,17 @@ class AiRepositoryImpl(
         return signatures
     }
 
+    @OptIn(ExperimentalUuidApi::class)
     private suspend fun executeToolCall(
         toolCall: Message.Tool.Call
     ): Result<AiMessage.ToolCall> = runCatching {
         val tool = toolRegistry.getTool(toolCall.tool)
-        val args = tool.decodeArgs(toolCall.contentJson)
+        val args = tool.decodeArgs(
+            toolCall.contentJson.toKoogJSONObject(),
+            koogSerializer
+        )
         val toolResult = (tool as Tool<Any?, Any?>).execute(args)
-        val resultJson = tool.encodeResult(toolResult).toString()
+        val resultJson = tool.encodeResultToStringUnsafe(toolResult, koogSerializer)
         val resultObject = extractResultObject(tool.name, resultJson)
         AiMessage.ToolCall(
             uuid = Uuid.generateV7().toString(),

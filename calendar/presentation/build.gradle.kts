@@ -42,12 +42,12 @@ android {
 }
 
 dependencies {
-    implementation(project(":calendar:domain"))
-    implementation(project(":core:util"))
-    implementation(project(":core:datetime"))
+    implementation(projects.calendar.domain)
+    implementation(projects.core.util)
+    implementation(projects.core.datetime)
     
-    implementation(project(":core:ui"))
-    implementation(project(":core:preferences"))
+    implementation(projects.core.ui)
+    implementation(projects.core.preferences)
 
     implementation(platform(libs.compose.bom))
     implementation(libs.bundles.compose)

@@ -47,14 +47,14 @@ android {
 
 dependencies {
 
-    implementation(project(":ai:domain"))
-    implementation(project(":notes:domain"))
-    implementation(project(":tasks:domain"))
-    implementation(project(":calendar:domain"))
-    implementation(project(":core:datetime"))
+    implementation(projects.ai.domain)
+    implementation(projects.notes.domain)
+    implementation(projects.tasks.domain)
+    implementation(projects.calendar.domain)
+    implementation(projects.core.datetime)
 
-    implementation(project(":core:ui"))
-    implementation(project(":core:preferences"))
+    implementation(projects.core.ui)
+    implementation(projects.core.preferences)
 
     implementation(platform(libs.compose.bom))
     implementation(libs.bundles.compose)

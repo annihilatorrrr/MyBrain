@@ -19,8 +19,8 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(project(":core:preferences"))
-                implementation(project(":core:storage"))
+                implementation(projects.core.preferences)
+                implementation(projects.core.storage)
 
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.serialization.json)

@@ -45,16 +45,16 @@ android {
 }
 
 dependencies {
-    implementation(project(":tasks:domain"))
-    implementation(project(":calendar:domain"))
-    implementation(project(":notes:domain"))
-    implementation(project(":settings:domain"))
-    implementation(project(":core:preferences"))
+    implementation(projects.tasks.domain)
+    implementation(projects.calendar.domain)
+    implementation(projects.notes.domain)
+    implementation(projects.settings.domain)
+    implementation(projects.core.preferences)
     
-    implementation(project(":core:ui"))
-    implementation(project(":core:util"))
-    implementation(project(":core:datetime"))
-    implementation(project(":core:widget"))
+    implementation(projects.core.ui)
+    implementation(projects.core.util)
+    implementation(projects.core.datetime)
+    implementation(projects.core.widget)
 
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.material)

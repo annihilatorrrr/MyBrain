@@ -37,10 +37,10 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:database"))
-    implementation(project(":core:preferences"))
-    implementation(project(":core:util"))
-    implementation(project(":notes:domain"))
+    implementation(projects.core.database)
+    implementation(projects.core.preferences)
+    implementation(projects.core.util)
+    implementation(projects.notes.domain)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

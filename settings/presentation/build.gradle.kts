@@ -41,14 +41,14 @@ android {
 }
 
 dependencies {
-    implementation(project(":settings:domain"))
-    implementation(project(":ai:domain"))
-    implementation(project(":notes:domain"))
-    implementation(project(":notes:data"))
+    implementation(projects.settings.domain)
+    implementation(projects.ai.domain)
+    implementation(projects.notes.domain)
+    implementation(projects.notes.data)
 
-    implementation(project(":core:ui"))
-    implementation(project(":core:preferences"))
-    implementation(project(":core:storage"))
+    implementation(projects.core.ui)
+    implementation(projects.core.preferences)
+    implementation(projects.core.storage)
 
     implementation(platform(libs.compose.bom))
     implementation(libs.bundles.compose)

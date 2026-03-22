@@ -18,10 +18,10 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(project(":core:preferences"))
-                implementation(project(":notes:domain"))
-                implementation(project(":tasks:domain"))
-                implementation(project(":calendar:domain"))
+                implementation(projects.core.preferences)
+                implementation(projects.notes.domain)
+                implementation(projects.tasks.domain)
+                implementation(projects.calendar.domain)
 
                 implementation(libs.kotlinx.coroutines.core)
 

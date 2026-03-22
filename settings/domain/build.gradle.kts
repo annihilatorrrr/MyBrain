@@ -19,11 +19,11 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(project(":core:preferences"))
-                implementation(project(":notes:domain"))
-                implementation(project(":tasks:domain"))
-                implementation(project(":diary:domain"))
-                implementation(project(":bookmarks:domain"))
+                implementation(projects.core.preferences)
+                implementation(projects.notes.domain)
+                implementation(projects.tasks.domain)
+                implementation(projects.diary.domain)
+                implementation(projects.bookmarks.domain)
 
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.serialization.json)

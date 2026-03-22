@@ -44,11 +44,11 @@ android {
 }
 
 dependencies {
-    implementation(project(":bookmarks:domain"))
-    implementation(project(":core:datetime"))
+    implementation(projects.bookmarks.domain)
+    implementation(projects.core.datetime)
     
-    implementation(project(":core:ui"))
-    implementation(project(":core:preferences"))
+    implementation(projects.core.ui)
+    implementation(projects.core.preferences)
 
     implementation(platform(libs.compose.bom))
     implementation(libs.bundles.compose)

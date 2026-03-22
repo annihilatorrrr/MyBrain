@@ -41,13 +41,13 @@ android {
 }
 
 dependencies {
-    implementation(project(":tasks:domain"))
-    implementation(project(":notes:domain"))
-    implementation(project(":settings:domain"))
+    implementation(projects.tasks.domain)
+    implementation(projects.notes.domain)
+    implementation(projects.settings.domain)
 
-    implementation(project(":core:util"))
-    implementation(project(":core:datetime"))
-    implementation(project(":core:preferences"))
+    implementation(projects.core.util)
+    implementation(projects.core.datetime)
+    implementation(projects.core.preferences)
     implementation(platform(libs.compose.bom))
     implementation(platform(libs.koin.bom))
 

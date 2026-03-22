@@ -20,11 +20,11 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(project(":tasks:domain"))
-                implementation(project(":notes:domain"))
-                implementation(project(":bookmarks:domain"))
-                implementation(project(":diary:domain"))
-                implementation(project(":core:alarm"))
+                implementation(projects.tasks.domain)
+                implementation(projects.notes.domain)
+                implementation(projects.bookmarks.domain)
+                implementation(projects.diary.domain)
+                implementation(projects.core.alarm)
 
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.androidx.room3.runtime)

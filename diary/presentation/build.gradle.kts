@@ -41,11 +41,11 @@ android {
 }
 
 dependencies {
-    implementation(project(":diary:domain"))
-    implementation(project(":core:datetime"))
+    implementation(projects.diary.domain)
+    implementation(projects.core.datetime)
     
-    implementation(project(":core:ui"))
-    implementation(project(":core:preferences"))
+    implementation(projects.core.ui)
+    implementation(projects.core.preferences)
 
     implementation(platform(libs.compose.bom))
     implementation(libs.bundles.compose)

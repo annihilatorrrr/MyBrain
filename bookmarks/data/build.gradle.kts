@@ -37,8 +37,8 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:database"))
-    implementation(project(":bookmarks:domain"))
+    implementation(projects.core.database)
+    implementation(projects.bookmarks.domain)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

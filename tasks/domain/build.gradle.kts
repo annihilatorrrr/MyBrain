@@ -19,9 +19,9 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(project(":core:preferences"))
-                implementation(project(":core:alarm"))
-                implementation(project(":core:widget"))
+                implementation(projects.core.preferences)
+                implementation(projects.core.alarm)
+                implementation(projects.core.widget)
 
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)

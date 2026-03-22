@@ -38,10 +38,10 @@ android {
 
 dependencies {
 
-    implementation(project(":core:util"))
-    implementation(project(":core:ui"))
-    implementation(project(":core:alarm"))
-    implementation(project(":tasks:domain"))
+    implementation(projects.core.util)
+    implementation(projects.core.ui)
+    implementation(projects.core.alarm)
+    implementation(projects.tasks.domain)
 
     implementation(platform(libs.koin.bom))
     implementation(libs.bundles.koin)

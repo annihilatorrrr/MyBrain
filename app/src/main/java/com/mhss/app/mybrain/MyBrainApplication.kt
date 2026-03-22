@@ -17,9 +17,6 @@ import com.mhss.app.data.bookmarksDataModule
 import com.mhss.app.data.calendarDataModule
 import com.mhss.app.data.di.AiDataModule
 import com.mhss.app.data.di.SettingsDataModule
-import com.mhss.app.data.di.settingsDataAndroidModule
-import com.mhss.app.domain.di.AiDomainModule
-import com.mhss.app.domain.di.SettingsDomainModule
 import com.mhss.app.data.diaryDataModule
 import com.mhss.app.data.noteDataModule
 import com.mhss.app.data.noteMarkdownModule
@@ -27,11 +24,12 @@ import com.mhss.app.data.noteRoomModule
 import com.mhss.app.data.tasksDataModule
 import com.mhss.app.database.di.databaseModule
 import com.mhss.app.di.coroutinesModule
+import com.mhss.app.domain.di.AiDomainModule
+import com.mhss.app.domain.di.SettingsDomainModule
 import com.mhss.app.mybrain.di.MainPresentationModule
 import com.mhss.app.mybrain.di.platformModule
 import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.di.PreferencesModule
-import com.mhss.app.storage.di.StorageModule
 import com.mhss.app.preferences.domain.model.booleanPreferencesKey
 import com.mhss.app.preferences.domain.model.stringPreferencesKey
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
@@ -42,6 +40,7 @@ import com.mhss.app.presentation.di.DiaryPresentationModule
 import com.mhss.app.presentation.di.NotePresentationModule
 import com.mhss.app.presentation.di.SettingsPresentationModule
 import com.mhss.app.presentation.di.TasksPresentationModule
+import com.mhss.app.storage.di.StorageModule
 import com.mhss.app.ui.R
 import com.mhss.app.util.Constants
 import com.mhss.app.widget.di.WidgetModule
@@ -84,7 +83,6 @@ class MyBrainApplication : Application() {
                 tasksDataModule,
                 SettingsPresentationModule().module,
                 SettingsDataModule().module,
-                settingsDataAndroidModule,
                 SettingsDomainModule().module,
                 CalendarPresentationModule().module,
                 calendarDataModule,

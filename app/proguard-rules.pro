@@ -42,6 +42,8 @@
 }
 -keep class com.mhss.app.widget.** { *; }
 
+-keep class com.mhss.app.database.entity.**Entity { *; }
+
 -keep class * extends ai.koog.agents.core.tools.reflect.ToolSet { *; }
 
 -keep enum * { *; }

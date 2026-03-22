@@ -9,9 +9,10 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonNames
+import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalSerializationApi::class)
+@OptIn(ExperimentalSerializationApi::class, ExperimentalUuidApi::class)
 @Serializable
 data class SubTask(
     @SerialName("title")
@@ -30,6 +31,7 @@ data class SubTask(
     val id: Uuid = Uuid.generateV7()
 )
 
+@OptIn(ExperimentalUuidApi::class)
 object UUIDSerializer : KSerializer<Uuid> {
     override val descriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
 

@@ -33,9 +33,8 @@ import com.mhss.app.domain.model.SubTask
 import com.mhss.app.domain.model.Task
 import com.mhss.app.domain.model.TaskFrequency
 import com.mhss.app.ui.R
-import com.mhss.app.util.date.formatDate
-import com.mhss.app.util.date.formatTime
-import com.mhss.app.util.date.now
+import com.mhss.app.datetime.LocalDateTimeFormatter
+import com.mhss.app.datetime.now
 import kotlin.uuid.Uuid
 
 @Composable
@@ -55,13 +54,12 @@ fun AddTaskBottomSheetContent(
     var frequencyAmount by rememberSaveable { mutableIntStateOf(1) }
     val subTasks = remember { mutableStateListOf<SubTask>() }
     val priorities = listOf(Priority.LOW, Priority.MEDIUM, Priority.HIGH)
+    val formatter = LocalDateTimeFormatter.current
     val formattedDate by remember {
-        derivedStateOf {
-            dueDate.formatDate()
-        }
+        derivedStateOf { formatter.formatDate(dueDate) }
     }
     val formattedTime by remember {
-        derivedStateOf { dueDate.formatTime(context) }
+        derivedStateOf { formatter.formatTime(dueDate) }
     }
     val keyboardController = LocalSoftwareKeyboardController.current
     LaunchedEffect(true) {

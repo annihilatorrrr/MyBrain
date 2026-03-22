@@ -1,5 +1,7 @@
 package com.mhss.app.presentation
 
+import com.mhss.app.datetime.LocalDateTimeFormatter
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -74,9 +76,7 @@ import com.mhss.app.ui.components.tasks.TaskCheckBox
 import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
 import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.ui.titleRes
-import com.mhss.app.util.date.formatDate
-import com.mhss.app.util.date.formatTime
-import com.mhss.app.util.date.now
+import com.mhss.app.datetime.now
 import com.mhss.app.util.permissions.Permission
 import com.mhss.app.util.permissions.rememberPermissionState
 import org.koin.androidx.compose.koinViewModel
@@ -106,11 +106,12 @@ fun TaskDetailScreen(
     var completed by remember { mutableStateOf(false) }
     val subTasks = remember { mutableStateListOf<SubTask>() }
     val priorities = listOf(Priority.LOW, Priority.MEDIUM, Priority.HIGH)
+    val formatter = LocalDateTimeFormatter.current
     val formattedDate by remember {
-        derivedStateOf { dueDate.formatDate() }
+        derivedStateOf { formatter.formatDate(dueDate) }
     }
     val formattedTime by remember {
-        derivedStateOf { dueDate.formatTime(context) }
+        derivedStateOf { formatter.formatTime(dueDate) }
     }
 
     LaunchedEffect(uiState.task) {

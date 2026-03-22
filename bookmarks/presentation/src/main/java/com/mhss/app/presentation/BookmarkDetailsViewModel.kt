@@ -13,7 +13,7 @@ import com.mhss.app.domain.use_case.GetBookmarkUseCase
 import com.mhss.app.domain.use_case.UpdateBookmarkUseCase
 import com.mhss.app.ui.R
 import com.mhss.app.ui.snackbar.showSnackbar
-import com.mhss.app.util.date.now
+import com.mhss.app.datetime.now
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel

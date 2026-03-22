@@ -73,7 +73,7 @@ import com.mhss.app.ui.components.common.defaultMarkdownTypography
 import com.mhss.app.ui.components.common.withHardLineBreaks
 import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
 import com.mhss.app.ui.theme.Orange
-import com.mhss.app.util.date.formatDateDependingOnDay
+import com.mhss.app.datetime.LocalDateTimeFormatter
 import com.mikepenz.markdown.coil2.Coil2ImageTransformerImpl
 import com.mikepenz.markdown.m3.Markdown
 import io.github.fletchmckee.liquid.liquefiable
@@ -98,6 +98,7 @@ fun NoteDetailsScreen(
     var showShareMenu by rememberSaveable { mutableStateOf(false) }
 
     val context = LocalContext.current
+    val formatter = LocalDateTimeFormatter.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val title = viewModel.title
@@ -107,7 +108,7 @@ fun NoteDetailsScreen(
     val folder = state.folder
     val lastModified by remember(state.note?.updatedDate) {
         derivedStateOf {
-            state.note?.updatedDate?.formatDateDependingOnDay(context) ?: ""
+            state.note?.updatedDate?.let { formatter.formatDateDependingOnDay(it) } ?: ""
         }
     }
     var wordCountString by remember { mutableStateOf("") }

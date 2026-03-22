@@ -46,6 +46,7 @@ dependencies {
     implementation(project(":settings:domain"))
 
     implementation(project(":core:util"))
+    implementation(project(":core:datetime"))
     implementation(project(":core:preferences"))
     implementation(platform(libs.compose.bom))
     implementation(platform(libs.koin.bom))

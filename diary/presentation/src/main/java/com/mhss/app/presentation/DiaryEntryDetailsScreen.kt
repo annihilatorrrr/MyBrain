@@ -1,5 +1,7 @@
 package com.mhss.app.presentation
 
+import com.mhss.app.datetime.LocalDateTimeFormatter
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -54,8 +56,7 @@ import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.components.common.defaultMarkdownTypography
 import com.mhss.app.ui.components.common.withHardLineBreaks
 import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
-import com.mhss.app.util.date.fullDate
-import com.mhss.app.util.date.now
+import com.mhss.app.datetime.now
 import com.mikepenz.markdown.coil2.Coil2ImageTransformerImpl
 import com.mikepenz.markdown.m3.Markdown
 import org.koin.androidx.compose.koinViewModel
@@ -137,7 +138,7 @@ fun DiaryEntryDetailsScreen(
                         showDateDialog = true
                     }) {
                         Text(
-                            text = date.fullDate(context),
+                            text = LocalDateTimeFormatter.current.fullDate(date),
                             color = MaterialTheme.colorScheme.onBackground,
                             fontWeight = FontWeight.Bold
                         )

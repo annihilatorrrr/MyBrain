@@ -8,7 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import com.mhss.app.domain.model.Note
 import com.mhss.app.domain.use_case.UpsertNoteUseCase
 import com.mhss.app.ui.R
-import com.mhss.app.util.date.now
+import com.mhss.app.datetime.now
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

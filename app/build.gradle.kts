@@ -99,6 +99,7 @@ dependencies {
     implementation(project(":core:preferences"))
     implementation(project(":core:storage"))
     implementation(project(":core:util"))
+    implementation(project(":core:datetime"))
 
     implementation(platform(libs.compose.bom))
     androidTestImplementation(platform(libs.compose.bom))

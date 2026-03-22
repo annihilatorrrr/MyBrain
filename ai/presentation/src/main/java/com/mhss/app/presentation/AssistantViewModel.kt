@@ -6,6 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mhss.app.datetime.DateTimeFormatter
+import com.mhss.app.datetime.now
+import com.mhss.app.datetime.todayPlusDays
 import com.mhss.app.domain.model.AiMessage
 import com.mhss.app.domain.model.AiMessageAttachment
 import com.mhss.app.domain.model.AiRepositoryException
@@ -28,10 +31,6 @@ import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import com.mhss.app.ui.ItemView
 import com.mhss.app.ui.toIntList
 import com.mhss.app.ui.toNotesView
-import com.mhss.app.util.date.formatDate
-import com.mhss.app.util.date.formatDateForMapping
-import com.mhss.app.util.date.now
-import com.mhss.app.util.date.todayPlusDays
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
@@ -53,7 +52,8 @@ class AssistantViewModel(
     private val searchTasks: SearchTasksUseCase,
     private val getCalendarEvents: GetAllEventsUseCase,
     private val getNoteById: GetNoteUseCase,
-    private val getTaskById: GetTaskByIdUseCase
+    private val getTaskById: GetTaskByIdUseCase,
+    private val dateTimeFormatter: DateTimeFormatter
 ) : ViewModel() {
 
     private val _messages = mutableStateListOf<AiMessage>()
@@ -210,7 +210,7 @@ class AssistantViewModel(
                 is AiMessageAttachment.CalenderEvents -> {
                     builder.appendLine("Next 7 days events:")
                     builder.appendLine(Json.encodeToString(getEventsForNext7Days()))
-                    builder.appendLine("(Today's date: ${now().formatDate(forceShowYear = true)})")
+                    builder.appendLine("(Today's date: ${dateTimeFormatter.formatDate(now(), forceShowYear = true)})")
                 }
             }
         }
@@ -222,9 +222,7 @@ class AssistantViewModel(
             stringSetPreferencesKey(PrefsConstants.EXCLUDED_CALENDARS_KEY),
             emptySet()
         ).first()
-        return getCalendarEvents(excluded.toIntList(), todayPlusDays(7)) {
-            it.start.formatDateForMapping()
-        }
+        return getCalendarEvents(excluded.toIntList(), todayPlusDays(7))
     }
 
 

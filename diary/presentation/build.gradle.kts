@@ -42,7 +42,7 @@ android {
 
 dependencies {
     implementation(project(":diary:domain"))
-    implementation(project(":core:util"))
+    implementation(project(":core:datetime"))
     
     implementation(project(":core:ui"))
     implementation(project(":core:preferences"))

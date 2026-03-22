@@ -38,7 +38,7 @@ android {
 
 dependencies {
     implementation(project(":core:ui"))
-    implementation(project(":core:util"))
+    implementation(project(":core:datetime"))
     implementation(project(":calendar:domain"))
 
     testImplementation(libs.junit)

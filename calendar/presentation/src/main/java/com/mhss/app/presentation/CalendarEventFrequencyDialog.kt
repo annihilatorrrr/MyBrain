@@ -1,5 +1,7 @@
 package com.mhss.app.presentation
 
+import com.mhss.app.datetime.LocalDateTimeFormatter
+
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
@@ -36,7 +38,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.mhss.app.domain.model.CalendarEventFrequency
 import com.mhss.app.ui.R
-import com.mhss.app.util.date.getDisplayName
 import kotlinx.datetime.DayOfWeek
 
 private val recurringWeekDays = listOf(
@@ -185,7 +186,7 @@ private fun FrequencyDialogContent(
                     FilterChip(
                         selected = dayOfWeek in weekDays,
                         onClick = { onWeekDayToggled(dayOfWeek) },
-                        label = { Text(text = dayOfWeek.getDisplayName()) }
+                        label = { Text(text = LocalDateTimeFormatter.current.getDisplayName(dayOfWeek)) }
                     )
                 }
             }

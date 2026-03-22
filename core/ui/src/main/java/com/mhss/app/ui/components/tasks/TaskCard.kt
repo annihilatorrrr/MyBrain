@@ -1,5 +1,7 @@
 package com.mhss.app.ui.components.tasks
 
+import com.mhss.app.datetime.LocalDateTimeFormatter
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
@@ -44,8 +46,7 @@ import com.mhss.app.domain.model.SubTask
 import com.mhss.app.domain.model.Task
 import com.mhss.app.ui.R
 import com.mhss.app.ui.color
-import com.mhss.app.util.date.formatDateDependingOnDay
-import com.mhss.app.util.date.isDueDateOverdue
+import com.mhss.app.datetime.isDueDateOverdue
 
 @Composable
 fun LazyItemScope.TaskCard(
@@ -54,9 +55,9 @@ fun LazyItemScope.TaskCard(
     onComplete: () -> Unit,
     onClick: () -> Unit
 ) {
-    val context = LocalContext.current
+    val formatter = LocalDateTimeFormatter.current
     val formattedDate by remember(task.dueDate) {
-        derivedStateOf { task.dueDate.formatDateDependingOnDay(context) }
+        derivedStateOf { formatter.formatDateDependingOnDay(task.dueDate) }
     }
     val isOverdue by remember(task.dueDate) {
         derivedStateOf { task.dueDate.isDueDateOverdue() }

@@ -46,7 +46,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -60,11 +59,10 @@ import com.mhss.app.ui.components.common.DateDialog
 import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.components.common.TimeDialog
 import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
-import com.mhss.app.util.date.HOUR_MILLIS
-import com.mhss.app.util.date.formatDate
-import com.mhss.app.util.date.formatTime
-import com.mhss.app.util.date.now
-import com.mhss.app.util.date.toDayOfWeek
+import com.mhss.app.datetime.HOUR_MILLIS
+import com.mhss.app.datetime.LocalDateTimeFormatter
+import com.mhss.app.datetime.now
+import com.mhss.app.datetime.toDayOfWeek
 import com.mhss.app.util.permissions.Permission
 import com.mhss.app.util.permissions.rememberPermissionState
 import kotlinx.datetime.DayOfWeek
@@ -386,19 +384,19 @@ fun EventTimeSection(
     weekDays: Set<DayOfWeek>,
     onWeekDaysSelected: (Set<DayOfWeek>) -> Unit
 ) {
-    val context = LocalContext.current
+    val formatter = LocalDateTimeFormatter.current
     val startDayOfWeek = remember(startMillis) { startMillis.toDayOfWeek() }
     val formattedStartDate by remember(startMillis) {
-        derivedStateOf { startMillis.formatDate(forceShowYear = true) }
+        derivedStateOf { formatter.formatDate(startMillis, forceShowYear = true) }
     }
     val formattedStartTime by remember(startMillis) {
-        derivedStateOf { startMillis.formatTime(context) }
+        derivedStateOf { formatter.formatTime(startMillis) }
     }
     val formattedEndDate by remember(endMillis) {
-        derivedStateOf { endMillis.formatDate(forceShowYear = true) }
+        derivedStateOf { formatter.formatDate(endMillis, forceShowYear = true) }
     }
     val formattedEndTime by remember(endMillis) {
-        derivedStateOf { endMillis.formatTime(context) }
+        derivedStateOf { formatter.formatTime(endMillis) }
     }
     var showStartDateDialog by remember {
         mutableStateOf(false)

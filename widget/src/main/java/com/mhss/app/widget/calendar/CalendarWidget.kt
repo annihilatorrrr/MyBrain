@@ -2,6 +2,7 @@ package com.mhss.app.widget.calendar
 
 import android.content.Context
 import android.content.res.Configuration
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -12,16 +13,17 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.provideContent
 import androidx.glance.material3.ColorProviders
-import com.mhss.app.preferences.PrefsConstants
+import com.mhss.app.datetime.DateTimeFormatter
+import com.mhss.app.datetime.LocalDateTimeFormatter
 import com.mhss.app.domain.use_case.GetAllEventsUseCase
-import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
-import com.mhss.app.widget.WidgetTheme
+import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.domain.model.booleanPreferencesKey
 import com.mhss.app.preferences.domain.model.intPreferencesKey
 import com.mhss.app.preferences.domain.model.stringSetPreferencesKey
+import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import com.mhss.app.ui.ThemeSettings
 import com.mhss.app.ui.toIntList
-import com.mhss.app.util.date.formatDateForMapping
+import com.mhss.app.widget.WidgetTheme
 import com.mhss.app.widget.widgetDarkColorScheme
 import com.mhss.app.widget.widgetLightColorScheme
 import kotlinx.coroutines.flow.first
@@ -32,6 +34,7 @@ class CalendarWidget : GlanceAppWidget(), KoinComponent {
 
     private val getSettings: GetPreferenceUseCase by inject()
     private val getAllEvents: GetAllEventsUseCase by inject()
+    private val dateTimeFormatter: DateTimeFormatter by inject()
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
 
@@ -39,9 +42,7 @@ class CalendarWidget : GlanceAppWidget(), KoinComponent {
             stringSetPreferencesKey(PrefsConstants.EXCLUDED_CALENDARS_KEY),
             emptySet()
         ).first()
-        val events = getAllEvents(includedCalendars.toIntList(), fromWidget = true) {
-            it.start.formatDateForMapping()
-        }
+        val events = getAllEvents(includedCalendars.toIntList(), fromWidget = true)
 
         provideContent {
             val useMaterialYou by getSettings(
@@ -69,15 +70,19 @@ class CalendarWidget : GlanceAppWidget(), KoinComponent {
                 ) == android.content.pm.PackageManager.PERMISSION_GRANTED
             }
 
-            WidgetTheme(
-                if (useMaterialYou) GlanceTheme.colors
-                else if (isDarkMode) ColorProviders(widgetDarkColorScheme)
-                else ColorProviders(widgetLightColorScheme)
+            CompositionLocalProvider(
+                LocalDateTimeFormatter provides dateTimeFormatter
             ) {
-                CalendarHomeScreenWidget(
-                    events,
-                    hasPermission
-                )
+                WidgetTheme(
+                    if (useMaterialYou) GlanceTheme.colors
+                    else if (isDarkMode) ColorProviders(widgetDarkColorScheme)
+                    else ColorProviders(widgetLightColorScheme)
+                ) {
+                    CalendarHomeScreenWidget(
+                        events,
+                        hasPermission
+                    )
+                }
             }
 
         }

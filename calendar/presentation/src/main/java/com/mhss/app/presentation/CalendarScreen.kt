@@ -56,11 +56,11 @@ import com.mhss.app.ui.R
 import com.mhss.app.ui.components.common.LiquidFloatingActionButton
 import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.navigation.Screen
-import com.mhss.app.util.date.HOUR_MILLIS
-import com.mhss.app.util.date.currentLocalDate
-import com.mhss.app.util.date.monthName
-import com.mhss.app.util.date.now
-import com.mhss.app.util.date.withTimeFrom
+import com.mhss.app.datetime.HOUR_MILLIS
+import com.mhss.app.datetime.LocalDateTimeFormatter
+import com.mhss.app.datetime.currentLocalDate
+import com.mhss.app.datetime.now
+import com.mhss.app.datetime.withTimeFrom
 import com.mhss.app.util.permissions.Permission
 import com.mhss.app.util.permissions.rememberPermissionState
 import io.github.fletchmckee.liquid.liquefiable
@@ -102,19 +102,21 @@ fun CalendarScreen(
     val scope = rememberCoroutineScope()
     val liquidState = rememberLiquidState()
 
+    val formatter = LocalDateTimeFormatter.current
+
     val listMonthLabel by remember(state.events) {
         derivedStateOf {
             if (state.events.isEmpty()) ""
             else {
                 val values = state.events.values.toList()
                 val index = listViewState.firstVisibleItemIndex.coerceIn(0, values.lastIndex)
-                values.getOrNull(index)?.firstOrNull()?.start?.monthName().orEmpty()
+                values.getOrNull(index)?.firstOrNull()?.start?.let { formatter.monthName(it) }.orEmpty()
             }
         }
     }
 
     val selectedMonthLabel = when (viewMode) {
-        CalendarViewMode.Month -> currentMonth.monthName()
+        CalendarViewMode.Month -> LocalDateTimeFormatter.current.monthName(currentMonth)
         CalendarViewMode.List -> listMonthLabel
     }
 
@@ -136,7 +138,7 @@ fun CalendarScreen(
                             onMonthSelected = { selected ->
                                 scope.launch {
                                     val targetIndex = state.events.values.indexOfFirst {
-                                        it.firstOrNull()?.start?.monthName() == selected
+                                        it.firstOrNull()?.start?.let { formatter.monthName(it) } == selected
                                     }
                                     if (targetIndex >= 0) {
                                         listViewState.scrollToItem(targetIndex)

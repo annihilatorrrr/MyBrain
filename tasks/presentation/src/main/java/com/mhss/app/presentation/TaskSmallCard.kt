@@ -27,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
@@ -38,8 +37,8 @@ import com.mhss.app.domain.model.Priority
 import com.mhss.app.domain.model.Task
 import com.mhss.app.ui.R
 import com.mhss.app.ui.color
-import com.mhss.app.util.date.formatDateDependingOnDay
-import com.mhss.app.util.date.isDueDateOverdue
+import com.mhss.app.datetime.LocalDateTimeFormatter
+import com.mhss.app.datetime.isDueDateOverdue
 
 @Composable
 fun TaskSmallCard(
@@ -48,10 +47,10 @@ fun TaskSmallCard(
     onComplete: () -> Unit,
     onClick: () -> Unit
 ) {
-    val context = LocalContext.current
+    val formatter = LocalDateTimeFormatter.current
     val formattedDate by remember(task.dueDate) {
         derivedStateOf {
-            if (task.dueDate != 0L) task.dueDate.formatDateDependingOnDay(context) else ""
+            if (task.dueDate != 0L) formatter.formatDateDependingOnDay(task.dueDate) else ""
         }
     }
     val isOverdue by remember(task.dueDate) {

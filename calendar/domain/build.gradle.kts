@@ -21,6 +21,7 @@ kotlin {
             dependencies {
                 implementation(project(":core:preferences"))
                 implementation(project(":core:widget"))
+                implementation(project(":core:datetime"))
 
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.serialization.json)

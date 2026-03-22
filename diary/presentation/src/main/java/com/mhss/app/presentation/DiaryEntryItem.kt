@@ -19,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -27,14 +26,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.mhss.app.domain.model.DiaryEntry
 import com.mhss.app.ui.components.common.previewMarkdownTypography
-import com.mhss.app.util.date.fullDate
+import com.mhss.app.datetime.LocalDateTimeFormatter
 import com.mikepenz.markdown.m3.Markdown
 
 @Composable
 fun LazyItemScope.DiaryEntryItem(
     modifier: Modifier = Modifier,
     entry: DiaryEntry,
-    timeText: String = entry.createdDate.fullDate(LocalContext.current),
+    timeText: String = LocalDateTimeFormatter.current.fullDate(entry.createdDate),
     onClick: (DiaryEntry) -> Unit
 ) {
     Card(

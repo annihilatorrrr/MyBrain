@@ -51,7 +51,7 @@ dependencies {
     implementation(project(":notes:domain"))
     implementation(project(":tasks:domain"))
     implementation(project(":calendar:domain"))
-    implementation(project(":core:util"))
+    implementation(project(":core:datetime"))
 
     implementation(project(":core:ui"))
     implementation(project(":core:preferences"))

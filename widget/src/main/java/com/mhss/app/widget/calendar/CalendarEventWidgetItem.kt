@@ -9,7 +9,6 @@ import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
-import androidx.glance.LocalContext
 import androidx.glance.action.actionParametersOf
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
@@ -29,16 +28,16 @@ import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import com.mhss.app.datetime.LocalDateTimeFormatter
 import com.mhss.app.domain.model.CalendarEvent
 import com.mhss.app.ui.R
-import com.mhss.app.util.date.formatTime
 import com.mhss.app.widget.smallBackgroundBasedOnVersion
 
 @Composable
 fun CalendarEventWidgetItem(
     event: CalendarEvent,
 ) {
-    val context = LocalContext.current
+    val formatter = LocalDateTimeFormatter.current
     Box(
         GlanceModifier
             .padding(vertical = 4.dp)
@@ -76,7 +75,7 @@ fun CalendarEventWidgetItem(
                     Spacer(GlanceModifier.height(4.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "${event.start.formatTime(context)} - ${event.end.formatTime(context)}",
+                            text = "${formatter.formatTime(event.start)} - ${formatter.formatTime(event.end)}",
                             style = TextStyle(color = GlanceTheme.colors.onSecondaryContainer)
                             )
                         Spacer(GlanceModifier.width(4.dp))

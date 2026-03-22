@@ -1,5 +1,7 @@
 package com.mhss.app.presentation.components
 
+import com.mhss.app.datetime.LocalDateTimeFormatter
+
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
@@ -57,7 +59,6 @@ import com.mhss.app.domain.model.ToolCallResultObject
 import com.mhss.app.ui.R
 import com.mhss.app.ui.components.common.defaultMarkdownTypography
 import com.mhss.app.ui.theme.MyBrainTheme
-import com.mhss.app.util.date.formatTime
 import com.mikepenz.markdown.coil2.Coil2ImageTransformerImpl
 import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.m3.markdownColor
@@ -96,8 +97,9 @@ private fun LazyItemScope.UserMessageCard(
 ) {
     var showContextMenu by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val formatter = LocalDateTimeFormatter.current
     val formattedTime by remember(message.time) {
-        derivedStateOf { message.time.formatTime(context) }
+        derivedStateOf { formatter.formatTime(message.time) }
     }
     Row(
         horizontalArrangement = Arrangement.End,
@@ -174,8 +176,9 @@ private fun LazyItemScope.AssistantMessageCard(
 ) {
     var showContextMenu by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val formatter = LocalDateTimeFormatter.current
     val formattedTime by remember(message.time) {
-        derivedStateOf { message.time.formatTime(context) }
+        derivedStateOf { formatter.formatTime(message.time) }
     }
     Row(
         horizontalArrangement = Arrangement.Start,

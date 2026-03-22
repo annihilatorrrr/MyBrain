@@ -45,8 +45,7 @@ import com.mhss.app.ui.color
 import com.mhss.app.ui.components.common.previewMarkdownTypography
 import com.mhss.app.ui.components.tasks.SubTasksProgressBar
 import com.mhss.app.ui.theme.MyBrainTheme
-import com.mhss.app.util.date.formatDateDependingOnDay
-import com.mhss.app.util.date.formatEventStartEnd
+import com.mhss.app.datetime.LocalDateTimeFormatter
 import com.mikepenz.markdown.m3.Markdown
 
 @Composable
@@ -55,9 +54,9 @@ fun AiNoteCard(
     onClick: (Note) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
+    val formatter = LocalDateTimeFormatter.current
     val formattedDate by remember(note.updatedDate) {
-        derivedStateOf { note.updatedDate.formatDateDependingOnDay(context) }
+        derivedStateOf { formatter.formatDateDependingOnDay(note.updatedDate) }
     }
     Card(
         modifier = modifier,
@@ -103,10 +102,10 @@ fun AiTaskCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
+    val formatter = LocalDateTimeFormatter.current
     val formattedDate by remember(task.dueDate) {
         derivedStateOf {
-            if (task.dueDate != 0L) task.dueDate.formatDateDependingOnDay(context) else ""
+            if (task.dueDate != 0L) formatter.formatDateDependingOnDay(task.dueDate) else ""
         }
     }
     Card(
@@ -182,13 +181,13 @@ fun AiCalendarEventCard(
     onClick: (CalendarEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
+    val formatter = LocalDateTimeFormatter.current
     val allDayString = stringResource(R.string.all_day)
     val eventTimeAtRes = R.string.event_time_at
     val eventTimeRes = R.string.event_time
     val formattedDateTime by remember(event.start, event.end, event.location, event.allDay) {
         derivedStateOf {
-            context.formatEventStartEnd(
+            formatter.formatEventStartEnd(
                 start = event.start,
                 end = event.end,
                 allDayString = allDayString,

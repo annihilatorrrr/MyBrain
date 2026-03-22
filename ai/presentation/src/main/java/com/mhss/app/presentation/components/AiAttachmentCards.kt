@@ -1,5 +1,7 @@
 package com.mhss.app.presentation.components
 
+import com.mhss.app.datetime.LocalDateTimeFormatter
+
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -55,8 +57,7 @@ import com.mhss.app.domain.model.Task
 import com.mhss.app.ui.R
 import com.mhss.app.ui.color
 import com.mhss.app.ui.theme.MyBrainTheme
-import com.mhss.app.util.date.formatDateDependingOnDay
-import com.mhss.app.util.date.isDueDateOverdue
+import com.mhss.app.datetime.isDueDateOverdue
 
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -243,7 +244,7 @@ internal fun TaskAttachmentCard(
                             )
                             Spacer(Modifier.width(4.dp))
                             Text(
-                                text = task.dueDate.formatDateDependingOnDay(context),
+                                text = LocalDateTimeFormatter.current.formatDateDependingOnDay(task.dueDate),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = if (task.dueDate.isDueDateOverdue()) Color.Red else MaterialTheme.colorScheme.onSurfaceVariant.copy(
                                     alpha = 0.7f

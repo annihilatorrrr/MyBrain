@@ -26,7 +26,7 @@ import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import com.mhss.app.ui.R
 import com.mhss.app.ui.errors.toSnackbarError
 import com.mhss.app.ui.snackbar.showSnackbar
-import com.mhss.app.util.date.now
+import com.mhss.app.datetime.now
 import com.mhss.app.util.errors.NoteException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope

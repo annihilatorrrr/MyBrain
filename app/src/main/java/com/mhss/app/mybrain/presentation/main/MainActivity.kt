@@ -11,20 +11,27 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mhss.app.datetime.DateTimeFormatter
+import com.mhss.app.datetime.LocalDateTimeFormatter
 import com.mhss.app.mybrain.presentation.app_lock.AppLockManager
 import com.mhss.app.ui.ThemeSettings
 import kotlinx.coroutines.flow.map
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainViewModel by viewModel()
+    private val dateTimeFormatter: DateTimeFormatter by inject()
 
     @SuppressLint("FlowOperatorInvokedInComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,11 +78,15 @@ class MainActivity : AppCompatActivity() {
                     ),
                 )
             }
-            MyBrainApp(
-                viewModel = viewModel,
-                isDarkMode = isDarkMode,
-                appLockManager = appLockManager
-            )
+            CompositionLocalProvider(
+                LocalDateTimeFormatter provides dateTimeFormatter
+            ) {
+                MyBrainApp(
+                    viewModel = viewModel,
+                    isDarkMode = isDarkMode,
+                    appLockManager = appLockManager
+                )
+            }
         }
     }
 

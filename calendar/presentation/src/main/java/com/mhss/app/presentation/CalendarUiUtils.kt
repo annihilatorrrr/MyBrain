@@ -5,7 +5,7 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.ui.res.stringResource
 import com.mhss.app.domain.model.CalendarEventFrequency
 import com.mhss.app.ui.R
-import com.mhss.app.util.date.getDisplayName
+import com.mhss.app.datetime.LocalDateTimeFormatter
 import kotlinx.datetime.DayOfWeek
 
 @Composable
@@ -27,9 +27,10 @@ fun CalendarEventFrequency.getCalendarFrequencyTitle(
             }
         }
         CalendarEventFrequency.WEEKLY -> {
+            val formatter = LocalDateTimeFormatter.current
             val dayLabel = weekDays
                 .sortedBy { it.toRecurringSortOrder() }
-                .joinToString(", ") { it.getDisplayName() }
+                .joinToString(", ") { formatter.getDisplayName(it) }
             if (dayLabel.isBlank() && safeInterval == 1) {
                 stringResource(R.string.every_week)
             } else if (dayLabel.isBlank()) {

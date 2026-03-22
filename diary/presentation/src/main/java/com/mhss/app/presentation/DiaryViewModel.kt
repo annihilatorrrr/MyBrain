@@ -5,9 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.domain.model.DiaryEntry
-import com.mhss.app.domain.use_case.*
+import com.mhss.app.domain.use_case.GetAllEntriesUseCase
+import com.mhss.app.domain.use_case.GetDiaryForChartUseCase
+import com.mhss.app.domain.use_case.SearchEntriesUseCase
+import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.domain.model.Order
 import com.mhss.app.preferences.domain.model.OrderType
 import com.mhss.app.preferences.domain.model.intPreferencesKey
@@ -15,9 +17,9 @@ import com.mhss.app.preferences.domain.model.toInt
 import com.mhss.app.preferences.domain.model.toOrder
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import com.mhss.app.preferences.domain.use_case.SavePreferenceUseCase
-import com.mhss.app.util.date.formatDateForMapping
-import com.mhss.app.util.date.inTheLast30Days
-import com.mhss.app.util.date.inTheLastYear
+import com.mhss.app.datetime.DateTimeFormatter
+import com.mhss.app.datetime.inTheLast30Days
+import com.mhss.app.datetime.inTheLastYear
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.flowOn
@@ -34,6 +36,7 @@ class DiaryViewModel(
     private val getPreference: GetPreferenceUseCase,
     private val savePreference: SavePreferenceUseCase,
     private val getEntriesForChart: GetDiaryForChartUseCase,
+    private val dateTimeFormatter: DateTimeFormatter,
     @Named("defaultDispatcher") private val defaultDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -89,7 +92,7 @@ class DiaryViewModel(
             .onEach { entries ->
                 uiState = uiState.copy(
                     entries = entries.groupBy {
-                        it.createdDate.formatDateForMapping()
+                        dateTimeFormatter.formatDateForMapping(it.createdDate)
                     },
                     entriesOrder = order
                 )

@@ -20,7 +20,7 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.mhss.app.ui.R
 import com.mhss.app.domain.model.CalendarEvent
-import com.mhss.app.util.date.now
+import com.mhss.app.datetime.now
 import com.mhss.app.widget.WidgetTheme
 import com.mhss.app.widget.largeBackgroundBasedOnVersion
 import com.mhss.app.widget.largeInnerBackgroundBasedOnVersion

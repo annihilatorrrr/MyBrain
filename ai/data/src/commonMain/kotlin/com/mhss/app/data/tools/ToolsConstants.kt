@@ -1,5 +1,6 @@
 package com.mhss.app.data.tools
 
+
 // NoteToolSet
 const val SEARCH_NOTE_FOLDERS_TOOL = "searchNoteFolders"
 const val CREATE_NOTE_FOLDER_TOOL = "createNoteFolder"

@@ -1,5 +1,7 @@
 package com.mhss.app.presentation
 
+import com.mhss.app.datetime.LocalDateTimeFormatter
+
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -20,8 +22,6 @@ import androidx.compose.ui.unit.dp
 import com.mhss.app.domain.model.CalendarDay
 import com.mhss.app.domain.model.CalendarEvent
 import com.mhss.app.ui.R
-import com.mhss.app.util.date.formattedEventsDayName
-
 @Composable
 fun DayEventsList(
     modifier: Modifier = Modifier,
@@ -48,7 +48,7 @@ fun DayEventsList(
         ) {
             item {
                 Text(
-                    text = selectedDate.date.formattedEventsDayName,
+                    text = LocalDateTimeFormatter.current.formatEventsDayName(selectedDate.date),
                     style = MaterialTheme.typography.headlineSmall
                 )
             }

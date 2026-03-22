@@ -1,5 +1,7 @@
 package com.mhss.app.ui.components.notes
 
+import com.mhss.app.datetime.LocalDateTimeFormatter
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,7 +34,6 @@ import com.mhss.app.domain.model.Note
 import com.mhss.app.ui.R
 import com.mhss.app.ui.components.common.previewMarkdownTypography
 import com.mhss.app.ui.theme.Orange
-import com.mhss.app.util.date.formatDateDependingOnDay
 import com.mikepenz.markdown.m3.Markdown
 
 @Composable
@@ -42,8 +43,9 @@ fun NoteCard(
     onClick: (Note) -> Unit,
 ) {
     val context = LocalContext.current
+    val formatter = LocalDateTimeFormatter.current
     val formattedDate by remember(note.updatedDate) {
-        derivedStateOf { note.updatedDate.formatDateDependingOnDay(context) }
+        derivedStateOf { formatter.formatDateDependingOnDay(note.updatedDate) }
     }
     Card(
         modifier = modifier,

@@ -43,6 +43,7 @@ android {
 dependencies {
     implementation(project(":tasks:domain"))
     implementation(project(":core:util"))
+    implementation(project(":core:datetime"))
     
     implementation(project(":core:ui"))
     implementation(project(":core:preferences"))

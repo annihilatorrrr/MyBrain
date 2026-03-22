@@ -4,6 +4,8 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mhss.app.datetime.DateTimeFormatter
+import com.mhss.app.datetime.currentLocalDate
 import com.mhss.app.domain.model.Calendar
 import com.mhss.app.domain.model.CalendarEvent
 import com.mhss.app.domain.use_case.GetAllCalendarsUseCase
@@ -18,9 +20,6 @@ import com.mhss.app.preferences.domain.use_case.SavePreferenceUseCase
 import com.mhss.app.presentation.model.CalendarMonth
 import com.mhss.app.ui.FirstDayOfWeekSettings
 import com.mhss.app.ui.toIntList
-import com.mhss.app.util.date.currentLocalDate
-import com.mhss.app.util.date.formatDateForMapping
-import com.mhss.app.util.date.monthName
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,6 +32,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.yield
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -55,7 +55,8 @@ class CalendarViewModel(
     private val getMonthEventsUseCase: GetMonthEventsUseCase,
     private val getAllCalendarsUseCase: GetAllCalendarsUseCase,
     private val savePreference: SavePreferenceUseCase,
-    private val getPreference: GetPreferenceUseCase
+    private val getPreference: GetPreferenceUseCase,
+    private val dateTimeFormatter: DateTimeFormatter
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UiState())
@@ -180,12 +181,13 @@ class CalendarViewModel(
             emptySet()
         ).onEach { calendarsSet ->
             val calendars = getAllCalendarsUseCase(calendarsSet.toIntList())
-            _uiState.update {state ->
+            _uiState.update { state ->
                 state.copy(
-                    excludedCalendars = calendarsSet.map { it.toInt() }.toMutableList(),
+                    excludedCalendars = calendarsSet.map { it.toInt() },
                     calendars = calendars
                 )
             }
+            yield()
             loadEvents()
         }.launchIn(viewModelScope)
     }
@@ -213,11 +215,9 @@ class CalendarViewModel(
 
     private fun loadListEvents() {
         viewModelScope.launch {
-            val events = getAllEventsUseCase(_uiState.value.excludedCalendars) {
-                it.start.formatDateForMapping()
-            }
+            val events = getAllEventsUseCase(_uiState.value.excludedCalendars)
             val months = events.map {
-                it.value.first().start.monthName()
+                dateTimeFormatter.monthName(it.value.first().start)
             }.distinct()
             _uiState.update { it.copy(events = events, months = months) }
         }

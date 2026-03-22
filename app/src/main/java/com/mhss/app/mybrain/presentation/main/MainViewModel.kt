@@ -28,8 +28,7 @@ import com.mhss.app.ui.ThemeSettings
 import com.mhss.app.ui.theme.Rubik
 import com.mhss.app.ui.toInt
 import com.mhss.app.ui.toIntList
-import com.mhss.app.util.date.formatDateForMapping
-import com.mhss.app.util.date.inTheLastWeek
+import com.mhss.app.datetime.inTheLastWeek
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
@@ -87,9 +86,7 @@ class MainViewModel(
             stringSetPreferencesKey(PrefsConstants.EXCLUDED_CALENDARS_KEY),
             emptySet()
         ).first()
-        val events = getAllEventsUseCase(excluded.toIntList()) {
-            it.start.formatDateForMapping()
-        }
+        val events = getAllEventsUseCase(excluded.toIntList())
         uiState = uiState.copy(
             dashBoardEvents = events
         )

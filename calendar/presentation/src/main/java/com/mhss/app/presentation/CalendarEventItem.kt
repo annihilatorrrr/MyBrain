@@ -1,5 +1,7 @@
 package com.mhss.app.presentation
 
+import com.mhss.app.datetime.LocalDateTimeFormatter
+
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -34,8 +36,6 @@ import androidx.compose.ui.unit.dp
 import com.mhss.app.domain.model.CalendarEvent
 import com.mhss.app.ui.R
 import com.mhss.app.ui.theme.MyBrainTheme
-import com.mhss.app.util.date.formatEventStartEnd
-
 @Composable
 fun LazyItemScope.CalendarEventItem(
     event: CalendarEvent,
@@ -74,7 +74,7 @@ fun LazyItemScope.CalendarEventItem(
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
-                    context.formatEventStartEnd(
+                    LocalDateTimeFormatter.current.formatEventStartEnd(
                         start = event.start,
                         end = event.end,
                         allDayString = stringResource(R.string.all_day),

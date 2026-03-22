@@ -1,5 +1,7 @@
 package com.mhss.app.presentation
 
+import com.mhss.app.datetime.LocalDateTimeFormatter
+
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,7 +26,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mhss.app.domain.MONTH_GRID_CELL_COUNT
 import com.mhss.app.presentation.model.CalendarMonth
-import com.mhss.app.util.date.getDisplayName
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
@@ -95,7 +96,7 @@ fun MonthlyCalendar(
         ) {
             weekDays.forEach { day ->
                 Text(
-                    text = day.getDisplayName(),
+                    text = LocalDateTimeFormatter.current.getDisplayName(day),
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center

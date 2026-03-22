@@ -2,6 +2,8 @@
 
 package com.mhss.app.presentation
 
+import com.mhss.app.datetime.LocalDateTimeFormatter
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -50,7 +52,6 @@ import com.mhss.app.ui.components.common.LiquidFloatingActionButton
 import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.navigation.Screen
 import com.mhss.app.ui.titleRes
-import com.mhss.app.util.date.formatTime
 import io.github.fletchmckee.liquid.liquefiable
 import io.github.fletchmckee.liquid.rememberLiquidState
 import org.koin.androidx.compose.koinViewModel
@@ -150,7 +151,7 @@ fun DiaryScreen(
                         DiaryEntryItem(
                             modifier = Modifier.padding(horizontal = 12.dp),
                             entry = entry,
-                            timeText = entry.createdDate.formatTime(context),
+                            timeText = LocalDateTimeFormatter.current.formatTime(entry.createdDate),
                             onClick = {
                                 navController.navigate(
                                     Screen.DiaryDetailScreen(

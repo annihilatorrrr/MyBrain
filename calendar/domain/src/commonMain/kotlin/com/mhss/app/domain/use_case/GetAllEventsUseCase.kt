@@ -2,6 +2,7 @@ package com.mhss.app.domain.use_case
 
 import com.mhss.app.domain.model.CalendarEvent
 import com.mhss.app.domain.repository.CalendarRepository
+import com.mhss.app.datetime.DateTimeFormatter
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Named
@@ -10,20 +11,24 @@ import org.koin.core.annotation.Single
 @Single
 class GetAllEventsUseCase(
     private val calendarRepository: CalendarRepository,
+    private val dateTimeFormatter: DateTimeFormatter,
     @Named("defaultDispatcher") private val defaultDispatcher: CoroutineDispatcher
 ) {
     suspend operator fun invoke(
         excluded: List<Int>,
         until: Long? = null,
-        fromWidget: Boolean = false,
-        groupBySelector: (CalendarEvent) -> String
+        fromWidget: Boolean = false
     ): Map<String, List<CalendarEvent>> {
         return withContext(defaultDispatcher) {
             try {
                 calendarRepository.getEvents(excluded, until)
                     .run {
-                        if (fromWidget) take(25).groupBy(groupBySelector)
-                        else groupBy(groupBySelector)
+                        if (fromWidget) take(25).groupBy {
+                            dateTimeFormatter.formatDateForMapping(it.start)
+                        }
+                        else groupBy {
+                            dateTimeFormatter.formatDateForMapping(it.start)
+                        }
                     }
             } catch (e: Exception) {
                 e.printStackTrace()

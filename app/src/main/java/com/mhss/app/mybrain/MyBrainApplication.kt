@@ -26,6 +26,7 @@ import com.mhss.app.database.di.databaseModule
 import com.mhss.app.di.coroutinesModule
 import com.mhss.app.domain.di.AiDomainModule
 import com.mhss.app.domain.di.SettingsDomainModule
+import com.mhss.app.datetime.DateTimeModule
 import com.mhss.app.mybrain.di.MainPresentationModule
 import com.mhss.app.mybrain.di.platformModule
 import com.mhss.app.preferences.PrefsConstants
@@ -69,6 +70,7 @@ class MyBrainApplication : Application() {
             androidLogger()
             modules(
                 platformModule,
+                DateTimeModule().module,
                 MainPresentationModule().module,
                 AlarmModule().module,
                 databaseModule,

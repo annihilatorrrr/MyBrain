@@ -53,6 +53,7 @@ dependencies {
     
     implementation(project(":core:ui"))
     implementation(project(":core:util"))
+    implementation(project(":core:datetime"))
     implementation(project(":core:widget"))
 
     implementation(platform(libs.compose.bom))

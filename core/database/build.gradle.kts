@@ -7,7 +7,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.mhss.app.database"
         compileSdk {
             version = release(36) {

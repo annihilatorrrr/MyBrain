@@ -5,7 +5,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.mhss.app.preferences"
         compileSdk {
             version = release(36) {

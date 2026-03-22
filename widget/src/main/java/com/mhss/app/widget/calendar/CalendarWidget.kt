@@ -25,7 +25,6 @@ import com.mhss.app.util.date.formatDateForMapping
 import com.mhss.app.widget.widgetDarkColorScheme
 import com.mhss.app.widget.widgetLightColorScheme
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -54,12 +53,14 @@ class CalendarWidget : GlanceAppWidget(), KoinComponent {
                     context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
                 currentNightMode == Configuration.UI_MODE_NIGHT_YES
             }
-            val isDarkMode by getSettings(
+            val themeSetting by getSettings(
                 intPreferencesKey(PrefsConstants.SETTINGS_THEME_KEY),
                 ThemeSettings.AUTO.value
-            ).map {
-                it == ThemeSettings.DARK.value || (it == ThemeSettings.AUTO.value && isSystemDarkMode)
-            }.collectAsState(true)
+            ).collectAsState(ThemeSettings.AUTO.value)
+            val isDarkMode = remember(themeSetting, isSystemDarkMode) {
+                themeSetting == ThemeSettings.DARK.value ||
+                    (themeSetting == ThemeSettings.AUTO.value && isSystemDarkMode)
+            }
 
             val hasPermission = remember {
                 ContextCompat.checkSelfPermission(

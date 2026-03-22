@@ -4,8 +4,8 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
-        namespace = "com.mhss.app.widget"
+    android {
+        namespace = "com.mhss.app.core.widget"
         compileSdk {
             version = release(36) {
                 minorApiLevel = 1

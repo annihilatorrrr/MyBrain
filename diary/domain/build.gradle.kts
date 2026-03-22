@@ -6,7 +6,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.mhss.app.diary.domain"
         compileSdk {
             version = release(36) {

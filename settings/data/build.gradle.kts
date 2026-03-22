@@ -6,8 +6,8 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
-        namespace = "com.mhss.app.data"
+    android {
+        namespace = "com.mhss.app.settings.data"
         compileSdk {
             version = release(36) {
                 minorApiLevel = 1

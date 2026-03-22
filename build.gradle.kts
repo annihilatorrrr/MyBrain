@@ -2,7 +2,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     alias(libs.plugins.android.application) apply false
-    alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.kotlinx.serialization) apply false
     alias(libs.plugins.android.library) apply false
@@ -15,7 +14,7 @@ plugins {
 
 subprojects {
     afterEvaluate {
-        extensions.findByType<com.android.build.gradle.LibraryExtension>()?.apply {
+        extensions.findByType<com.android.build.api.dsl.LibraryExtension>()?.apply {
             lint {
                 disable += "NullSafeMutableLiveData"
             }

@@ -6,7 +6,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.mhss.app.bookmarks.domain"
         compileSdk {
             version = release(36) {

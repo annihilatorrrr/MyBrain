@@ -44,7 +44,6 @@ dependencies {
     implementation(projects.notes.domain)
     implementation(projects.ai.presentation)
     implementation(projects.ai.domain)
-    implementation(projects.core.util)
     implementation(projects.core.datetime)
     
     implementation(projects.core.ui)

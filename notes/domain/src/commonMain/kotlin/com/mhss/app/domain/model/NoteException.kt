@@ -1,4 +1,4 @@
-package com.mhss.app.util.errors
+package com.mhss.app.domain.model
 
 sealed class NoteException : Throwable() {
     data object FileNotFound : NoteException()

@@ -45,7 +45,6 @@ dependencies {
     implementation(projects.notes.domain)
     implementation(projects.settings.domain)
 
-    implementation(projects.core.util)
     implementation(projects.core.datetime)
     implementation(projects.core.preferences)
     implementation(platform(libs.compose.bom))

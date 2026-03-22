@@ -39,7 +39,6 @@ android {
 dependencies {
     implementation(projects.core.database)
     implementation(projects.core.preferences)
-    implementation(projects.core.util)
     implementation(projects.notes.domain)
 
     testImplementation(libs.junit)

@@ -12,7 +12,7 @@ import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import com.mhss.app.domain.model.Note
 import com.mhss.app.domain.model.NoteFolder
-import com.mhss.app.util.errors.NoteException
+import com.mhss.app.domain.model.NoteException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob

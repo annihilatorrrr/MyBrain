@@ -3,7 +3,7 @@ package com.mhss.app.ui.errors
 import androidx.annotation.StringRes
 import com.mhss.app.ui.R
 import com.mhss.app.ui.snackbar.LocalisedSnackbarMessage
-import com.mhss.app.util.errors.NoteException
+import com.mhss.app.domain.model.NoteException
 
 @StringRes
 fun NoteException.toMessageResId(): Int {

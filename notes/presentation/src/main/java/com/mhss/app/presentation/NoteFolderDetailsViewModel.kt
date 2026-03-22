@@ -21,7 +21,7 @@ import com.mhss.app.ui.R
 import com.mhss.app.ui.errors.toMessageResId
 import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.ui.toNotesView
-import com.mhss.app.util.errors.NoteException
+import com.mhss.app.domain.model.NoteException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow

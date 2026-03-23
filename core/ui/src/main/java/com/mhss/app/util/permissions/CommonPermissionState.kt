@@ -22,7 +22,6 @@ interface PermissionState {
     fun openAppSettings()
 }
 
-
 enum class Permission {
     READ_CALENDAR,
     WRITE_CALENDAR,

@@ -63,7 +63,6 @@ import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.ui.theme.Rubik
 import com.mhss.app.ui.toFontFamily
 import com.mhss.app.ui.toInt
-import com.mhss.app.util.Constants
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -274,14 +273,14 @@ fun SettingsScreen(
                     title = R.string.app_version,
                     icon = R.drawable.ic_code,
                     subtitle = context.getPackageInfo().versionName ?: BuildConfig.VERSION_NAME,
-                    link = Constants.GITHUB_RELEASES_LINK
+                    link = AboutLinks.GITHUB_RELEASES_LINK
                 )
             }
             item {
                 SettingsBasicLinkItem(
                     title = R.string.project_on_github,
                     icon = R.drawable.ic_github,
-                    link = Constants.PROJECT_GITHUB_LINK
+                    link = AboutLinks.PROJECT_GITHUB_LINK
                 )
             }
 
@@ -289,7 +288,7 @@ fun SettingsScreen(
                 SettingsBasicLinkItem(
                     title = R.string.privacy_policy,
                     icon = R.drawable.ic_privacy,
-                    link = Constants.PRIVACY_POLICY_LINK
+                    link = AboutLinks.PRIVACY_POLICY_LINK
                 )
             }
 
@@ -306,7 +305,7 @@ fun SettingsScreen(
                 SettingsBasicLinkItem(
                     title = R.string.request_feature_report_bug,
                     icon = R.drawable.ic_feature_issue,
-                    link = Constants.GITHUB_ISSUES_LINK
+                    link = AboutLinks.GITHUB_ISSUES_LINK
                 )
             }
 
@@ -314,7 +313,7 @@ fun SettingsScreen(
                 SettingsBasicLinkItem(
                     title = R.string.project_roadmap,
                     icon = R.drawable.ic_roadmap,
-                    link = Constants.PROJECT_ROADMAP_LINK
+                    link = AboutLinks.PROJECT_ROADMAP_LINK
                 )
             }
             item { Spacer(Modifier.height(60.dp)) }

@@ -34,6 +34,7 @@ import com.mhss.app.domain.di.TasksDomainModule
 import com.mhss.app.datetime.DateTimeModule
 import com.mhss.app.mybrain.di.MainPresentationModule
 import com.mhss.app.mybrain.di.platformModule
+import com.mhss.app.notification.NotificationConstants
 import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.di.PreferencesModule
 import com.mhss.app.preferences.domain.model.booleanPreferencesKey
@@ -48,7 +49,6 @@ import com.mhss.app.presentation.di.SettingsPresentationModule
 import com.mhss.app.presentation.di.TasksPresentationModule
 import com.mhss.app.storage.di.StorageModule
 import com.mhss.app.ui.R
-import com.mhss.app.util.Constants
 import com.mhss.app.widget.di.WidgetModule
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -139,7 +139,7 @@ class MyBrainApplication : Application() {
 
     private fun createRemindersNotificationChannel() {
         val channel = NotificationChannel(
-            Constants.REMINDERS_CHANNEL_ID,
+            NotificationConstants.REMINDERS_CHANNEL_ID,
             getString(R.string.reminders_channel_name),
             NotificationManager.IMPORTANCE_DEFAULT
         )

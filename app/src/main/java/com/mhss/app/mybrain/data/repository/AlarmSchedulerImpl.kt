@@ -9,7 +9,7 @@ import androidx.core.app.AlarmManagerCompat
 import com.mhss.app.alarm.model.Alarm
 import com.mhss.app.alarm.repository.AlarmScheduler
 import com.mhss.app.notification.AlarmReceiver
-import com.mhss.app.util.Constants
+import com.mhss.app.notification.NotificationConstants
 import org.koin.core.annotation.Factory
 
 @Factory
@@ -20,7 +20,7 @@ class AlarmSchedulerImpl(
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
     override fun scheduleAlarm(alarm: Alarm) {
         val intent = Intent(context, AlarmReceiver::class.java)
-        intent.putExtra(Constants.ALARM_ID_EXTRA, alarm.id)
+        intent.putExtra(NotificationConstants.ALARM_ID_EXTRA, alarm.id)
         val pendingIntent = PendingIntent.getBroadcast(
             context,
             alarm.id,

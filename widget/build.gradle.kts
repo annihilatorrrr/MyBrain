@@ -52,7 +52,6 @@ dependencies {
     implementation(projects.core.preferences)
     
     implementation(projects.core.ui)
-    implementation(projects.core.util)
     implementation(projects.core.datetime)
     implementation(projects.core.widget)
 

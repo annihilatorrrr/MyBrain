@@ -8,7 +8,6 @@ import com.mhss.app.domain.model.Task
 import com.mhss.app.domain.use_case.GetTaskByAlarmUseCase
 import com.mhss.app.domain.use_case.GetTaskByIdUseCase
 import com.mhss.app.domain.use_case.UpdateTaskCompletedUseCase
-import com.mhss.app.util.Constants
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -25,7 +24,7 @@ class TaskActionButtonBroadcastReceiver : BroadcastReceiver(), KoinComponent {
     private val scope = CoroutineScope(ioDispatcher)
 
     override fun onReceive(context: Context, intent: Intent?) {
-        if (intent?.action == Constants.ACTION_COMPLETE) {
+        if (intent?.action == NotificationConstants.ACTION_COMPLETE) {
             val pendingResult = goAsync()
             scope.launch(ioDispatcher) {
                 try {
@@ -43,9 +42,9 @@ class TaskActionButtonBroadcastReceiver : BroadcastReceiver(), KoinComponent {
 
     // The new is uuid string but previously it was an int which is same as alarm id
     private suspend fun Intent.getTaskBackwardsCompat(): Task? {
-        val taskId = getStringExtra(Constants.TASK_ID_EXTRA) // uuid
+        val taskId = getStringExtra(NotificationConstants.TASK_ID_EXTRA) // uuid
         taskId?.let { return getTaskById(it) }
-        val alarmId = getIntExtra(Constants.TASK_ID_EXTRA, -1).takeIf { it != -1 }
+        val alarmId = getIntExtra(NotificationConstants.TASK_ID_EXTRA, -1).takeIf { it != -1 }
         return alarmId?.let { getTaskByAlarm(it) }
     }
 }

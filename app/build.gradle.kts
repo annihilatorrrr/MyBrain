@@ -100,7 +100,6 @@ dependencies {
     implementation(projects.widget)
     implementation(projects.core.preferences)
     implementation(projects.core.storage)
-    implementation(projects.core.util)
     implementation(projects.core.datetime)
 
     implementation(platform(libs.compose.bom))

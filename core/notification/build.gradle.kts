@@ -38,7 +38,6 @@ android {
 
 dependencies {
 
-    implementation(projects.core.util)
     implementation(projects.core.ui)
     implementation(projects.core.alarm)
     implementation(projects.tasks.domain)

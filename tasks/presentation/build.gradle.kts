@@ -42,7 +42,6 @@ android {
 
 dependencies {
     implementation(projects.tasks.domain)
-    implementation(projects.core.util)
     implementation(projects.core.datetime)
     
     implementation(projects.core.ui)

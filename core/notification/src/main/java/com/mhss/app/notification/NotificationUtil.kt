@@ -14,8 +14,8 @@ import com.mhss.app.ui.R
 
 fun NotificationManager.sendNotification(task: Task, context: Context, id: Int) {
     val completeIntent = Intent(context, TaskActionButtonBroadcastReceiver::class.java).apply {
-        action = Constants.ACTION_COMPLETE
-        putExtra(Constants.TASK_ID_EXTRA, task.id)
+        action = NotificationConstants.ACTION_COMPLETE
+        putExtra(NotificationConstants.TASK_ID_EXTRA, task.id)
     }
     val completePendingIntent: PendingIntent =
         PendingIntent.getBroadcast(
@@ -34,7 +34,7 @@ fun NotificationManager.sendNotification(task: Task, context: Context, id: Int) 
         getPendingIntent(0, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
     }
 
-    val notification = NotificationCompat.Builder(context, Constants.REMINDERS_CHANNEL_ID)
+    val notification = NotificationCompat.Builder(context, NotificationConstants.REMINDERS_CHANNEL_ID)
         .setSmallIcon(R.drawable.notification_icon)
         .setContentTitle(task.title)
         .setContentText(task.description)

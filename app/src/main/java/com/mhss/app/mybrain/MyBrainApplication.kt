@@ -14,12 +14,12 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.mhss.app.alarm.di.AlarmModule
 import com.mhss.app.data.di.AiDataModule
+import com.mhss.app.data.NoteDataModule
 import com.mhss.app.data.di.CalendarDataModule
 import com.mhss.app.data.di.BookmarksDataModule
 import com.mhss.app.data.di.DiaryDataModule
 import com.mhss.app.data.di.SettingsDataModule
 import com.mhss.app.data.di.TasksDataModule
-import com.mhss.app.data.noteDataModule
 import com.mhss.app.data.noteMarkdownModule
 import com.mhss.app.data.noteRoomModule
 import com.mhss.app.database.di.databaseModule
@@ -28,6 +28,7 @@ import com.mhss.app.domain.di.AiDomainModule
 import com.mhss.app.domain.di.BookmarksDomainModule
 import com.mhss.app.domain.di.CalendarDomainModule
 import com.mhss.app.domain.di.DiaryDomainModule
+import com.mhss.app.domain.di.NoteDomainModule
 import com.mhss.app.domain.di.SettingsDomainModule
 import com.mhss.app.domain.di.TasksDomainModule
 import com.mhss.app.datetime.DateTimeModule
@@ -82,7 +83,8 @@ class MyBrainApplication : Application() {
                 PreferencesModule().module,
                 StorageModule().module,
                 NotePresentationModule().module,
-                noteDataModule,
+                NoteDataModule().module,
+                NoteDomainModule().module,
                 DiaryPresentationModule().module,
                 DiaryDataModule().module,
                 DiaryDomainModule().module,

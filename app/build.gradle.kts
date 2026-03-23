@@ -84,6 +84,7 @@ dependencies {
     implementation(projects.ai.data)
     implementation(projects.settings.data)
 
+    implementation(projects.notes.domain)
     implementation(projects.tasks.domain)
     implementation(projects.calendar.domain)
     implementation(projects.diary.domain)

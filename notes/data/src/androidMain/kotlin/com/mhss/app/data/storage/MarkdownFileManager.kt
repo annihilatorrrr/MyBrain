@@ -11,8 +11,8 @@ import android.provider.DocumentsContract
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import com.mhss.app.domain.model.Note
-import com.mhss.app.domain.model.NoteFolder
 import com.mhss.app.domain.model.NoteException
+import com.mhss.app.domain.model.NoteFolder
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -28,11 +28,11 @@ import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Named
 
-@Factory
-class MarkdownFileManager(
+@Factory(binds = [MarkdownFileManager::class])
+class AndroidMarkdownFileManager(
     @Named("ioDispatcher") private val ioDispatcher: CoroutineDispatcher,
     private val applicationContext: Context
-) {
+) : MarkdownFileManager {
 
     private val contentResolver = applicationContext.contentResolver
 
@@ -48,14 +48,14 @@ class MarkdownFileManager(
 
     private suspend fun generateUntitledTitle(folderUri: Uri): String = withContext(ioDispatcher) {
         val existingNotes = getAllNotesInFolder(folderUri)
-        val existingUntitledFiles = existingNotes.map { it.title }.filter { 
-            it.startsWith("Untitled") 
+        val existingUntitledFiles = existingNotes.map { it.title }.filter {
+            it.startsWith("Untitled")
         }.sorted()
-        
+
         if (existingUntitledFiles.isEmpty()) {
             return@withContext "Untitled"
         }
-        
+
         val numbers = existingUntitledFiles.mapNotNull { title ->
             when {
                 title == "Untitled" -> 0
@@ -65,8 +65,7 @@ class MarkdownFileManager(
                 else -> null
             }
         }.sorted()
-        
-        // Find the first available number
+
         var nextNumber = 1
         for (num in numbers) {
             if (num < nextNumber) continue
@@ -76,16 +75,14 @@ class MarkdownFileManager(
                 break
             }
         }
-        
+
         return@withContext "Untitled $nextNumber"
     }
 
     private val upsertMutex = Mutex()
 
-
     private val observers = mutableListOf<ContentObserver>()
     private val mainLooperHandler = Handler(Looper.getMainLooper())
-
 
     private inline fun <T> Uri.observeUpdates(crossinline getData: () -> T): Flow<T> =
         callbackFlow {
@@ -108,16 +105,19 @@ class MarkdownFileManager(
             }
         }.flowOn(ioDispatcher)
 
+    override fun getFolderNotesFlow(folderId: String): Flow<List<Note>> {
+        val folderUri = folderId.toUri()
+        return folderUri.observeUpdates { getAllNotesInFolder(folderUri) }
+    }
 
-    fun getFolderNotesFlow(folderUri: Uri) =
-        folderUri.observeUpdates { getAllNotesInFolder(folderUri) }
-
-    fun getAllNotesFlow(rootUri: Uri) =
-        rootUri.observeUpdates { getAllNotesRecursive(rootUri) }
+    override fun getAllNotesFlow(rootId: String): Flow<List<Note>> {
+        val rootUri = rootId.toUri()
+        return rootUri.observeUpdates { getAllNotesRecursive(rootUri) }
+    }
 
     private fun getAllNotesRecursive(rootUri: Uri): List<Note> {
         val allNotes = mutableListOf<Note>()
-        
+
         allNotes.addAll(getAllNotesInFolder(rootUri))
 
         val folders = getAllFoldersInFolder(rootUri)
@@ -158,8 +158,10 @@ class MarkdownFileManager(
         return notes
     }
 
-    fun getFolderFoldersFlow(folderUri: Uri) =
-        folderUri.observeUpdates { getAllFoldersInFolder(folderUri) }
+    override fun getFolderFoldersFlow(folderId: String): Flow<List<NoteFolder>> {
+        val folderUri = folderId.toUri()
+        return folderUri.observeUpdates { getAllFoldersInFolder(folderUri) }
+    }
 
     private fun getAllFoldersInFolder(folderUri: Uri): List<NoteFolder> {
         val folders = mutableListOf<NoteFolder>()
@@ -184,7 +186,8 @@ class MarkdownFileManager(
         return folders
     }
 
-    suspend fun getFolder(folderUri: Uri): NoteFolder = withContext(ioDispatcher) {
+    override suspend fun getFolder(folderId: String): NoteFolder = withContext(ioDispatcher) {
+        val folderUri = folderId.toUri()
         try {
             contentResolver.query(
                 folderUri,
@@ -213,7 +216,8 @@ class MarkdownFileManager(
         }
     }
 
-    suspend fun getNote(noteUri: Uri): Note = withContext(ioDispatcher) {
+    override suspend fun getNote(noteId: String): Note = withContext(ioDispatcher) {
+        val noteUri = noteId.toUri()
         try {
             val cursor = contentResolver.query(
                 noteUri,
@@ -289,13 +293,13 @@ class MarkdownFileManager(
         }
     }
 
-    suspend fun upsertNote(note: Note, currentFolderId: String?, rootUri: Uri): String =
+    override suspend fun upsertNote(note: Note, currentFolderId: String?, rootId: String): String =
         upsertMutex.withLock {
             return@withLock withContext(ioDispatcher) {
+                val rootUri = rootId.toUri()
                 try {
                     var fileUpdateThrowable: Throwable? = null
                     val noteUri = if (note.id.isNotBlank()) {
-                        // will throw the rename/move error if exist but after saving the file content
                         try {
                             updateExistingNote(note, currentFolderId, rootUri)
                         } catch (t: Exception) {
@@ -404,7 +408,6 @@ class MarkdownFileManager(
         }
     }
 
-
     private suspend fun renameFile(uri: Uri, newTitle: String, folderUri: Uri): Uri {
         val newName = newTitle.ifBlank { generateUntitledTitle(folderUri) }.trim()
         if (!isValidFileName(newName)) throw NoteException.InvalidFileName
@@ -460,7 +463,8 @@ class MarkdownFileManager(
         return dir
     }
 
-    suspend fun deleteNote(note: Note, rootUri: Uri) = withContext(ioDispatcher) {
+    override suspend fun deleteNote(note: Note, rootId: String) = withContext(ioDispatcher) {
+        val rootUri = rootId.toUri()
         try {
             if (!DocumentsContract.deleteDocument(contentResolver, note.id.toUri())) {
                 throw NoteException.DeleteFileFailed
@@ -474,12 +478,13 @@ class MarkdownFileManager(
         }
     }
 
-    suspend fun createFolder(folderName: String, parentUri: Uri): String =
+    override suspend fun createFolder(folderName: String, parentId: String): String =
         withContext(ioDispatcher) {
+            val parentUri = parentId.toUri()
             try {
                 val parentDir = DocumentFile.fromTreeUri(applicationContext, parentUri)
                     ?: throw NoteException.InvalidUri
-                
+
                 val existing = parentDir.listFiles().firstOrNull { it.isDirectory && it.name.equals(folderName, ignoreCase = true) }
                 if (existing != null) throw NoteException.FolderWithSameNameExists
 
@@ -495,8 +500,10 @@ class MarkdownFileManager(
             }
         }
 
-    suspend fun updateFolder(folderUri: Uri, newName: String, rootUri: Uri) =
+    override suspend fun updateFolder(folderId: String, newName: String, rootId: String) =
         withContext(ioDispatcher) {
+            val folderUri = folderId.toUri()
+            val rootUri = rootId.toUri()
             try {
                 val folder = DocumentFile.fromTreeUri(applicationContext, folderUri)
                     ?: throw NoteException.InvalidUri
@@ -504,7 +511,7 @@ class MarkdownFileManager(
 
                 if (folder.name.equals(newName, ignoreCase = true)) return@withContext
 
-                val existing = parentDir.listFiles().firstOrNull { 
+                val existing = parentDir.listFiles().firstOrNull {
                     it.isDirectory && it.name.equals(newName, ignoreCase = true)
                 }
                 if (existing != null) throw NoteException.FolderWithSameNameExists
@@ -520,7 +527,9 @@ class MarkdownFileManager(
             }
         }
 
-    suspend fun deleteFolder(folderUri: Uri, rootUri: Uri) = withContext(ioDispatcher) {
+    override suspend fun deleteFolder(folderId: String, rootId: String) = withContext(ioDispatcher) {
+        val folderUri = folderId.toUri()
+        val rootUri = rootId.toUri()
         try {
             if (!DocumentsContract.deleteDocument(contentResolver, folderUri)) {
                 throw NoteException.DeleteFolderFailed
@@ -534,7 +543,8 @@ class MarkdownFileManager(
         }
     }
 
-    suspend fun searchNotes(query: String, rootUri: Uri): List<Note> = withContext(ioDispatcher) {
+    override suspend fun searchNotes(query: String, rootId: String): List<Note> = withContext(ioDispatcher) {
+        val rootUri = rootId.toUri()
         val allNotes = mutableListOf<Note>()
 
         try {
@@ -551,7 +561,8 @@ class MarkdownFileManager(
         return@withContext allNotes
     }
 
-    suspend fun searchFolderByName(name: String, rootUri: Uri): List<NoteFolder> = withContext(ioDispatcher) {
+    override suspend fun searchFolderByName(name: String, rootId: String): List<NoteFolder> = withContext(ioDispatcher) {
+        val rootUri = rootId.toUri()
         val folders = getAllFoldersInFolder(rootUri)
         folders.filter { it.name.contains(name, ignoreCase = true) }
     }
@@ -563,7 +574,7 @@ class MarkdownFileManager(
 
             allNotes.forEach { note ->
                 try {
-                    val fullNote = getNote(note.id.toUri())
+                    val fullNote = getNote(note.id)
                     if (fullNote.title.contains(query, ignoreCase = true) ||
                         fullNote.content.contains(query, ignoreCase = true)
                     ) {
@@ -576,5 +587,4 @@ class MarkdownFileManager(
 
             return@withContext matchingNotes
         }
-
 }

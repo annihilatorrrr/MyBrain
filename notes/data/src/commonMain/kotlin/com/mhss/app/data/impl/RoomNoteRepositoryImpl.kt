@@ -7,9 +7,9 @@ import com.mhss.app.database.entity.toNoteEntity
 import com.mhss.app.database.entity.toNoteFolder
 import com.mhss.app.database.entity.toNoteFolderEntity
 import com.mhss.app.domain.model.Note
+import com.mhss.app.domain.model.NoteException
 import com.mhss.app.domain.model.NoteFolder
 import com.mhss.app.domain.repository.NoteRepository
-import com.mhss.app.domain.model.NoteException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn

@@ -13,8 +13,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.mhss.app.alarm.di.AlarmModule
-import com.mhss.app.data.calendarDataModule
 import com.mhss.app.data.di.AiDataModule
+import com.mhss.app.data.di.CalendarDataModule
 import com.mhss.app.data.di.BookmarksDataModule
 import com.mhss.app.data.di.DiaryDataModule
 import com.mhss.app.data.di.SettingsDataModule
@@ -26,6 +26,7 @@ import com.mhss.app.database.di.databaseModule
 import com.mhss.app.di.coroutinesModule
 import com.mhss.app.domain.di.AiDomainModule
 import com.mhss.app.domain.di.BookmarksDomainModule
+import com.mhss.app.domain.di.CalendarDomainModule
 import com.mhss.app.domain.di.DiaryDomainModule
 import com.mhss.app.domain.di.SettingsDomainModule
 import com.mhss.app.domain.di.TasksDomainModule
@@ -92,7 +93,8 @@ class MyBrainApplication : Application() {
                 SettingsDataModule().module,
                 SettingsDomainModule().module,
                 CalendarPresentationModule().module,
-                calendarDataModule,
+                CalendarDataModule().module,
+                CalendarDomainModule().module,
                 BookmarksPresentationModule().module,
                 BookmarksDataModule().module,
                 BookmarksDomainModule().module,

@@ -87,6 +87,7 @@ dependencies {
     implementation(projects.tasks.domain)
     implementation(projects.calendar.domain)
     implementation(projects.diary.domain)
+    implementation(projects.bookmarks.domain)
     implementation(projects.settings.domain)
     implementation(projects.ai.domain)
 

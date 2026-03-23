@@ -13,19 +13,22 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.mhss.app.alarm.di.AlarmModule
-import com.mhss.app.data.bookmarksDataModule
 import com.mhss.app.data.calendarDataModule
 import com.mhss.app.data.di.AiDataModule
+import com.mhss.app.data.di.BookmarksDataModule
+import com.mhss.app.data.di.DiaryDataModule
 import com.mhss.app.data.di.SettingsDataModule
-import com.mhss.app.data.diaryDataModule
+import com.mhss.app.data.di.TasksDataModule
 import com.mhss.app.data.noteDataModule
 import com.mhss.app.data.noteMarkdownModule
 import com.mhss.app.data.noteRoomModule
-import com.mhss.app.data.tasksDataModule
 import com.mhss.app.database.di.databaseModule
 import com.mhss.app.di.coroutinesModule
 import com.mhss.app.domain.di.AiDomainModule
+import com.mhss.app.domain.di.BookmarksDomainModule
+import com.mhss.app.domain.di.DiaryDomainModule
 import com.mhss.app.domain.di.SettingsDomainModule
+import com.mhss.app.domain.di.TasksDomainModule
 import com.mhss.app.datetime.DateTimeModule
 import com.mhss.app.mybrain.di.MainPresentationModule
 import com.mhss.app.mybrain.di.platformModule
@@ -80,16 +83,19 @@ class MyBrainApplication : Application() {
                 NotePresentationModule().module,
                 noteDataModule,
                 DiaryPresentationModule().module,
-                diaryDataModule,
+                DiaryDataModule().module,
+                DiaryDomainModule().module,
                 TasksPresentationModule().module,
-                tasksDataModule,
+                TasksDataModule().module,
+                TasksDomainModule().module,
                 SettingsPresentationModule().module,
                 SettingsDataModule().module,
                 SettingsDomainModule().module,
                 CalendarPresentationModule().module,
                 calendarDataModule,
                 BookmarksPresentationModule().module,
-                bookmarksDataModule,
+                BookmarksDataModule().module,
+                BookmarksDomainModule().module,
                 WidgetModule().module,
                 AiDataModule().module,
                 AiDomainModule().module,

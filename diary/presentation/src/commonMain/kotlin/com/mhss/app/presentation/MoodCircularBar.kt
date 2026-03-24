@@ -35,6 +35,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mhss.app.domain.model.DiaryEntry
+import com.mhss.app.ui.preview.BasePreview
 import com.mhss.app.domain.model.Mood
 import com.mhss.app.ui.Res
 import com.mhss.app.ui.mood_summary
@@ -184,11 +185,12 @@ fun List<DiaryEntry>.toPercentages(): Map<Mood, Float> {
         .mapValues { it.value / this.size.toFloat() }
 }
 
-@Composable
 @Preview
+@Composable
 fun MoodCircularBarPreview() {
-    MoodCircularBar(
-        entries = listOf(
+    BasePreview {
+        MoodCircularBar(
+            entries = listOf(
             DiaryEntry(
                 id = "1",
                 mood = Mood.AWESOME
@@ -223,4 +225,5 @@ fun MoodCircularBarPreview() {
             )
         )
     )
+    }
 }

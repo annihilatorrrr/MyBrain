@@ -28,12 +28,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.asAndroidPath
-import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.mhss.app.ui.preview.BasePreview
 import com.mhss.app.domain.model.DiaryEntry
 import com.mhss.app.domain.model.Mood
 import com.mhss.app.ui.Res
@@ -130,18 +129,20 @@ fun MoodFlowChart(
                                 quadTo(offsets[index - 1], offset)
                             }
                         }
-                        // workaround to copy compose path by using android path
-                        val fillPath = android.graphics.Path(path.asAndroidPath())
-                            .asComposePath()
-                            .apply {
-                                lineTo(
-                                    if (offsets.size > 1)
-                                        (offsets[offsets.size - 2].x + offsets.last().x) / 2
-                                    else offsets.last().x, h
-                                )
-                                lineTo(0f, h)
-                                close()
+                        val fillPath = Path().apply {
+                            moveTo(offsets.first().x, offsets.first().y)
+                            offsets.forEachIndexed { index, offset ->
+                                if (index == 0) return@forEachIndexed
+                                quadTo(offsets[index - 1], offset)
                             }
+                            lineTo(
+                                if (offsets.size > 1)
+                                    (offsets[offsets.size - 2].x + offsets.last().x) / 2
+                                else offsets.last().x, h
+                            )
+                            lineTo(0f, h)
+                            close()
+                        }
                         drawPath(
                             fillPath,
                             brush = Brush.verticalGradient(
@@ -187,8 +188,9 @@ fun Path.quadTo(point1: Offset, point2: Offset) {
 @Preview
 @Composable
 fun MoodFlowChartPreview() {
-    MoodFlowChart(
-        entries = listOf(
+    BasePreview {
+        MoodFlowChart(
+            entries = listOf(
             DiaryEntry(
                 id = "1",
                 mood = Mood.AWESOME
@@ -231,4 +233,5 @@ fun MoodFlowChartPreview() {
             )
         )
     )
+    }
 }

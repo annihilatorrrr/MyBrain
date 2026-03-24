@@ -2,7 +2,6 @@
 
 package com.mhss.app.presentation
 
-import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -38,13 +37,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboard
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.mhss.app.domain.model.AiMessage
@@ -61,7 +60,7 @@ import com.mhss.app.ui.assistant
 import com.mhss.app.ui.components.common.LeftToRight
 import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.navigation.Screen
-import com.mhss.app.ui.theme.MyBrainTheme
+import com.mhss.app.ui.preview.BasePreview
 import com.mhss.app.util.clipboard.copyText
 import io.github.fletchmckee.liquid.liquefiable
 import io.github.fletchmckee.liquid.rememberLiquidState
@@ -74,11 +73,11 @@ fun AssistantScreen(
     navController: NavHostController,
     viewModel: AssistantViewModel = koinViewModel(),
 ) {
+    val messages by viewModel.messages.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     AssistantScreenContent(
-        uiState = viewModel.uiState,
-        messages = viewModel.messages,
-        attachments = viewModel.attachments,
-        aiEnabled = viewModel.aiEnabled,
+        uiState = uiState,
+        messages = messages,
         onEvent = viewModel::onEvent,
         navController = navController
     )
@@ -89,14 +88,13 @@ fun AssistantScreen(
 fun AssistantScreenContent(
     uiState: AssistantViewModel.UiState,
     messages: List<AiMessage>,
-    attachments: List<AiMessageAttachment>,
-    aiEnabled: Boolean,
     onEvent: (AssistantEvent) -> Unit,
     navController: NavHostController,
 ) {
-    val context = LocalContext.current
     val loading = uiState.loading
     val error = uiState.error
+    val attachments = uiState.attachments
+    val aiEnabled = uiState.aiEnabled
     var text by rememberSaveable { mutableStateOf("") }
     var attachmentsMenuExpanded by remember {
         mutableStateOf(false)
@@ -146,7 +144,7 @@ fun AssistantScreenContent(
                     onEvent(
                         AssistantEvent.SendMessage(
                             content = text,
-                            attachments = attachments.toList()
+                            attachments = uiState.attachments
                         )
                     )
                     text = ""
@@ -303,47 +301,57 @@ fun AssistantScreenContent(
     }
 }
 
+@Composable
+private fun AssistantScreenContentPreviewInner() {
+    AssistantScreenContent(
+        uiState = AssistantViewModel.UiState(aiEnabled = true),
+        messages = listOf(
+            AiMessage.AssistantMessage(
+                content = "After carefully reviewing the collection of notes you provided, I detected several recurring themes and insights that could be valuable for your upcoming projects. In addition to the summary I mentioned, I can also suggest specific actionable steps, categorize the information by priority, and highlight any hidden patterns that might inform your strategy. Let me know if you’d like a detailed report, a visual diagram, or a concise bullet‑point overview.",
+                time = 5,
+                uuid = "5"
+            ),
+            AiMessage.ToolCall(
+                uuid = "4",
+                id = "4",
+                name = "searchNotes",
+                rawContent = "",
+                resultRawContent = "",
+                time = 4
+            ),
+            AiMessage.UserMessage(
+                content = "I'm juggling a tight deadline for the project next week and feel a bit overwhelming. Could you help me break down my tasks, prioritize them, and suggest an organized plan to ensure I meet all milestones on time?",
+                time = 3,
+                uuid = "3"
+            ),
+            AiMessage.AssistantMessage(
+                content = "Welcome! I'm your AI assistant, ready to support you with managing notes, creating and tracking tasks, and handling calendar events. I can help you set up smart reminders, generate project outlines, automate repetitive workflows, and even suggest productivity techniques tailored to your habits. Just tell me what you need—whether it's organizing information, setting reminders, or anything else to boost your efficiency—and I’ll get started right away.",
+                time = 2,
+                uuid = "2"
+            ),
+            AiMessage.UserMessage(
+                content = "Hello! I'm just getting started on improving my workflow and would love some guidance on how to set up an effective productivity system. Can you walk me through the steps to organize my tasks, set up a reliable routine, and keep everything synchronized across my devices?",
+                time = 1,
+                uuid = "1"
+            )
+        ),
+        onEvent = {},
+        navController = rememberNavController()
+    )
+}
+
 @Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun AssistantScreenContentPreview() {
-    MyBrainTheme {
-        AssistantScreenContent(
-            uiState = AssistantViewModel.UiState(),
-            messages = listOf(
-                AiMessage.AssistantMessage(
-                    content = "After carefully reviewing the collection of notes you provided, I detected several recurring themes and insights that could be valuable for your upcoming projects. In addition to the summary I mentioned, I can also suggest specific actionable steps, categorize the information by priority, and highlight any hidden patterns that might inform your strategy. Let me know if you’d like a detailed report, a visual diagram, or a concise bullet‑point overview.",
-                    time = 5,
-                    uuid = "5"
-                ),
-                AiMessage.ToolCall(
-                    uuid = "4",
-                    id = "4",
-                    name = "searchNotes",
-                    rawContent = "",
-                    resultRawContent = "",
-                    time = 4
-                ),
-                AiMessage.UserMessage(
-                    content = "I'm juggling a tight deadline for the project next week and feel a bit overwhelming. Could you help me break down my tasks, prioritize them, and suggest an organized plan to ensure I meet all milestones on time?",
-                    time = 3,
-                    uuid = "3"
-                ),
-                AiMessage.AssistantMessage(
-                    content = "Welcome! I'm your AI assistant, ready to support you with managing notes, creating and tracking tasks, and handling calendar events. I can help you set up smart reminders, generate project outlines, automate repetitive workflows, and even suggest productivity techniques tailored to your habits. Just tell me what you need—whether it's organizing information, setting reminders, or anything else to boost your efficiency—and I’ll get started right away.",
-                    time = 2,
-                    uuid = "2"
-                ),
-                AiMessage.UserMessage(
-                    content = "Hello! I'm just getting started on improving my workflow and would love some guidance on how to set up an effective productivity system. Can you walk me through the steps to organize my tasks, set up a reliable routine, and keep everything synchronized across my devices?",
-                    time = 1,
-                    uuid = "1"
-                )
-            ),
-            attachments = emptyList(),
-            aiEnabled = true,
-            onEvent = {},
-            navController = rememberNavController()
-        )
+    BasePreview {
+        AssistantScreenContentPreviewInner()
+    }
+}
+
+@Preview
+@Composable
+private fun AssistantScreenContentPreviewDark() {
+    BasePreview(darkTheme = true) {
+        AssistantScreenContentPreviewInner()
     }
 }

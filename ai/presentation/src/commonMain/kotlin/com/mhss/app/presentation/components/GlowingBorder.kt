@@ -1,6 +1,5 @@
 package com.mhss.app.presentation.components
 
-import android.content.res.Configuration
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.VectorConverter
@@ -72,14 +71,27 @@ fun GlowingBorder(
     )
 }
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun GlowingBordersPreviewContent() {
+    Surface {
+        GlowingBorder(
+            modifier = Modifier.fillMaxSize(),
+        )
+    }
+}
+
+@Preview
 @Composable
 private fun GlowingBordersPreview() {
     MyBrainTheme {
-        Surface {
-            GlowingBorder(
-                modifier = Modifier.fillMaxSize(),
-            )
-        }
+        GlowingBordersPreviewContent()
+    }
+}
+
+@Preview
+@Composable
+private fun GlowingBordersPreviewDark() {
+    MyBrainTheme(darkTheme = true) {
+        GlowingBordersPreviewContent()
     }
 }

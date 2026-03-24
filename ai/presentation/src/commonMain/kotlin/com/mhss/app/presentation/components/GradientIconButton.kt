@@ -1,6 +1,5 @@
 package com.mhss.app.presentation.components
 
-import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -76,17 +75,29 @@ fun GradientIconButton(
     }
 }
 
+@Composable
+private fun GradientIconButtonPreviewContent() {
+    Surface {
+        GradientIconButton(
+            text = "Summarize",
+            iconPainter = painterResource(Res.drawable.ic_summarize),
+            onClick = {}
+        )
+    }
+}
+
 @Preview(showBackground = true)
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun GradientIconButtonPreview() {
     MyBrainTheme(useDynamicColors = false) {
-        Surface {
-            GradientIconButton(
-                text = "Summarize",
-                iconPainter = painterResource(Res.drawable.ic_summarize),
-                onClick = {}
-            )
-        }
+        GradientIconButtonPreviewContent()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GradientIconButtonPreviewDark() {
+    MyBrainTheme(useDynamicColors = false, darkTheme = true) {
+        GradientIconButtonPreviewContent()
     }
 }

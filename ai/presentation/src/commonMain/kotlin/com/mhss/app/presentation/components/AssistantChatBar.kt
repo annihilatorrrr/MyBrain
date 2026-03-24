@@ -1,6 +1,5 @@
 package com.mhss.app.presentation.components
 
-import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
@@ -59,8 +58,6 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
-import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mhss.app.domain.model.AiMessage
@@ -77,14 +74,17 @@ import com.mhss.app.ui.gradientBrushColor
 import com.mhss.app.ui.ic_attach
 import com.mhss.app.ui.ic_send_message
 import com.mhss.app.ui.ic_stop
+import com.mhss.app.ui.preview.BasePreview
 import com.mhss.app.ui.theme.Blue
 import com.mhss.app.ui.theme.DarkOrange
 import com.mhss.app.ui.theme.LightPurple
-import com.mhss.app.ui.theme.MyBrainTheme
 import io.github.fletchmckee.liquid.LiquidState
 import io.github.fletchmckee.liquid.liquefiable
 import io.github.fletchmckee.liquid.rememberLiquidState
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import kotlin.uuid.ExperimentalUuidApi
 
 @Composable
 fun AssistantChatBar(
@@ -331,65 +331,78 @@ fun Modifier.drawAnimatedGradient(
     }
 }
 
-@Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@OptIn(ExperimentalUuidApi::class)
 @Composable
-fun AssistantChatBarPreview() {
-    MyBrainTheme {
-        val liquidState = rememberLiquidState()
-        Box(
-            modifier = Modifier.background(MaterialTheme.colorScheme.background),
-            contentAlignment = Alignment.BottomCenter
-        ) {
-            Box(Modifier.liquefiable(liquidState)) {
-                LazyColumn {
-                    item {
-                        MessageCard(
-                            message = AiMessage.UserMessage(
-                                uuid = "uuid",
-                                content = "This is a test example message",
-                                time = 1
-                            ),
-                            onCopy = {}
-                        )
-                    }
-                    item {
-                        Spacer(Modifier.height(26.dp))
-                    }
+private fun AssistantChatBarPreviewContent() {
+    val liquidState = rememberLiquidState()
+    Box(
+        modifier = Modifier.background(MaterialTheme.colorScheme.background),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        Box(Modifier.liquefiable(liquidState)) {
+            LazyColumn {
+                item {
+                    MessageCard(
+                        message = AiMessage.UserMessage(
+                            uuid = "uuid",
+                            content = "This is a test example message",
+                            time = 1
+                        ),
+                        onCopy = {}
+                    )
+                }
+                item {
+                    Spacer(Modifier.height(26.dp))
                 }
             }
-            AssistantChatBar(
-                text = "",
-                enabled = true,
-                attachments = listOf(
-                    AiMessageAttachment.Note(
-                        Note(
-                            id = "1",
-                            title = "This is a Note Title",
-                            content = "Note Content",
-                        )
-                    ),
-                    AiMessageAttachment.Task(
-                        Task(
-                            id = "1",
-                            title = "This is a Task Title",
-                            description = "Task Description",
-                            isCompleted = false,
-                            dueDate = 12345,
-                            subTasks = listOf(
-                                SubTask()
-                            )
-                        )
+        }
+        AssistantChatBar(
+            text = "",
+            enabled = true,
+            attachments = listOf(
+                AiMessageAttachment.Note(
+                    Note(
+                        id = "1",
+                        title = "This is a Note Title",
+                        content = "Note Content",
                     )
                 ),
-                loading = true,
-                onTextChange = {},
-                onAttachClick = {},
-                onRemoveAttachment = {},
-                onSend = {},
-                onCancel = {},
-                liquidState = liquidState
-            )
-        }
+                AiMessageAttachment.Task(
+                    Task(
+                        id = "1",
+                        title = "This is a Task Title",
+                        description = "Task Description",
+                        isCompleted = false,
+                        dueDate = 12345,
+                        subTasks = listOf(
+                            SubTask()
+                        )
+                    )
+                )
+            ),
+            loading = true,
+            onTextChange = {},
+            onAttachClick = {},
+            onRemoveAttachment = {},
+            onSend = {},
+            onCancel = {},
+            liquidState = liquidState
+        )
+    }
+}
+
+@Preview
+@Composable
+fun AssistantChatBarPreview() {
+    BasePreview {
+        AssistantChatBarPreviewContent()
+    }
+}
+
+@Preview
+@Composable
+fun AssistantChatBarPreviewDark() {
+    BasePreview(darkTheme = true) {
+        AssistantChatBarPreviewContent()
     }
 }

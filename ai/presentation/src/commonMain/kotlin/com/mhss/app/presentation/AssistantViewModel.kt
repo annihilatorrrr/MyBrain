@@ -1,9 +1,7 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.mhss.app.presentation
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mhss.app.datetime.now
@@ -32,15 +30,20 @@ import com.mhss.app.ui.toIntList
 import com.mhss.app.ui.toNotesView
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.koin.android.annotation.KoinViewModel
+import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @KoinViewModel
@@ -54,15 +57,11 @@ class AssistantViewModel(
     private val getTaskById: GetTaskByIdUseCase,
 ) : ViewModel() {
 
-    private val _messages = mutableStateListOf<AiMessage>()
-    val messages: List<AiMessage> = _messages
-    val attachments = mutableStateListOf<AiMessageAttachment>()
+    private val _messages = MutableStateFlow<List<AiMessage>>(emptyList())
+    val messages: StateFlow<List<AiMessage>> = _messages.asStateFlow()
 
-    var uiState by mutableStateOf(UiState())
-        private set
-
-    var aiEnabled by mutableStateOf(false)
-        private set
+    private val _uiState = MutableStateFlow(UiState())
+    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
     private var searchNotesJob: Job? = null
     private var searchTasksJob: Job? = null
@@ -73,20 +72,21 @@ class AssistantViewModel(
             getPreference(
                 intPreferencesKey(PrefsConstants.NOTE_VIEW_KEY),
                 ItemView.LIST.value
-            ).onEach {
-                uiState = uiState.copy(noteView = it.toNotesView())
+            ).onEach { value ->
+                _uiState.update { it.copy(noteView = value.toNotesView()) }
             }.collect()
         }
         viewModelScope.launch {
             getPreference(intPreferencesKey(PrefsConstants.AI_PROVIDER_KEY), AiProvider.None.id)
                 .map { it.toAiProvider() }
                 .collect { provider ->
-                    aiEnabled = provider != AiProvider.None
+                    _uiState.update { it.copy(aiEnabled = provider != AiProvider.None) }
                 }
         }
     }
 
     fun onEvent(event: AssistantEvent) {
+
         when (event) {
             is AssistantEvent.SendMessage -> {
                 sendMessageJob?.cancel()
@@ -99,18 +99,19 @@ class AssistantViewModel(
                         uuid = Uuid.generateV7().toString()
                     )
 
-                    _messages.add(0, message)
-                    attachments.clear()
+                    _messages.update { listOf(message) + it }
+                    _uiState.update {
+                        it.copy(
+                            attachments = emptyList(),
+                            loading = true,
+                            error = null
+                        )
+                    }
 
-                    uiState = uiState.copy(
-                        loading = true,
-                        error = null
-                    )
-                    
-                    sendAiMessage(_messages.reversed())
+                    sendAiMessage(_messages.value.asReversed())
                         .catch { e ->
                             delay(300)
-                            
+
                             val error = if (e is AiRepositoryException) {
                                 e.failure
                             } else {
@@ -118,19 +119,21 @@ class AssistantViewModel(
                             }
 
                             if (error !is AssistantResult.ToolCallLimitExceeded) {
-                                _messages.removeAt(0)
+                                _messages.update { it.drop(1) }
                             }
 
-                            uiState = uiState.copy(
-                                loading = false,
-                                error = error
-                            )
+                            _uiState.update {
+                                it.copy(
+                                    loading = false,
+                                    error = error
+                                )
+                            }
                         }
                         .onCompletion {
-                            uiState = uiState.copy(loading = false)
+                            _uiState.update { it.copy(loading = false) }
                         }
                         .collect { msg ->
-                            _messages.add(0, msg)
+                            _messages.update { listOf(msg) + it }
                         }
                 }
             }
@@ -139,8 +142,8 @@ class AssistantViewModel(
                 searchNotesJob?.cancel()
                 searchNotesJob = viewModelScope.launch {
                     delay(300)
-                    searchNotes(event.query).let {
-                        uiState = uiState.copy(searchNotes = it)
+                    searchNotes(event.query).let { notes ->
+                        _uiState.update { it.copy(searchNotes = notes) }
                     }
                 }
             }
@@ -149,41 +152,55 @@ class AssistantViewModel(
                 searchTasksJob?.cancel()
                 searchTasksJob = viewModelScope.launch {
                     delay(300)
-                    searchTasks(event.query).first().let {
-                        uiState = uiState.copy(searchTasks = it)
+                    searchTasks(event.query).first().let { tasks ->
+                        _uiState.update { it.copy(searchTasks = tasks) }
                     }
                 }
             }
 
             AssistantEvent.AddAttachmentEvents -> {
-                attachments.add(AiMessageAttachment.CalenderEvents)
+                _uiState.update {
+                    it.copy(attachments = it.attachments + AiMessageAttachment.CalenderEvents)
+                }
             }
 
             is AssistantEvent.AddAttachmentNote -> viewModelScope.launch {
                 val note = getNoteById(event.id) ?: return@launch
-                attachments.add(
-                    AiMessageAttachment.Note(
-                        note.copy(
-                            title = note.title.ifBlank { "Untitled Note" }
+                _uiState.update {
+                    it.copy(
+                        attachments = it.attachments + AiMessageAttachment.Note(
+                            note.copy(
+                                title = note.title.ifBlank { "Untitled Note" }
+                            )
                         )
                     )
-                )
+                }
             }
 
             is AssistantEvent.AddAttachmentTask -> viewModelScope.launch {
-                attachments.add(AiMessageAttachment.Task(getTaskById(event.id) ?: return@launch ))
+                val task = getTaskById(event.id) ?: return@launch
+                _uiState.update {
+                    it.copy(attachments = it.attachments + AiMessageAttachment.Task(task))
+                }
             }
 
             is AssistantEvent.RemoveAttachment -> {
-                attachments.removeAt(event.index)
+                _uiState.update { s ->
+                    val list = s.attachments
+                    if (event.index in list.indices) {
+                        s.copy(attachments = list.filterIndexed { i, _ -> i != event.index })
+                    } else {
+                        s
+                    }
+                }
             }
 
             AssistantEvent.CancelMessage -> {
                 sendMessageJob?.cancel()
-                if (messages.firstOrNull() is AiMessage.UserMessage) {
-                    _messages.removeAt(0)
+                if (_messages.value.firstOrNull() is AiMessage.UserMessage) {
+                    _messages.update { it.drop(1) }
                 }
-                uiState = uiState.copy(loading = false)
+                _uiState.update { it.copy(loading = false) }
             }
         }
     }
@@ -226,8 +243,10 @@ class AssistantViewModel(
     data class UiState(
         val loading: Boolean = false,
         val error: AssistantResult.Failure? = null,
+        val aiEnabled: Boolean = false,
         val noteView: ItemView = ItemView.LIST,
         val searchNotes: List<Note> = emptyList(),
-        val searchTasks: List<Task> = emptyList()
+        val searchTasks: List<Task> = emptyList(),
+        val attachments: List<AiMessageAttachment> = emptyList(),
     )
 }

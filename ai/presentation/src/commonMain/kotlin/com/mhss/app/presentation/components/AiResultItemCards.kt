@@ -48,10 +48,11 @@ import com.mhss.app.ui.event_time
 import com.mhss.app.ui.event_time_at
 import com.mhss.app.ui.ic_alarm
 import com.mhss.app.ui.ic_check
-import com.mhss.app.ui.theme.MyBrainTheme
+import com.mhss.app.ui.preview.BasePreview
 import com.mikepenz.markdown.m3.Markdown
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import kotlin.uuid.ExperimentalUuidApi
 
 @Composable
 fun AiNoteCard(
@@ -246,7 +247,7 @@ fun AiCalendarEventCard(
 @Preview(showBackground = true)
 @Composable
 private fun AiNoteCardPreview() {
-    MyBrainTheme {
+    BasePreview {
         AiNoteCard(
             note = Note(
                 title = "Sample Note",
@@ -259,10 +260,11 @@ private fun AiNoteCardPreview() {
     }
 }
 
+@OptIn(ExperimentalUuidApi::class)
 @Preview(showBackground = true)
 @Composable
 private fun AiTaskCardPreview() {
-    MyBrainTheme {
+    BasePreview {
         AiTaskCard(
             task = Task(
                 id = "1",
@@ -293,7 +295,7 @@ private fun AiTaskCardPreview() {
 @Preview(showBackground = true)
 @Composable
 private fun AiCalendarEventCardPreview() {
-    MyBrainTheme {
+    BasePreview {
         AiCalendarEventCard(
             event = CalendarEvent(
                 id = 1L,

@@ -1,6 +1,5 @@
 package com.mhss.app.presentation.components
 
-import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -38,7 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
@@ -177,7 +175,6 @@ private fun LazyItemScope.AssistantMessageCard(
     onCopy: (String) -> Unit,
 ) {
     var showContextMenu by remember { mutableStateOf(false) }
-    val context = LocalContext.current
     val formatter = LocalDateTimeFormatter.current
     val formattedTime by remember(message.time) {
         derivedStateOf { formatter.formatTime(message.time) }
@@ -377,42 +374,39 @@ private fun Modifier.messageCardAnimatedPlacement() = with(scope) {
     )
 }
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Preview
 @Composable
-fun MessageCardPreview() {
-    BasePreview {
-        val demoText = remember {
-            LoremIpsum(60).values.first()
+private fun MessageCardPreviewContent() {
+    val demoText = remember {
+        LoremIpsum(60).values.first()
+    }
+    LazyColumn(
+        Modifier.background(MaterialTheme.colorScheme.background)
+    ) {
+        item {
+            MessageCard(
+                message = AiMessage.UserMessage(
+                    content = demoText,
+                    time = 1111111111,
+                    uuid = "123",
+                    attachments = listOf(
+                        AiMessageAttachment.Note(
+                            Note(
+                                "This is a test tile for the note",
+                                "Description",
+                                1111111111,
+                                id = "1"
+                            )
+                        ),
+                        AiMessageAttachment.CalenderEvents,
+                    )
+                ),
+                onCopy = {},
+                onNoteClick = {},
+                onTaskClick = {},
+                onEventClick = {}
+            )
         }
-        LazyColumn(
-            Modifier.background(MaterialTheme.colorScheme.background)
-        ) {
-            item {
-                MessageCard(
-                    message = AiMessage.UserMessage(
-                        content = demoText,
-                        time = 1111111111,
-                        uuid = "123",
-                        attachments = listOf(
-                            AiMessageAttachment.Note(
-                                Note(
-                                    "This is a test tile for the note",
-                                    "Description",
-                                    1111111111,
-                                    id = "1"
-                                )
-                            ),
-                            AiMessageAttachment.CalenderEvents,
-                        )
-                    ),
-                    onCopy = {},
-                    onNoteClick = {},
-                    onTaskClick = {},
-                    onEventClick = {}
-                )
-            }
-            item {
+        item {
                 MessageCard(
                     message = AiMessage.ToolCall(
                         id = "test-id",
@@ -543,6 +537,21 @@ fun MessageCardPreview() {
                     onEventClick = {}
                 )
             }
-        }
+    }
+}
+
+@Preview
+@Composable
+fun MessageCardPreview() {
+    BasePreview {
+        MessageCardPreviewContent()
+    }
+}
+
+@Preview
+@Composable
+fun MessageCardPreviewDark() {
+    BasePreview(darkTheme = true) {
+        MessageCardPreviewContent()
     }
 }

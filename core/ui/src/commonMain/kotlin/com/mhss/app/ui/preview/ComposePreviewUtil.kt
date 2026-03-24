@@ -22,13 +22,16 @@ import kotlinx.datetime.number
 import java.util.Locale
 
 @Composable
-fun BasePreview(content: @Composable () -> Unit) {
+fun BasePreview(
+    darkTheme: Boolean = false,
+    content: @Composable () -> Unit,
+) {
     CompositionLocalProvider(
         LocalDateTimeFormatter provides previewDateTimeFormatter
     ) {
-        MyBrainTheme {
+        MyBrainTheme(darkTheme = darkTheme) {
             Surface {
-                Box(modifier = Modifier.padding(8.dp)) {
+                Box(modifier = Modifier.padding(6.dp)) {
                     content()
                 }
             }

@@ -39,7 +39,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -60,9 +59,10 @@ import com.mhss.app.ui.ic_alarm
 import com.mhss.app.ui.ic_calendar
 import com.mhss.app.ui.ic_check
 import com.mhss.app.ui.ic_remove
-import com.mhss.app.ui.theme.MyBrainTheme
+import com.mhss.app.ui.preview.BasePreview
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import kotlin.uuid.ExperimentalUuidApi
 
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -181,7 +181,6 @@ internal fun TaskAttachmentCard(
     showRemoveButton: Boolean = false,
     onRemoveClick: () -> Unit = {},
 ) {
-    val context = LocalContext.current
     Box(
         modifier
             .widthIn(max = 200.dp)
@@ -338,7 +337,7 @@ fun RemoveButton(
 @Preview
 @Composable
 private fun NoteAttachmentPreview() {
-    MyBrainTheme {
+    BasePreview {
         NoteAttachmentCard(
             note = Note(
                 id = "1",
@@ -350,10 +349,11 @@ private fun NoteAttachmentPreview() {
     }
 }
 
+@OptIn(ExperimentalUuidApi::class)
 @Preview
 @Composable
 private fun TaskAttachmentPreview() {
-    MyBrainTheme {
+    BasePreview {
         TaskAttachmentCard(
             task = Task(
                 id = "1",
@@ -373,7 +373,7 @@ private fun TaskAttachmentPreview() {
 @Preview
 @Composable
 private fun CalendarEventsCardPreview() {
-    MyBrainTheme {
+    BasePreview {
         CalendarEventsAttachmentCard(showRemoveButton = true)
     }
 }

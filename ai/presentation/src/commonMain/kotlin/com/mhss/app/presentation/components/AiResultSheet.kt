@@ -1,6 +1,5 @@
 package com.mhss.app.presentation.components
 
-import android.content.res.Configuration
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.RepeatMode
@@ -49,8 +48,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.compositeOver
-import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -65,20 +62,22 @@ import com.mhss.app.ui.copy
 import com.mhss.app.ui.ic_add_note
 import com.mhss.app.ui.ic_copy
 import com.mhss.app.ui.ic_replace
+import com.mhss.app.ui.preview.BasePreview
 import com.mhss.app.ui.replace
 import com.mhss.app.ui.theme.Blue
 import com.mhss.app.ui.theme.DarkOrange
 import com.mhss.app.ui.theme.LightPurple
-import com.mhss.app.ui.theme.MyBrainTheme
 import com.mikepenz.markdown.coil2.Coil2ImageTransformerImpl
 import com.mikepenz.markdown.m3.Markdown
 import io.github.fletchmckee.liquid.LiquidState
 import io.github.fletchmckee.liquid.liquefiable
 import io.github.fletchmckee.liquid.rememberLiquidState
-import sv.lib.squircleshape.CornerSmoothing
-import sv.lib.squircleshape.SquircleShape
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import sv.lib.squircleshape.CornerSmoothing
+import sv.lib.squircleshape.SquircleShape
 
 @Composable
 fun AiResultSheet(
@@ -296,18 +295,15 @@ private fun RowScope.AiResultAction(
 
 
 
-@Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun AiResultSheetPreview() {
-    MyBrainTheme {
-        val liquidState = rememberLiquidState()
-        Box(Modifier.height(650.dp)) {
-            Surface(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                Markdown(
-                    content = """
+private fun AiResultSheetPreviewContent() {
+    val liquidState = rememberLiquidState()
+    Box(Modifier.height(650.dp)) {
+        Surface(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Markdown(
+                content = """
                         # Introduction to Computational Complexity
 
                         Computational complexity is a branch of the theory of computation that focuses on classifying computational problems according to their inherent difficulty and the resources required to solve them.
@@ -327,14 +323,14 @@ fun AiResultSheetPreview() {
                         - **O(2ⁿ):** Exponential time (e.g., recursive calculation of Fibonacci numbers).
 
                         """.trimIndent(),
-                    typography = defaultMarkdownTypography(),
-                    modifier = Modifier.padding(horizontal = 24.dp).liquefiable(liquidState)
-                )
-            }
-            AiResultSheet(
-                modifier = Modifier.padding(18.dp),
-                loading = false,
-                result = """
+                typography = defaultMarkdownTypography(),
+                modifier = Modifier.padding(horizontal = 24.dp).liquefiable(liquidState)
+            )
+        }
+        AiResultSheet(
+            modifier = Modifier.padding(18.dp),
+            loading = false,
+            result = """
                 - Computational complexity classifies problems by difficulty and required resources.  
                 - **Key resources:**  
                   - *Time complexity*: steps/time relative to input size.  
@@ -354,11 +350,26 @@ fun AiResultSheetPreview() {
                 - **P vs NP problem:** Open question whether every quickly verifiable problem (NP) is also quickly solvable (P); most believe P ≠ NP.  
                 - **Importance:** Guides developers to write efficient code, select appropriate data structures, and recognize intractable problems that may need approximations or heuristics.
             """.trimIndent(),
-                error = null,
-                liquidState = liquidState,
-                {}, {}, {}
-            )
-        }
+            error = null,
+            liquidState = liquidState,
+            {}, {}, {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun AiResultSheetPreview() {
+    BasePreview {
+        AiResultSheetPreviewContent()
+    }
+}
+
+@Preview
+@Composable
+fun AiResultSheetPreviewDark() {
+    BasePreview(darkTheme = true) {
+        AiResultSheetPreviewContent()
     }
 }
 

@@ -13,23 +13,38 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.mhss.app.mybrain.presentation.main.components.SpaceCard
 import com.mhss.app.presentation.components.drawAiGradientRadials
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.ai_chat_img
+import com.mhss.app.ui.assistant
+import com.mhss.app.ui.bookmarks
+import com.mhss.app.ui.bookmarks_img
+import com.mhss.app.ui.calendar
+import com.mhss.app.ui.calendar_img
 import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.components.common.singleGradientBackground
+import com.mhss.app.ui.diary
+import com.mhss.app.ui.diary_img
 import com.mhss.app.ui.navigation.Screen
+import com.mhss.app.ui.notes
+import com.mhss.app.ui.notes_img
+import com.mhss.app.ui.spaces
+import com.mhss.app.ui.tasks
+import com.mhss.app.ui.tasks_img
 import com.mhss.app.ui.theme.Blue
 import com.mhss.app.ui.theme.Green
 import com.mhss.app.ui.theme.MyBrainTheme
 import com.mhss.app.ui.theme.Orange
 import com.mhss.app.ui.theme.Purple
 import com.mhss.app.ui.theme.Red
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.StringResource
 
 @Composable
 fun SpacesScreen(
@@ -37,7 +52,7 @@ fun SpacesScreen(
 ) {
     Scaffold(
         topBar = {
-            MyBrainAppBar(stringResource(R.string.spaces))
+            MyBrainAppBar(stringResource(Res.string.spaces))
         }
     ) { paddingValues ->
         val surfaceVariant = MaterialTheme.colorScheme.surfaceVariant
@@ -70,8 +85,8 @@ fun SpacesScreen(
             item {
                 SpaceCard(
                     modifier = Modifier,
-                    title = stringResource(R.string.assistant),
-                    image = R.drawable.ai_chat_img,
+                    title = stringResource(Res.string.assistant),
+                    image = Res.drawable.ai_chat_img,
                     onClick = {
                         navController.navigate(Screen.AssistantScreen)
                     },
@@ -91,16 +106,16 @@ fun SpacesScreen(
 
 
 private val spaces = listOf(
-    Space(R.string.notes, R.drawable.notes_img, Blue, Screen.NotesScreen),
-    Space(R.string.tasks, R.drawable.tasks_img, Red, Screen.TasksScreen()),
-    Space(R.string.diary, R.drawable.diary_img, Green, Screen.DiaryScreen),
-    Space(R.string.bookmarks, R.drawable.bookmarks_img, Orange, Screen.BookmarksScreen),
-    Space(R.string.calendar, R.drawable.calendar_img, Purple, Screen.CalendarScreen),
+    Space(Res.string.notes, Res.drawable.notes_img, Blue, Screen.NotesScreen),
+    Space(Res.string.tasks, Res.drawable.tasks_img, Red, Screen.TasksScreen()),
+    Space(Res.string.diary, Res.drawable.diary_img, Green, Screen.DiaryScreen),
+    Space(Res.string.bookmarks, Res.drawable.bookmarks_img, Orange, Screen.BookmarksScreen),
+    Space(Res.string.calendar, Res.drawable.calendar_img, Purple, Screen.CalendarScreen),
 )
 
 private data class Space(
-    val title: Int,
-    val image: Int,
+    val title: StringResource,
+    val image: DrawableResource,
     val color: Color,
     val route: Screen
 )

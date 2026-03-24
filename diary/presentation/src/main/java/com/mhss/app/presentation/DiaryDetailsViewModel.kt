@@ -8,9 +8,10 @@ import com.mhss.app.domain.use_case.AddDiaryEntryUseCase
 import com.mhss.app.domain.use_case.DeleteDiaryEntryUseCase
 import com.mhss.app.domain.use_case.GetDiaryEntryUseCase
 import com.mhss.app.domain.use_case.UpdateDiaryEntryUseCase
-import com.mhss.app.ui.R
 import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.datetime.now
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.error_item_not_found
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -37,7 +38,7 @@ class DiaryDetailsViewModel(
             if (entryId.isNotBlank()) {
                 val entry = getEntry(entryId)
                 if (entry == null) {
-                    uiState.value.snackbarHostState.showSnackbar(R.string.error_item_not_found)
+                    uiState.value.snackbarHostState.showSnackbar(Res.string.error_item_not_found)
                 }
                 _uiState.update {
                     it.copy(

@@ -32,8 +32,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -47,7 +47,28 @@ import com.mhss.app.preferences.domain.model.modelPrefsKey
 import com.mhss.app.presentation.components.ExperimentalBadge
 import com.mhss.app.presentation.integrations.components.CustomURLSection
 import com.mhss.app.presentation.integrations.components.SavableTextField
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.ai
+import com.mhss.app.ui.ai_provider
+import com.mhss.app.ui.anthropic
+import com.mhss.app.ui.api_key
+import com.mhss.app.ui.base_url
+import com.mhss.app.ui.enable_ai_tools
+import com.mhss.app.ui.enable_ai_tools_description
+import com.mhss.app.ui.gemini
+import com.mhss.app.ui.ic_anthropic
+import com.mhss.app.ui.ic_gemini
+import com.mhss.app.ui.ic_lmstudio
+import com.mhss.app.ui.ic_ollama
+import com.mhss.app.ui.ic_openai
+import com.mhss.app.ui.ic_openrouter
+import com.mhss.app.ui.ic_tools
+import com.mhss.app.ui.insecure_url_warning
+import com.mhss.app.ui.lm_studio
+import com.mhss.app.ui.model
+import com.mhss.app.ui.ollama
+import com.mhss.app.ui.openai
+import com.mhss.app.ui.openrouter
 import com.mhss.app.ui.theme.MyBrainTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -64,33 +85,33 @@ fun AiProviderSection(
     val providerOptions = listOf(
         ProviderOption(
             provider = AiProvider.OpenAI,
-            label = stringResource(R.string.openai),
-            icon = painterResource(id = R.drawable.ic_openai)
+            label = stringResource(Res.string.openai),
+            icon = painterResource(Res.drawable.ic_openai)
         ),
         ProviderOption(
             provider = AiProvider.Gemini,
-            label = stringResource(R.string.gemini),
-            icon = painterResource(id = R.drawable.ic_gemini)
+            label = stringResource(Res.string.gemini),
+            icon = painterResource(Res.drawable.ic_gemini)
         ),
         ProviderOption(
             provider = AiProvider.Anthropic,
-            label = stringResource(R.string.anthropic),
-            icon = painterResource(id = R.drawable.ic_anthropic)
+            label = stringResource(Res.string.anthropic),
+            icon = painterResource(Res.drawable.ic_anthropic)
         ),
         ProviderOption(
             provider = AiProvider.OpenRouter,
-            label = stringResource(R.string.openrouter),
-            icon = painterResource(id = R.drawable.ic_openrouter)
+            label = stringResource(Res.string.openrouter),
+            icon = painterResource(Res.drawable.ic_openrouter)
         ),
         ProviderOption(
             provider = AiProvider.LmStudio,
-            label = stringResource(R.string.lm_studio),
-            icon = painterResource(id = R.drawable.ic_lmstudio)
+            label = stringResource(Res.string.lm_studio),
+            icon = painterResource(Res.drawable.ic_lmstudio)
         ),
         ProviderOption(
             provider = AiProvider.Ollama,
-            label = stringResource(R.string.ollama),
-            icon = painterResource(id = R.drawable.ic_ollama)
+            label = stringResource(Res.string.ollama),
+            icon = painterResource(Res.drawable.ic_ollama)
         )
     )
     val aiEnabled = provider != AiProvider.None
@@ -117,7 +138,7 @@ fun AiProviderSection(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = stringResource(R.string.ai),
+                    text = stringResource(Res.string.ai),
                     style = MaterialTheme.typography.titleLarge
                 )
                 Switch(
@@ -154,7 +175,7 @@ fun AiProviderSection(
                         onCheck = { onEvent(IntegrationsEvent.ToggleAiTools(it)) }
                     )
                     Text(
-                        text = stringResource(R.string.enable_ai_tools_description),
+                        text = stringResource(Res.string.enable_ai_tools_description),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 12.dp)
@@ -181,13 +202,13 @@ private fun AiToolsSwitch(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_tools),
+                painter = painterResource(Res.drawable.ic_tools),
                 contentDescription = "",
                 modifier = Modifier.size(16.dp)
             )
             Spacer(Modifier.width(8.dp))
             Text(
-                text = stringResource(R.string.enable_ai_tools),
+                text = stringResource(Res.string.enable_ai_tools),
                 style = MaterialTheme.typography.bodyMedium
             )
             Spacer(Modifier.width(8.dp))
@@ -226,7 +247,7 @@ private fun ProviderSelector(
             onValueChange = {},
             readOnly = true,
             shape = RoundedCornerShape(16.dp),
-            label = { Text(text = stringResource(R.string.ai_provider)) },
+            label = { Text(text = stringResource(Res.string.ai_provider)) },
             leadingIcon = { Icon(painter = selectedOption.icon, contentDescription = null) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             colors = ExposedDropdownMenuDefaults.textFieldColors()
@@ -301,7 +322,7 @@ private fun ProviderSettingsContent(
         SavableTextField(
             text = settings.key,
             infoURL = provider.keyInfoUrl,
-            label = stringResource(R.string.api_key),
+            label = stringResource(Res.string.api_key),
             onSave = { onEvent(IntegrationsEvent.UpdateApiKey(provider, it)) }
         )
         Spacer(Modifier.height(8.dp))
@@ -309,7 +330,7 @@ private fun ProviderSettingsContent(
     SavableTextField(
         text = settings.model,
         infoURL = provider.modelsInfoUrl,
-        label = stringResource(R.string.model),
+        label = stringResource(Res.string.model),
         onSave = { onEvent(IntegrationsEvent.UpdateModel(provider, it)) }
     )
     if (provider.supportsCustomUrl &&
@@ -324,12 +345,12 @@ private fun ProviderSettingsContent(
                     true
                 )
             ) {
-                stringResource(R.string.insecure_url_warning)
+                stringResource(Res.string.insecure_url_warning)
             } else null
         CustomURLSection(
             enabled = showCustomUrl,
             url = settings.customUrl,
-            label = stringResource(R.string.base_url),
+            label = stringResource(Res.string.base_url),
             showCheckbox = !provider.requiresCustomUrl,
             warningText = warning,
             onSave = { onEvent(IntegrationsEvent.UpdateCustomURL(provider, it)) },

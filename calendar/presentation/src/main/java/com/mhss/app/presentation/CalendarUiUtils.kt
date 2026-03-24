@@ -2,10 +2,26 @@ package com.mhss.app.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import com.mhss.app.domain.model.CalendarEventFrequency
-import com.mhss.app.ui.R
 import com.mhss.app.datetime.LocalDateTimeFormatter
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.day
+import com.mhss.app.ui.days
+import com.mhss.app.ui.do_not_repeat
+import com.mhss.app.ui.every_day
+import com.mhss.app.ui.every_month
+import com.mhss.app.ui.every_week
+import com.mhss.app.ui.every_week_on
+import com.mhss.app.ui.every_year
+import com.mhss.app.ui.month
+import com.mhss.app.ui.months
+import com.mhss.app.ui.repeat_every_interval
+import com.mhss.app.ui.repeat_every_interval_on
+import com.mhss.app.ui.week
+import com.mhss.app.ui.weeks
+import com.mhss.app.ui.year
+import com.mhss.app.ui.years
 import kotlinx.datetime.DayOfWeek
 
 @Composable
@@ -17,10 +33,10 @@ fun CalendarEventFrequency.getCalendarFrequencyTitle(
     return when (this) {
         CalendarEventFrequency.DAILY -> {
             if (safeInterval == 1) {
-                stringResource(R.string.every_day)
+                stringResource(Res.string.every_day)
             } else {
                 stringResource(
-                    R.string.repeat_every_interval,
+                    Res.string.repeat_every_interval,
                     safeInterval,
                     getIntervalUnitTitle(safeInterval)
                 )
@@ -32,18 +48,18 @@ fun CalendarEventFrequency.getCalendarFrequencyTitle(
                 .sortedBy { it.toRecurringSortOrder() }
                 .joinToString(", ") { formatter.getDisplayName(it) }
             if (dayLabel.isBlank() && safeInterval == 1) {
-                stringResource(R.string.every_week)
+                stringResource(Res.string.every_week)
             } else if (dayLabel.isBlank()) {
                 stringResource(
-                    R.string.repeat_every_interval,
+                    Res.string.repeat_every_interval,
                     safeInterval,
                     getIntervalUnitTitle(safeInterval)
                 )
             } else if (safeInterval == 1) {
-                stringResource(R.string.every_week_on, dayLabel)
+                stringResource(Res.string.every_week_on, dayLabel)
             } else {
                 stringResource(
-                    R.string.repeat_every_interval_on,
+                    Res.string.repeat_every_interval_on,
                     safeInterval,
                     getIntervalUnitTitle(safeInterval),
                     dayLabel
@@ -52,10 +68,10 @@ fun CalendarEventFrequency.getCalendarFrequencyTitle(
         }
         CalendarEventFrequency.MONTHLY -> {
             if (safeInterval == 1) {
-                stringResource(R.string.every_month)
+                stringResource(Res.string.every_month)
             } else {
                 stringResource(
-                    R.string.repeat_every_interval,
+                    Res.string.repeat_every_interval,
                     safeInterval,
                     getIntervalUnitTitle(safeInterval)
                 )
@@ -63,16 +79,16 @@ fun CalendarEventFrequency.getCalendarFrequencyTitle(
         }
         CalendarEventFrequency.YEARLY -> {
             if (safeInterval == 1) {
-                stringResource(R.string.every_year)
+                stringResource(Res.string.every_year)
             } else {
                 stringResource(
-                    R.string.repeat_every_interval,
+                    Res.string.repeat_every_interval,
                     safeInterval,
                     getIntervalUnitTitle(safeInterval)
                 )
             }
         }
-        CalendarEventFrequency.NEVER -> stringResource(R.string.do_not_repeat)
+        CalendarEventFrequency.NEVER -> stringResource(Res.string.do_not_repeat)
     }
 }
 
@@ -80,10 +96,10 @@ fun CalendarEventFrequency.getCalendarFrequencyTitle(
 fun CalendarEventFrequency.getIntervalUnitTitle(interval: Int): String {
     val isSingular = interval.coerceAtLeast(1) == 1
     return when (this) {
-        CalendarEventFrequency.DAILY -> stringResource(if (isSingular) R.string.day else R.string.days)
-        CalendarEventFrequency.WEEKLY -> stringResource(if (isSingular) R.string.week else R.string.weeks)
-        CalendarEventFrequency.MONTHLY -> stringResource(if (isSingular) R.string.month else R.string.months)
-        CalendarEventFrequency.YEARLY -> stringResource(if (isSingular) R.string.year else R.string.years)
+        CalendarEventFrequency.DAILY -> stringResource(if (isSingular) Res.string.day else Res.string.days)
+        CalendarEventFrequency.WEEKLY -> stringResource(if (isSingular) Res.string.week else Res.string.weeks)
+        CalendarEventFrequency.MONTHLY -> stringResource(if (isSingular) Res.string.month else Res.string.months)
+        CalendarEventFrequency.YEARLY -> stringResource(if (isSingular) Res.string.year else Res.string.years)
         CalendarEventFrequency.NEVER -> ""
     }
 }

@@ -21,11 +21,12 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
 import com.mhss.app.ui.gradientBrushColor
+import com.mhss.app.ui.ic_summarize
 import com.mhss.app.ui.theme.MyBrainTheme
 
 @Composable
@@ -83,7 +84,7 @@ fun GradientIconButtonPreview() {
         Surface {
             GradientIconButton(
                 text = "Summarize",
-                iconPainter = painterResource(id = R.drawable.ic_summarize),
+                iconPainter = painterResource(Res.drawable.ic_summarize),
                 onClick = {}
             )
         }

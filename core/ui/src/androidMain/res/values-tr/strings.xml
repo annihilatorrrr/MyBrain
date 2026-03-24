@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">My Brain</string>
+    <string name="reminders_channel_description">Görev hatırlatma bildirimleri için bildirim kanalı</string>
+    <string name="reminders_channel_name">Hatırlatıcılar</string>
+    <string name="complete">Tamamla</string>
+    <string name="notes">Notlar</string>
+    <string name="tasks">Görevler</string>
+    <string name="calendar">Takvim</string>
+    <string name="due_date">Bitiş tarihi</string>
+    <string name="error_empty_title">Başlık boş olamaz</string>
+    <string name="cancel">İptal</string>
+    <string name="no_tasks_message">Herhangi bir göreviniz yok\n Yeni görev oluşturmak için + butonuna tıklayın\n ya da \n hızlı ayarlar menüsünü kullanarak yeni görev oluşturun</string>
+    <string name="no_notes_message">Herhangi bir notunuz yok\n Yeni not oluşturmak için + butonuna tıklayın</string>
+    <string name="bookmark_saved">Yer imi kaydedildi</string>
+    <string name="invalid_url">Geçersiz bağlantı</string>
+    <string name="no_read_calendar_permission_message">Bu özelliğin kullanılabilmesi için takvim izni gerekiyor.\nLütfen izni onaylayın</string>
+    <string name="go_to_settings">Ayarlara git</string>
+    <string name="added_task">Görevlere eklendi</string>
+    <string name="no_events">Henüz bir olay yok</string>
+    <string name="loading">Yükleniyor…</string>
+    <string name="calendar_widget_refresh_message">Eğer izin verdiyseniz yenile butonuna tıklayın</string>
+    <string name="thursday_30_calendar_preview">Perşembe 30</string>
+    <string name="sunday_5_calendar_preview">Pazar 5</string>
+    <string name="dinner_with_ali_calender_preview">Ali ile akşam yemeği</string>
+    <string name="cs_lecture_calender_preview">Bilisayar dersi</string>
+    <string name="visit_dentist_tasks_preview">Dişçi ziyareti</string>
+    <string name="buy_groceries_tasks_preview">Bakkala gidilecek</string>
+    <string name="call_mom_tasks_preview">Annemi arayacağım</string>
+    <string name="auth_title">Uygulamayı kullanmak için kilidi aç</string>
+    <string name="added_note">Notlara eklendi</string>
+    <string name="add_note">Not oluştur</string>
+    <string name="save_bookmark">Yer imi oluştur</string>
+    <string name="add_to_tasks">Görevlere ekle</string>
+    <string name="add_task_to_my_brain">Görev oluştur</string>
+    <string name="exception_stack_trace_copied">İstisna yığın izi panoya kopyalandı</string>
+</resources>

@@ -27,26 +27,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.mhss.app.datetime.LocalDateTimeFormatter
 import com.mhss.app.domain.model.CalendarEvent
 import com.mhss.app.domain.model.Note
 import com.mhss.app.domain.model.Priority
 import com.mhss.app.domain.model.SubTask
 import com.mhss.app.domain.model.Task
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.all_day
 import com.mhss.app.ui.color
 import com.mhss.app.ui.components.common.previewMarkdownTypography
 import com.mhss.app.ui.components.tasks.SubTasksProgressBar
+import com.mhss.app.ui.due_date
+import com.mhss.app.ui.event_time
+import com.mhss.app.ui.event_time_at
+import com.mhss.app.ui.ic_alarm
+import com.mhss.app.ui.ic_check
 import com.mhss.app.ui.theme.MyBrainTheme
-import com.mhss.app.datetime.LocalDateTimeFormatter
 import com.mikepenz.markdown.m3.Markdown
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun AiNoteCard(
@@ -129,7 +134,7 @@ fun AiTaskCard(
             ) {
                 if (task.isCompleted) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_check),
+                        painter = painterResource(Res.drawable.ic_check),
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
                         tint = Color.White
@@ -156,8 +161,8 @@ fun AiTaskCard(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
                                     modifier = Modifier.size(10.dp),
-                                    painter = painterResource(R.drawable.ic_alarm),
-                                    contentDescription = stringResource(R.string.due_date),
+                                    painter = painterResource(Res.drawable.ic_alarm),
+                                    contentDescription = stringResource(Res.string.due_date),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                                 )
                                 Spacer(Modifier.width(4.dp))
@@ -182,17 +187,17 @@ fun AiCalendarEventCard(
     modifier: Modifier = Modifier
 ) {
     val formatter = LocalDateTimeFormatter.current
-    val allDayString = stringResource(R.string.all_day)
-    val eventTimeAtRes = R.string.event_time_at
-    val eventTimeRes = R.string.event_time
+    val allDayString = stringResource(Res.string.all_day)
+    val eventTimeAt = stringResource(Res.string.event_time_at)
+    val eventTime = stringResource(Res.string.event_time)
     val formattedDateTime by remember(event.start, event.end, event.location, event.allDay) {
         derivedStateOf {
             formatter.formatEventStartEnd(
                 start = event.start,
                 end = event.end,
                 allDayString = allDayString,
-                eventTimeAtRes = eventTimeAtRes,
-                eventTimeRes = eventTimeRes,
+                eventTimeAt = eventTimeAt,
+                eventTime = eventTime,
                 location = event.location,
                 allDay = event.allDay,
             )

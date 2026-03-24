@@ -10,14 +10,22 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.add_note
+import com.mhss.app.ui.add_task
+import com.mhss.app.ui.calendar_events_next_7_days
 import com.mhss.app.ui.components.common.frostedGlass
+import com.mhss.app.ui.ic_add_note
+import com.mhss.app.ui.ic_calendar
+import com.mhss.app.ui.ic_check
 import io.github.fletchmckee.liquid.LiquidState
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.StringResource
 
 @Composable
 fun AttachmentDropDownMenu(
@@ -64,8 +72,8 @@ fun AttachmentDropDownMenu(
     }
 }
 
-enum class AttachmentMenuItem(val titleRes: Int, val iconRes: Int) {
-    Note(R.string.add_note, R.drawable.ic_add_note),
-    Task(R.string.add_task, R.drawable.ic_check),
-    CalendarEvents(R.string.calendar_events_next_7_days, R.drawable.ic_calendar)
+enum class AttachmentMenuItem(val titleRes: StringResource, val iconRes: DrawableResource) {
+    Note(Res.string.add_note, Res.drawable.ic_add_note),
+    Task(Res.string.add_task, Res.drawable.ic_check),
+    CalendarEvents(Res.string.calendar_events_next_7_days, Res.drawable.ic_calendar)
 }

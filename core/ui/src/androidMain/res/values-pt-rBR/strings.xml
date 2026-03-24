@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">My Brain</string>
+    <string name="reminders_channel_description">Canal de notificação para enviar lembretes de tarefas</string>
+    <string name="reminders_channel_name">Lembretes</string>
+    <string name="complete">Concluído</string>
+    <string name="notes">Notas</string>
+    <string name="tasks">Tarefas</string>
+    <string name="calendar">Agenda</string>
+    <string name="due_date">Válido até</string>
+    <string name="error_empty_title">O título não pode estar vázio</string>
+    <string name="cancel">Cancelar</string>
+    <string name="no_tasks_message">Você não tem nenhuma tarefa\n Clique no botão + para adicionar uma nova Tarefa\n ou \nuse o atalho no menu das configurações rápidas</string>
+    <string name="no_notes_message">Você não tem nenhuma nota\n Clique no botão + para adicionar uma nova Nota</string>
+    <string name="bookmark_saved">Favorito salvo com sucesso</string>
+    <string name="invalid_url">URL Inválida</string>
+    <string name="no_read_calendar_permission_message">Permissão de Leitura na Agenda necessária para que este recurso esteja disponível.\nPor favor, conceda a permissão</string>
+    <string name="go_to_settings">Ir para configurações</string>
+    <string name="added_task">Adicionado a tarefas</string>
+    <string name="no_events">Sem eventos ainda</string>
+    <string name="loading">Carregando…</string>
+    <string name="calendar_widget_refresh_message">Se você já concedeu a permissão, clique no botão atualizar</string>
+    <string name="thursday_30_calendar_preview">Quinta 30</string>
+    <string name="sunday_5_calendar_preview">Domingo 5</string>
+    <string name="dinner_with_ali_calender_preview">Jantar com o Ali</string>
+    <string name="cs_lecture_calender_preview">Aula de Computação</string>
+    <string name="visit_dentist_tasks_preview">Consulta dentista</string>
+    <string name="buy_groceries_tasks_preview">Fazer compras</string>
+    <string name="call_mom_tasks_preview">Ligar para mamãe</string>
+    <string name="auth_title">Unlock to use the App</string>
+    <string name="added_note">Added to notes</string>
+    <string name="add_note">Adicionar nota</string>
+    <string name="save_bookmark">Salvar link como favorito</string>
+    <string name="add_to_tasks">Adicionar a tarefas</string>
+    <string name="add_task_to_my_brain">Adicionar tarefa ao My Brain</string>
+    <string name="exception_stack_trace_copied">Exception stack trace copied to clipboard</string>
+</resources>

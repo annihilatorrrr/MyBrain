@@ -56,7 +56,7 @@ dependencies {
     implementation(projects.core.widget)
 
     implementation(platform(libs.compose.bom))
-    implementation(libs.compose.material)
+    implementation(libs.compose.material3)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -67,7 +67,6 @@ dependencies {
 
     implementation(platform(libs.koin.bom))
     implementation(libs.bundles.koin)
-    implementation(libs.koin.android)
     ksp(libs.koin.ksp.compiler)
 
     implementation(libs.bundles.androidx.glance)

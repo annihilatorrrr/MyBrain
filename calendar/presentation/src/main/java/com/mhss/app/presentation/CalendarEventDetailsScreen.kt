@@ -46,27 +46,45 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.mhss.app.domain.model.Calendar
-import com.mhss.app.domain.model.CalendarEvent
-import com.mhss.app.domain.model.CalendarEventFrequency
-import com.mhss.app.ui.R
-import com.mhss.app.ui.components.common.DateDialog
-import com.mhss.app.ui.components.common.MyBrainAppBar
-import com.mhss.app.ui.components.common.TimeDialog
-import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
 import com.mhss.app.datetime.HOUR_MILLIS
 import com.mhss.app.datetime.LocalDateTimeFormatter
 import com.mhss.app.datetime.now
 import com.mhss.app.datetime.toDayOfWeek
+import com.mhss.app.domain.model.Calendar
+import com.mhss.app.domain.model.CalendarEvent
+import com.mhss.app.domain.model.CalendarEventFrequency
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.add_event
+import com.mhss.app.ui.all_day
+import com.mhss.app.ui.cancel
+import com.mhss.app.ui.components.common.DateDialog
+import com.mhss.app.ui.components.common.MyBrainAppBar
+import com.mhss.app.ui.components.common.TimeDialog
+import com.mhss.app.ui.delete_event
+import com.mhss.app.ui.delete_event_confirmation_message
+import com.mhss.app.ui.delete_event_confirmation_title
+import com.mhss.app.ui.description
+import com.mhss.app.ui.go_to_settings
+import com.mhss.app.ui.grant_permission
+import com.mhss.app.ui.ic_delete
+import com.mhss.app.ui.ic_description
+import com.mhss.app.ui.ic_location
+import com.mhss.app.ui.ic_refresh
+import com.mhss.app.ui.ic_save
+import com.mhss.app.ui.ic_time
+import com.mhss.app.ui.location
+import com.mhss.app.ui.no_write_calendar_permission_message
+import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
+import com.mhss.app.ui.title
 import com.mhss.app.util.permissions.Permission
 import com.mhss.app.util.permissions.rememberPermissionState
 import kotlinx.datetime.DayOfWeek
-import org.koin.androidx.compose.koinViewModel
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
@@ -147,8 +165,8 @@ fun CalendarEventDetailsScreen(
                     actions = {
                         IconButton(onClick = { openDeleteDialog = true }) {
                             Icon(
-                                painter = painterResource(id = R.drawable.ic_delete),
-                                contentDescription = stringResource(R.string.delete_event)
+                                painter = painterResource(Res.drawable.ic_delete),
+                                contentDescription = stringResource(Res.string.delete_event)
                             )
                         }
                     }
@@ -181,8 +199,8 @@ fun CalendarEventDetailsScreen(
                     }
                 }) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_save),
-                        contentDescription = stringResource(R.string.add_event)
+                        painter = painterResource(Res.drawable.ic_save),
+                        contentDescription = stringResource(Res.string.add_event)
                     )
                 }
             }
@@ -202,7 +220,7 @@ fun CalendarEventDetailsScreen(
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text(text = stringResource(R.string.title)) },
+                    label = { Text(text = stringResource(Res.string.title)) },
                     shape = RoundedCornerShape(15.dp),
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -231,22 +249,22 @@ fun CalendarEventDetailsScreen(
                 OutlinedTextField(
                     value = location,
                     onValueChange = { location = it },
-                    label = { Text(text = stringResource(R.string.location)) },
+                    label = { Text(text = stringResource(Res.string.location)) },
                     shape = RoundedCornerShape(15.dp),
                     modifier = Modifier.fillMaxWidth(),
                     leadingIcon = {
-                        Icon(painter = painterResource(id = R.drawable.ic_location), null)
+                        Icon(painter = painterResource(Res.drawable.ic_location), null)
                     }
                 )
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text(text = stringResource(R.string.description)) },
+                    label = { Text(text = stringResource(Res.string.description)) },
                     shape = RoundedCornerShape(15.dp),
                     modifier = Modifier.fillMaxWidth(),
                     leadingIcon = {
-                        Icon(painter = painterResource(id = R.drawable.ic_description), null)
+                        Icon(painter = painterResource(Res.drawable.ic_description), null)
                     }
                 )
                 Spacer(Modifier.height(8.dp))
@@ -277,19 +295,19 @@ fun NoWriteCalendarPermissionMessage(
         modifier = Modifier.fillMaxSize()
     ) {
         Text(
-            text = stringResource(R.string.no_write_calendar_permission_message),
+            text = stringResource(Res.string.no_write_calendar_permission_message),
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(12.dp))
         if (shouldShowRationale) {
             TextButton(onClick = onOpenSettings) {
-                Text(text = stringResource(R.string.go_to_settings))
+                Text(text = stringResource(Res.string.go_to_settings))
             }
 
         } else {
             TextButton(onClick = { onRequest() }) {
-                Text(text = stringResource(R.string.grant_permission))
+                Text(text = stringResource(Res.string.grant_permission))
             }
         }
     }
@@ -421,10 +439,10 @@ fun EventTimeSection(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(painter = painterResource(R.drawable.ic_time), null)
+                Icon(painter = painterResource(Res.drawable.ic_time), null)
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = stringResource(R.string.all_day),
+                    text = stringResource(Res.string.all_day),
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
@@ -529,7 +547,7 @@ fun EventTimeSection(
                 .padding(top = 12.dp, bottom = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(painter = painterResource(id = R.drawable.ic_refresh), null)
+            Icon(painter = painterResource(Res.drawable.ic_refresh), null)
             Spacer(Modifier.width(8.dp))
             Text(
                 frequency.getCalendarFrequencyTitle(
@@ -565,11 +583,11 @@ fun DeleteEventDialog(
     if (openDialog) AlertDialog(
         shape = RoundedCornerShape(25.dp),
         onDismissRequest = { onDismiss() },
-        title = { Text(stringResource(R.string.delete_event_confirmation_title)) },
+        title = { Text(stringResource(Res.string.delete_event_confirmation_title)) },
         text = {
             Text(
                 stringResource(
-                    R.string.delete_event_confirmation_message
+                    Res.string.delete_event_confirmation_message
                 )
             )
         },
@@ -581,7 +599,7 @@ fun DeleteEventDialog(
                     onDelete()
                 },
             ) {
-                Text(stringResource(R.string.delete_event), color = Color.White)
+                Text(stringResource(Res.string.delete_event), color = Color.White)
             }
         },
         dismissButton = {
@@ -590,7 +608,7 @@ fun DeleteEventDialog(
                 onClick = {
                     onDismiss()
                 }) {
-                Text(stringResource(R.string.cancel), color = Color.White)
+                Text(stringResource(Res.string.cancel), color = Color.White)
             }
         }
     )

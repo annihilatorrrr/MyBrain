@@ -56,10 +56,6 @@ android {
             excludes += "/META-INF/NOTICE.md"
         }
     }
-    androidResources {
-        @Suppress("UnstableApiUsage")
-        generateLocaleConfig = true
-    }
     lint {
         disable.add("MissingTranslation")
         disable.add("NullSafeMutableLiveData")
@@ -121,7 +117,6 @@ dependencies {
 
     implementation(platform(libs.koin.bom))
     implementation(libs.bundles.koin)
-    implementation(libs.koin.android)
     implementation(libs.koin.android.workmanager)
     ksp(libs.koin.ksp.compiler)
 

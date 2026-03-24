@@ -1,7 +1,5 @@
 package com.mhss.app.presentation.components
 
-import com.mhss.app.datetime.LocalDateTimeFormatter
-
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
@@ -23,9 +21,6 @@ import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -44,24 +39,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
+import com.mhss.app.datetime.LocalDateTimeFormatter
 import com.mhss.app.domain.model.AiMessage
 import com.mhss.app.domain.model.AiMessageAttachment
 import com.mhss.app.domain.model.CalendarEvent
 import com.mhss.app.domain.model.Note
 import com.mhss.app.domain.model.Task
 import com.mhss.app.domain.model.ToolCallResultObject
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
 import com.mhss.app.ui.components.common.defaultMarkdownTypography
-import com.mhss.app.ui.theme.MyBrainTheme
+import com.mhss.app.ui.copy
+import com.mhss.app.ui.ic_copy
+import com.mhss.app.ui.ic_small_arrow_down
+import com.mhss.app.ui.ic_small_arrow_up
+import com.mhss.app.ui.ic_tools
+import com.mhss.app.ui.preview.BasePreview
+import com.mhss.app.ui.tool_call_content
+import com.mhss.app.ui.tool_call_result
 import com.mikepenz.markdown.coil2.Coil2ImageTransformerImpl
 import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.m3.markdownColor
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun LazyItemScope.MessageCard(
@@ -96,7 +99,6 @@ private fun LazyItemScope.UserMessageCard(
     onCopy: (String) -> Unit,
 ) {
     var showContextMenu by remember { mutableStateOf(false) }
-    val context = LocalContext.current
     val formatter = LocalDateTimeFormatter.current
     val formattedTime by remember(message.time) {
         derivedStateOf { formatter.formatTime(message.time) }
@@ -151,11 +153,11 @@ private fun LazyItemScope.UserMessageCard(
                     modifier = Modifier.clip(RoundedCornerShape(8.dp)),
                 ) {
                     DropdownMenuItem(
-                        text = { Text(stringResource(id = R.string.copy)) },
+                        text = { Text(stringResource(Res.string.copy)) },
                         leadingIcon = {
                             Icon(
-                                painter = painterResource(id = R.drawable.ic_copy),
-                                contentDescription = stringResource(id = R.string.copy)
+                                painter = painterResource(Res.drawable.ic_copy),
+                                contentDescription = stringResource(Res.string.copy)
                             )
                         },
                         onClick = {
@@ -208,11 +210,11 @@ private fun LazyItemScope.AssistantMessageCard(
                 modifier = Modifier.clip(RoundedCornerShape(8.dp)),
             ) {
                 DropdownMenuItem(
-                    text = { Text(stringResource(id = R.string.copy)) },
+                    text = { Text(stringResource(Res.string.copy)) },
                     leadingIcon = {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_copy),
-                            contentDescription = stringResource(id = R.string.copy)
+                            painter = painterResource(Res.drawable.ic_copy),
+                            contentDescription = stringResource(Res.string.copy)
                         )
                     },
                     onClick = {
@@ -254,7 +256,7 @@ private fun LazyItemScope.ToolCallCard(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_tools),
+                            painter = painterResource(Res.drawable.ic_tools),
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSecondaryContainer,
                             modifier = Modifier.size(16.dp)
@@ -268,7 +270,7 @@ private fun LazyItemScope.ToolCallCard(
                         )
                     }
                     Icon(
-                        imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                        painter = if (expanded) painterResource(Res.drawable.ic_small_arrow_up) else painterResource(Res.drawable.ic_small_arrow_down),
                         contentDescription = if (expanded) "Collapse" else "Expand",
                         tint = MaterialTheme.colorScheme.onSecondaryContainer
                     )
@@ -276,7 +278,7 @@ private fun LazyItemScope.ToolCallCard(
                 AnimatedVisibility(visible = expanded) {
                     Column(modifier = Modifier.padding(top = 8.dp)) {
                         Text(
-                            text = stringResource(R.string.tool_call_content),
+                            text = stringResource(Res.string.tool_call_content),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
                         )
@@ -287,7 +289,7 @@ private fun LazyItemScope.ToolCallCard(
                             modifier = Modifier.padding(top = 4.dp)
                         )
                         Text(
-                            text = stringResource(R.string.tool_call_result),
+                            text = stringResource(Res.string.tool_call_result),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f),
                             modifier = Modifier.padding(top = 8.dp)
@@ -379,7 +381,7 @@ private fun Modifier.messageCardAnimatedPlacement() = with(scope) {
 @Preview
 @Composable
 fun MessageCardPreview() {
-    MyBrainTheme {
+    BasePreview {
         val demoText = remember {
             LoremIpsum(60).values.first()
         }

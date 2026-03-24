@@ -51,16 +51,18 @@ import com.mhss.app.presentation.TasksScreen
 import com.mhss.app.presentation.TasksSearchScreen
 import com.mhss.app.presentation.backup.ImportExportScreen
 import com.mhss.app.presentation.integrations.IntegrationsScreen
-import com.mhss.app.ui.R
+import com.mhss.app.ui.AppFont
+import com.mhss.app.ui.Res
 import com.mhss.app.ui.StartUpScreenSettings
+import com.mhss.app.ui.auth_failed
+import com.mhss.app.ui.auth_no_hardware
 import com.mhss.app.ui.navigation.Screen
 import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
 import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.ui.theme.MyBrainTheme
-import com.mhss.app.ui.theme.Rubik
-import com.mhss.app.ui.toFontFamily
+import com.mhss.app.ui.theme.toFontFamily
+import com.mhss.app.ui.toAppFont
 import com.mhss.app.ui.toFontSizeScale
-import com.mhss.app.ui.toInt
 import com.mhss.app.ui.toStartUpScreen
 import com.mhss.app.util.Constants
 import kotlinx.coroutines.flow.collectLatest
@@ -78,7 +80,7 @@ fun MyBrainApp(
     var appUnlocked by remember { mutableStateOf(true) }
     val useMaterialYou by viewModel.useMaterialYou.collectAsStateWithLifecycle(false)
     val lifecycleOwner = LocalLifecycleOwner.current
-    val font = viewModel.font.collectAsStateWithLifecycle(Rubik.toInt())
+    val font = viewModel.font.collectAsStateWithLifecycle(AppFont.RUBIK.value)
     val fontSize = viewModel.fontSize.collectAsStateWithLifecycle(1)
     var startDestination: Screen by remember { mutableStateOf(Screen.SpacesScreen) }
     LaunchedEffect(Unit) {
@@ -97,11 +99,11 @@ fun MyBrainApp(
                         }
 
                         AppLockManager.AuthResult.Failed -> {
-                            snackbarHostState.showSnackbar(R.string.auth_failed)
+                            snackbarHostState.showSnackbar(Res.string.auth_failed)
                         }
 
                         AppLockManager.AuthResult.NoHardware, AppLockManager.AuthResult.HardwareUnavailable -> {
-                            snackbarHostState.showSnackbar(R.string.auth_no_hardware)
+                            snackbarHostState.showSnackbar(Res.string.auth_no_hardware)
                         }
 
                         AppLockManager.AuthResult.Success -> {
@@ -121,7 +123,7 @@ fun MyBrainApp(
     MyBrainTheme(
         darkTheme = isDarkMode,
         useDynamicColors = useMaterialYou,
-        fontFamily = font.value.toFontFamily(),
+        fontFamily = font.value.toAppFont().toFontFamily(),
         fontSizeScale = fontSize.value.toFontSizeScale()
     ) {
         val navController = rememberNavController()

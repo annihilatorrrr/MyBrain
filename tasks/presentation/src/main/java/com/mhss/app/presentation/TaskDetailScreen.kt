@@ -1,7 +1,5 @@
 package com.mhss.app.presentation
 
-import com.mhss.app.datetime.LocalDateTimeFormatter
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,8 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -56,16 +52,18 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.navigation.NavHostController
+import com.mhss.app.datetime.LocalDateTimeFormatter
+import com.mhss.app.datetime.now
 import com.mhss.app.domain.model.Priority
 import com.mhss.app.domain.model.SubTask
 import com.mhss.app.domain.model.TaskFrequency
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.add_sub_task
+import com.mhss.app.ui.cancel
 import com.mhss.app.ui.color
 import com.mhss.app.ui.components.common.AnimatedTabIndicator
 import com.mhss.app.ui.components.common.DateDialog
@@ -73,14 +71,31 @@ import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.components.common.NumberPicker
 import com.mhss.app.ui.components.common.TimeDialog
 import com.mhss.app.ui.components.tasks.TaskCheckBox
+import com.mhss.app.ui.delete_task
+import com.mhss.app.ui.delete_task_confirmation_message
+import com.mhss.app.ui.delete_task_confirmation_title
+import com.mhss.app.ui.description
+import com.mhss.app.ui.due_date
+import com.mhss.app.ui.grant_permission
+import com.mhss.app.ui.ic_add
+import com.mhss.app.ui.ic_alarm
+import com.mhss.app.ui.ic_delete
+import com.mhss.app.ui.ic_drop_down
+import com.mhss.app.ui.no_alarm_permission
+import com.mhss.app.ui.priority
+import com.mhss.app.ui.recurring
+import com.mhss.app.ui.repeats_every
 import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
 import com.mhss.app.ui.snackbar.showSnackbar
+import com.mhss.app.ui.title
 import com.mhss.app.ui.titleRes
-import com.mhss.app.datetime.now
 import com.mhss.app.util.permissions.Permission
 import com.mhss.app.util.permissions.rememberPermissionState
-import org.koin.androidx.compose.koinViewModel
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import org.jetbrains.compose.resources.stringResource as cmpStringResource
 
 @Suppress("AssignedValueIsNeverRead")
 @Composable
@@ -137,7 +152,7 @@ fun TaskDetailScreen(
         }
         if (uiState.alarmError) {
             dueDateExists = false
-            val snackbarResult = snackbarHostState.showSnackbar(R.string.no_alarm_permission, R.string.grant_permission)
+            val snackbarResult = snackbarHostState.showSnackbar(Res.string.no_alarm_permission, Res.string.grant_permission)
             if (snackbarResult == SnackbarResult.ActionPerformed) {
                 alarmPermissionState.launchRequest()
             }
@@ -175,8 +190,8 @@ fun TaskDetailScreen(
                 actions = {
                     IconButton(onClick = { openDialog = true }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_delete),
-                            contentDescription = stringResource(R.string.delete_task)
+                            painter = painterResource(Res.drawable.ic_delete),
+                            contentDescription = stringResource(Res.string.delete_task)
                         )
                     }
                 }
@@ -221,11 +236,11 @@ fun TaskDetailScreen(
         AlertDialog(
             shape = RoundedCornerShape(25.dp),
             onDismissRequest = { openDialog = false },
-            title = { Text(stringResource(R.string.delete_task_confirmation_title)) },
+            title = { Text(stringResource(Res.string.delete_task_confirmation_title)) },
             text = {
                 Text(
                     stringResource(
-                        R.string.delete_task_confirmation_message,
+                        Res.string.delete_task_confirmation_message,
                         uiState.task?.title ?: "Untitled"
                     )
                 )
@@ -238,7 +253,7 @@ fun TaskDetailScreen(
                         viewModel.onEvent(TaskDetailsEvent.DeleteTask)
                     },
                 ) {
-                    Text(stringResource(R.string.delete_task), color = Color.White)
+                    Text(stringResource(Res.string.delete_task), color = Color.White)
                 }
             },
             dismissButton = {
@@ -247,7 +262,7 @@ fun TaskDetailScreen(
                     onClick = {
                         openDialog = false
                     }) {
-                    Text(stringResource(R.string.cancel), color = Color.White)
+                    Text(stringResource(Res.string.cancel), color = Color.White)
                 }
             }
         )
@@ -301,7 +316,7 @@ fun TaskDetailsContent(
             OutlinedTextField(
                 value = title,
                 onValueChange = onTitleChange,
-                label = { Text(text = stringResource(R.string.title)) },
+                label = { Text(text = stringResource(Res.string.title)) },
                 shape = RoundedCornerShape(15.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -339,20 +354,18 @@ fun TaskDetailsContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = stringResource(R.string.add_sub_task),
+                text = stringResource(Res.string.add_sub_task),
                 modifier = Modifier.padding(vertical = 8.dp)
             )
             Icon(
                 modifier = Modifier.size(10.dp),
-                painter = painterResource(id = R.drawable.ic_add),
-                contentDescription = stringResource(
-                    id = R.string.add_sub_task
-                )
+                painter = painterResource(Res.drawable.ic_add),
+                contentDescription = stringResource(Res.string.add_sub_task)
             )
         }
         Spacer(Modifier.height(12.dp))
         Text(
-            text = stringResource(R.string.priority),
+            text = stringResource(Res.string.priority),
             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
         )
         Spacer(Modifier.height(12.dp))
@@ -371,7 +384,7 @@ fun TaskDetailsContent(
             )
             Spacer(Modifier.width(4.dp))
             Text(
-                text = stringResource(R.string.due_date),
+                text = stringResource(Res.string.due_date),
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -403,13 +416,13 @@ fun TaskDetailsContent(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.ic_alarm),
-                        stringResource(R.string.due_date),
+                        painter = painterResource(Res.drawable.ic_alarm),
+                        stringResource(Res.string.due_date),
                         modifier = Modifier.size(22.dp)
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        text = stringResource(R.string.due_date),
+                        text = stringResource(Res.string.due_date),
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -442,7 +455,7 @@ fun TaskDetailsContent(
                     )
                     Spacer(Modifier.width(4.dp))
                     Text(
-                        text = stringResource(R.string.recurring),
+                        text = stringResource(Res.string.recurring),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -450,12 +463,12 @@ fun TaskDetailsContent(
                     var frequencyMenuVisible by remember { mutableStateOf(false) }
                     Column {
                         DropDownItem(
-                            title = stringResource(R.string.recurring),
+                            title = stringResource(Res.string.recurring),
                             expanded = frequencyMenuVisible,
                             items = TaskFrequency.entries,
                             selectedItem = frequency,
                             getText = {
-                                stringResource(it.titleRes)
+                                cmpStringResource(it.titleRes)
                             },
                             onItemSelected = {
                                 frequencyMenuVisible = false
@@ -474,7 +487,7 @@ fun TaskDetailsContent(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             NumberPicker(
-                                stringResource(R.string.repeats_every),
+                                stringResource(Res.string.repeats_every),
                                 frequencyAmount
                             ) {
                                 if (it > 0) onFrequencyAmountChange(it)
@@ -488,7 +501,7 @@ fun TaskDetailsContent(
         OutlinedTextField(
             value = description,
             onValueChange = onDescriptionChange,
-            label = { Text(text = stringResource(R.string.description)) },
+            label = { Text(text = stringResource(Res.string.description)) },
             shape = RoundedCornerShape(15.dp),
             modifier = Modifier.fillMaxWidth()
         )
@@ -512,7 +525,7 @@ fun PriorityTabRow(
     ) {
         priorities.forEach {
             Tab(
-                text = { Text(stringResource(it.titleRes)) },
+                text = { Text(cmpStringResource(it.titleRes)) },
                 selected = selectedPriority == it,
                 onClick = {
                     onChange(it)
@@ -564,7 +577,7 @@ fun <T> DropDownItem(
                 text = getText(selectedItem)
             )
             Icon(
-                imageVector = Icons.Default.ArrowDropDown,
+                painter = painterResource(Res.drawable.ic_drop_down),
                 contentDescription = title,
                 modifier = Modifier.size(22.dp)
             )

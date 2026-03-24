@@ -25,16 +25,17 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mhss.app.domain.model.Priority
 import com.mhss.app.domain.model.SubTask
 import com.mhss.app.domain.model.Task
 import com.mhss.app.domain.model.TaskFrequency
-import com.mhss.app.ui.R
 import com.mhss.app.datetime.LocalDateTimeFormatter
 import com.mhss.app.datetime.now
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.add_task
 import kotlin.uuid.Uuid
 
 @Composable
@@ -70,7 +71,7 @@ fun AddTaskBottomSheetContent(
             .padding(horizontal = 16.dp)
     ) {
         Text(
-            text = stringResource(R.string.add_task),
+            text = stringResource(Res.string.add_task),
             style = MaterialTheme.typography.headlineSmall
         )
         Spacer(Modifier.height(8.dp))
@@ -132,7 +133,7 @@ fun AddTaskBottomSheetContent(
                     shape = RoundedCornerShape(25.dp)
                 ) {
                     Text(
-                        text = stringResource(R.string.add_task),
+                        text = stringResource(Res.string.add_task),
                         style = MaterialTheme.typography.titleLarge.copy(Color.White)
                     )
                 }

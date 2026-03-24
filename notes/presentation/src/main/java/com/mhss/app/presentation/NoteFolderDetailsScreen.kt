@@ -14,9 +14,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -36,21 +33,32 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.mhss.app.ui.ItemView
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.add_note
+import com.mhss.app.ui.cancel
 import com.mhss.app.ui.components.common.LiquidFloatingActionButton
 import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.components.notes.NoteCard
+import com.mhss.app.ui.delete_folder
+import com.mhss.app.ui.delete_folder_confirmation_message
+import com.mhss.app.ui.delete_note_confirmation_title
+import com.mhss.app.ui.edit_folder
+import com.mhss.app.ui.ic_add
+import com.mhss.app.ui.ic_delete
+import com.mhss.app.ui.ic_edit
+import com.mhss.app.ui.name
 import com.mhss.app.ui.navigation.Screen
+import com.mhss.app.ui.save
 import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
 import io.github.fletchmckee.liquid.liquefiable
 import io.github.fletchmckee.liquid.rememberLiquidState
-import org.koin.androidx.compose.koinViewModel
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
@@ -79,10 +87,10 @@ fun NoteFolderDetailsScreen(
                 title = folder?.name ?: "",
                 actions = {
                     IconButton(onClick = { openDeleteDialog = true }) {
-                        Icon(Icons.Default.Delete, stringResource(R.string.delete_folder))
+                        Icon(painterResource(Res.drawable.ic_delete), stringResource(Res.string.delete_folder))
                     }
                     IconButton(onClick = { openEditDialog = true }) {
-                        Icon(Icons.Default.Edit, stringResource(R.string.delete_folder))
+                        Icon(painterResource(Res.drawable.ic_edit), stringResource(Res.string.edit_folder))
                     }
                 }
             )
@@ -94,8 +102,8 @@ fun NoteFolderDetailsScreen(
                         Screen.NoteDetailsScreen(folderId = id)
                     )
                 },
-                iconPainter = painterResource(R.drawable.ic_add),
-                contentDescription = stringResource(R.string.add_note),
+                iconPainter = painterResource(Res.drawable.ic_add),
+                contentDescription = stringResource(Res.string.add_note),
                 liquidState = liquidState
             )
         }
@@ -165,11 +173,11 @@ fun NoteFolderDetailsScreen(
             AlertDialog(
                 shape = RoundedCornerShape(25.dp),
                 onDismissRequest = { openDeleteDialog = false },
-                title = { Text(stringResource(R.string.delete_note_confirmation_title)) },
+                title = { Text(stringResource(Res.string.delete_note_confirmation_title)) },
                 text = {
                     Text(
                         stringResource(
-                            R.string.delete_folder_confirmation_message,
+                            Res.string.delete_folder_confirmation_message,
                         )
                     )
                 },
@@ -182,7 +190,7 @@ fun NoteFolderDetailsScreen(
                             openDeleteDialog = false
                         },
                     ) {
-                        Text(stringResource(R.string.delete_folder), color = Color.White)
+                        Text(stringResource(Res.string.delete_folder), color = Color.White)
                     }
                 },
                 dismissButton = {
@@ -191,7 +199,7 @@ fun NoteFolderDetailsScreen(
                         onClick = {
                             openDeleteDialog = false
                         }) {
-                        Text(stringResource(R.string.cancel), color = Color.White)
+                        Text(stringResource(Res.string.cancel), color = Color.White)
                     }
                 }
             )
@@ -201,7 +209,7 @@ fun NoteFolderDetailsScreen(
                 onDismissRequest = { openEditDialog = false },
                 title = {
                     Text(
-                        text = stringResource(id = R.string.edit_folder),
+                        text = stringResource(Res.string.edit_folder),
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
@@ -211,7 +219,7 @@ fun NoteFolderDetailsScreen(
                         onValueChange = { folderName = it },
                         label = {
                             Text(
-                                text = stringResource(id = R.string.name),
+                                text = stringResource(Res.string.name),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         },
@@ -225,7 +233,7 @@ fun NoteFolderDetailsScreen(
                             openEditDialog = false
                         },
                     ) {
-                        Text(stringResource(R.string.save), color = Color.White)
+                        Text(stringResource(Res.string.save), color = Color.White)
                     }
                 },
                 dismissButton = {
@@ -233,7 +241,7 @@ fun NoteFolderDetailsScreen(
                         shape = RoundedCornerShape(25.dp),
                         onClick = { openEditDialog = false },
                     ) {
-                        Text(stringResource(R.string.cancel), color = Color.White)
+                        Text(stringResource(Res.string.cancel), color = Color.White)
                     }
                 }
             )

@@ -13,7 +13,10 @@ import com.mhss.app.domain.use_case.DeleteCalendarEventUseCase
 import com.mhss.app.domain.use_case.GetAllCalendarsUseCase
 import com.mhss.app.domain.use_case.GetCalendarEventByIdUseCase
 import com.mhss.app.domain.use_case.UpdateCalendarEventUseCase
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.error_empty_title
+import com.mhss.app.ui.error_invalid_event_time_range
+import com.mhss.app.ui.error_item_not_found
 import com.mhss.app.ui.snackbar.showSnackbar
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
@@ -36,7 +39,7 @@ class CalendarEventDetailsViewModel(
             val event = eventId?.let { getCalendarEventById(it) }
             val calendars = getAllCalendars(emptyList()).values.flatten()
             if (eventId != null && event == null) {
-                uiState.snackbarHostState.showSnackbar(R.string.error_item_not_found)
+                uiState.snackbarHostState.showSnackbar(Res.string.error_item_not_found)
             }
             uiState = uiState.copy(
                 event = event,
@@ -51,26 +54,26 @@ class CalendarEventDetailsViewModel(
             is CalendarEventDetailsEvent.AddEvent -> viewModelScope.launch {
                 if (event.event.title.isNotBlank()) {
                     if (event.event.end <= event.event.start) {
-                        uiState.snackbarHostState.showSnackbar(R.string.error_invalid_event_time_range)
+                        uiState.snackbarHostState.showSnackbar(Res.string.error_invalid_event_time_range)
                     } else {
                         addEvent(event.event)
                         uiState = uiState.copy(navigateUp = true)
                     }
                 } else {
-                    uiState.snackbarHostState.showSnackbar(R.string.error_empty_title)
+                    uiState.snackbarHostState.showSnackbar(Res.string.error_empty_title)
                 }
             }
 
             is CalendarEventDetailsEvent.EditEvent -> viewModelScope.launch {
                 if (event.event.title.isNotBlank()) {
                     if (event.event.end <= event.event.start) {
-                        uiState.snackbarHostState.showSnackbar(R.string.error_invalid_event_time_range)
+                        uiState.snackbarHostState.showSnackbar(Res.string.error_invalid_event_time_range)
                     } else {
                         updateEvent(event.event)
                         uiState = uiState.copy(navigateUp = true)
                     }
                 } else {
-                    uiState.snackbarHostState.showSnackbar(R.string.error_empty_title)
+                    uiState.snackbarHostState.showSnackbar(Res.string.error_empty_title)
                 }
             }
 

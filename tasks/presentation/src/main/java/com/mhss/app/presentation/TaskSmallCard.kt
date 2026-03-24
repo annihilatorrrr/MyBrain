@@ -27,18 +27,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mhss.app.domain.model.Priority
 import com.mhss.app.domain.model.Task
-import com.mhss.app.ui.R
 import com.mhss.app.ui.color
 import com.mhss.app.datetime.LocalDateTimeFormatter
 import com.mhss.app.datetime.isDueDateOverdue
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.due_date
+import com.mhss.app.ui.ic_alarm
+import com.mhss.app.ui.ic_check
 
 @Composable
 fun TaskSmallCard(
@@ -91,8 +94,8 @@ fun TaskSmallCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         modifier = Modifier.size(10.dp),
-                        painter = painterResource(R.drawable.ic_alarm),
-                        contentDescription = stringResource(R.string.due_date),
+                        painter = painterResource(Res.drawable.ic_alarm),
+                        contentDescription = stringResource(Res.string.due_date),
                         tint = if (isOverdue) Color.Red else MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(Modifier.width(3.dp))
@@ -124,7 +127,7 @@ fun TaskDashboardCheckBox(
         AnimatedVisibility(visible = isComplete) {
             Icon(
                 modifier = Modifier.size(14.dp),
-                painter = painterResource(id = R.drawable.ic_check),
+                painter = painterResource(Res.drawable.ic_check),
                 contentDescription = null
             )
         }

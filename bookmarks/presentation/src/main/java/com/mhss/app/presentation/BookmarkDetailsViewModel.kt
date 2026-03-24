@@ -11,9 +11,10 @@ import com.mhss.app.domain.use_case.AddBookmarkUseCase
 import com.mhss.app.domain.use_case.DeleteBookmarkUseCase
 import com.mhss.app.domain.use_case.GetBookmarkUseCase
 import com.mhss.app.domain.use_case.UpdateBookmarkUseCase
-import com.mhss.app.ui.R
 import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.datetime.now
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.error_item_not_found
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
@@ -36,7 +37,7 @@ class BookmarkDetailsViewModel(
         viewModelScope.launch {
             val bookmark = if (bookmarkId.isNotBlank()) getBookmark(bookmarkId) else null
             if (bookmarkId.isNotBlank() && bookmark == null) {
-                bookmarkDetailsUiState.snackbarHostState.showSnackbar(R.string.error_item_not_found)
+                bookmarkDetailsUiState.snackbarHostState.showSnackbar(Res.string.error_item_not_found)
             }
             bookmarkDetailsUiState = bookmarkDetailsUiState.copy(
                 bookmark = bookmark

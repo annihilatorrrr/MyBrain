@@ -59,8 +59,8 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mhss.app.domain.model.AiMessage
@@ -68,11 +68,15 @@ import com.mhss.app.domain.model.AiMessageAttachment
 import com.mhss.app.domain.model.Note
 import com.mhss.app.domain.model.SubTask
 import com.mhss.app.domain.model.Task
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.ask_assistant
 import com.mhss.app.ui.components.common.LeftToRight
 import com.mhss.app.ui.components.common.clearGlass
 import com.mhss.app.ui.components.common.drawGradientRadial
 import com.mhss.app.ui.gradientBrushColor
+import com.mhss.app.ui.ic_attach
+import com.mhss.app.ui.ic_send_message
+import com.mhss.app.ui.ic_stop
 import com.mhss.app.ui.theme.Blue
 import com.mhss.app.ui.theme.DarkOrange
 import com.mhss.app.ui.theme.LightPurple
@@ -164,7 +168,7 @@ fun AssistantChatBar(
                         ),
                         placeholder = {
                             Text(
-                                text = stringResource(R.string.ask_assistant),
+                                text = stringResource(Res.string.ask_assistant),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                             )
@@ -174,7 +178,7 @@ fun AssistantChatBar(
                         IconButton(onClick = { onCancel() }) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
-                                    painterResource(id = R.drawable.ic_stop),
+                                    painterResource(Res.drawable.ic_stop),
                                     contentDescription = null,
                                     modifier = Modifier
                                         .size(14.dp)
@@ -228,7 +232,7 @@ fun AssistantChatBar(
                             ) {
                                 IconButton(onClick = { onAttachClick() }) {
                                     Icon(
-                                        painterResource(id = R.drawable.ic_attach),
+                                        painterResource(Res.drawable.ic_attach),
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                                         modifier = Modifier.size(24.dp)
@@ -241,7 +245,7 @@ fun AssistantChatBar(
                                     enabled = enabled,
                                 ) {
                                     Icon(
-                                        painter = painterResource(R.drawable.ic_send_message),
+                                        painter = painterResource(Res.drawable.ic_send_message),
                                         contentDescription = "Send",
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(
                                             alpha = if (enabled) 0.9f else 0.3f

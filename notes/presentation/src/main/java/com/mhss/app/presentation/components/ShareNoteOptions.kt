@@ -6,9 +6,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.ic_plain_text
+import com.mhss.app.ui.plain_text
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ShareNoteAsPlainTextOption(
@@ -18,7 +20,7 @@ fun ShareNoteAsPlainTextOption(
 ) {
     val context = LocalContext.current
     DropdownMenuItem(
-        text = { Text(stringResource(R.string.plain_text)) },
+        text = { Text(stringResource(Res.string.plain_text)) },
         onClick = {
             val sendIntent = Intent().apply {
                 action = Intent.ACTION_SEND
@@ -32,8 +34,8 @@ fun ShareNoteAsPlainTextOption(
         },
         leadingIcon = {
             Icon(
-                painterResource(id = R.drawable.ic_plain_text),
-                contentDescription = stringResource(R.string.plain_text)
+                painterResource(Res.drawable.ic_plain_text),
+                contentDescription = stringResource(Res.string.plain_text)
             )
         }
     )

@@ -43,8 +43,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -52,16 +52,28 @@ import androidx.navigation.NavHostController
 import com.mhss.app.preferences.domain.model.Order
 import com.mhss.app.preferences.domain.model.OrderType
 import com.mhss.app.ui.ItemView
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.add_bookmark
+import com.mhss.app.ui.bookmarks
+import com.mhss.app.ui.bookmarks_img
 import com.mhss.app.ui.components.common.LiquidFloatingActionButton
 import com.mhss.app.ui.components.common.MyBrainAppBar
+import com.mhss.app.ui.ic_add
+import com.mhss.app.ui.ic_search
+import com.mhss.app.ui.ic_settings_sliders
+import com.mhss.app.ui.invalid_url
 import com.mhss.app.ui.navigation.Screen
+import com.mhss.app.ui.no_bookmarks_message
+import com.mhss.app.ui.order_by
+import com.mhss.app.ui.search
 import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.ui.titleRes
+import com.mhss.app.ui.view_as
 import io.github.fletchmckee.liquid.liquefiable
 import io.github.fletchmckee.liquid.rememberLiquidState
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
+import org.jetbrains.compose.resources.stringResource as cmpStringResource
 
 @Composable
 fun BookmarksScreen(
@@ -77,7 +89,7 @@ fun BookmarksScreen(
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState)},
         topBar = {
-            MyBrainAppBar(stringResource(R.string.bookmarks))
+            MyBrainAppBar(stringResource(Res.string.bookmarks))
         },
         floatingActionButton = {
             LiquidFloatingActionButton(
@@ -86,8 +98,8 @@ fun BookmarksScreen(
                         Screen.BookmarkDetailScreen()
                     )
                 },
-                iconPainter = painterResource(R.drawable.ic_add),
-                contentDescription = stringResource(R.string.add_bookmark),
+                iconPainter = painterResource(Res.drawable.ic_add),
+                contentDescription = stringResource(Res.string.add_bookmark),
                 liquidState = liquidState
             )
         },
@@ -105,8 +117,8 @@ fun BookmarksScreen(
                 IconButton(onClick = { orderSettingsVisible = !orderSettingsVisible }) {
                     Icon(
                         modifier = Modifier.size(25.dp),
-                        painter = painterResource(R.drawable.ic_settings_sliders),
-                        contentDescription = stringResource(R.string.order_by)
+                        painter = painterResource(Res.drawable.ic_settings_sliders),
+                        contentDescription = stringResource(Res.string.order_by)
                     )
                 }
                 IconButton(onClick = {
@@ -114,8 +126,8 @@ fun BookmarksScreen(
                 }) {
                     Icon(
                         modifier = Modifier.size(25.dp),
-                        painter = painterResource(id = R.drawable.ic_search),
-                        contentDescription = stringResource(R.string.search)
+                        painter = painterResource(Res.drawable.ic_search),
+                        contentDescription = stringResource(Res.string.search)
                     )
                 }
             }
@@ -148,7 +160,7 @@ fun BookmarksScreen(
                             },
                             onInvalidUrl = {
                                 scope.launch {
-                                    snackbarHostState.showSnackbar(R.string.invalid_url)
+                                    snackbarHostState.showSnackbar(Res.string.invalid_url)
                                 }
                             },
                             modifier = Modifier.animateItem()
@@ -175,7 +187,7 @@ fun BookmarksScreen(
                                 },
                                 onInvalidUrl = {
                                     scope.launch {
-                                        snackbarHostState.showSnackbar(R.string.invalid_url)
+                                        snackbarHostState.showSnackbar(Res.string.invalid_url)
                                     }
                                 },
                                 modifier = Modifier
@@ -220,7 +232,7 @@ fun BookmarksSettingsSection(
         Modifier.background(color = MaterialTheme.colorScheme.background)
     ) {
         Text(
-            text = stringResource(R.string.order_by),
+            text = stringResource(Res.string.order_by),
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(start = 8.dp)
         )
@@ -238,7 +250,7 @@ fun BookmarksSettingsSection(
                                 )
                         }
                     )
-                    Text(text = stringResource(it.titleRes), style = MaterialTheme.typography.bodyLarge)
+                    Text(text = cmpStringResource(it.titleRes), style = MaterialTheme.typography.bodyLarge)
                 }
             }
         }
@@ -256,13 +268,13 @@ fun BookmarksSettingsSection(
                         }
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = stringResource(it.titleRes), style = MaterialTheme.typography.bodyLarge)
+                    Text(text = cmpStringResource(it.titleRes), style = MaterialTheme.typography.bodyLarge)
                 }
             }
         }
         HorizontalDivider()
         Text(
-            text = stringResource(R.string.view_as),
+            text = stringResource(Res.string.view_as),
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(start = 8.dp, top = 8.dp)
         )
@@ -279,7 +291,7 @@ fun BookmarksSettingsSection(
                         }
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = stringResource(it.title), style = MaterialTheme.typography.bodyLarge)
+                    Text(text = cmpStringResource(it.title), style = MaterialTheme.typography.bodyLarge)
                 }
             }
         }
@@ -295,7 +307,7 @@ fun NoBookmarksMessage() {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = stringResource(R.string.no_bookmarks_message),
+            text = stringResource(Res.string.no_bookmarks_message),
             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
             color = Color.Gray,
             textAlign = TextAlign.Center
@@ -303,8 +315,8 @@ fun NoBookmarksMessage() {
         Spacer(modifier = Modifier.height(12.dp))
         Image(
             modifier = Modifier.size(125.dp),
-            painter = painterResource(id = R.drawable.bookmarks_img),
-            contentDescription = stringResource(R.string.no_bookmarks_message),
+            painter = painterResource(Res.drawable.bookmarks_img),
+            contentDescription = stringResource(Res.string.no_bookmarks_message),
             alpha = 0.7f
         )
     }

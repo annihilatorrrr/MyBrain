@@ -119,3 +119,17 @@
 -dontwarn rx.RxReactiveStreams
 -dontwarn rx.Single
 -dontwarn rx.internal.reactivestreams.PublisherAdapter
+-dontwarn io.netty.channel.epoll.EpollIoHandler
+-dontwarn io.netty.channel.kqueue.KQueueIoHandler
+-dontwarn io.netty.channel.uring.IoUringDatagramChannel
+-dontwarn io.netty.channel.uring.IoUringIoHandler
+-dontwarn io.netty.channel.uring.IoUringSocketChannel
+-dontwarn jdk.jfr.Category
+-dontwarn jdk.jfr.DataAmount
+-dontwarn jdk.jfr.Description
+-dontwarn jdk.jfr.Enabled
+-dontwarn jdk.jfr.Event
+-dontwarn jdk.jfr.FlightRecorder
+-dontwarn jdk.jfr.Label
+-dontwarn jdk.jfr.MemoryAddress
+-dontwarn jdk.jfr.Name

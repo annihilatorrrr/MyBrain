@@ -22,11 +22,10 @@ import com.mhss.app.preferences.domain.model.toInt
 import com.mhss.app.preferences.domain.model.toOrder
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import com.mhss.app.preferences.domain.use_case.SavePreferenceUseCase
+import com.mhss.app.ui.AppFont
 import com.mhss.app.ui.FontSizeSettings
 import com.mhss.app.ui.StartUpScreenSettings
 import com.mhss.app.ui.ThemeSettings
-import com.mhss.app.ui.theme.Rubik
-import com.mhss.app.ui.toInt
 import com.mhss.app.ui.toIntList
 import com.mhss.app.datetime.inTheLastWeek
 import kotlinx.coroutines.Job
@@ -56,7 +55,7 @@ class MainViewModel(
     val lockApp = getPreference(booleanPreferencesKey(PrefsConstants.LOCK_APP_KEY), false)
     val themeMode = getPreference(intPreferencesKey(PrefsConstants.SETTINGS_THEME_KEY), ThemeSettings.AUTO.value)
     val defaultStartUpScreen = getPreference(intPreferencesKey(PrefsConstants.DEFAULT_START_UP_SCREEN_KEY), StartUpScreenSettings.SPACES.value)
-    val font = getPreference(intPreferencesKey(PrefsConstants.APP_FONT_KEY), Rubik.toInt())
+    val font = getPreference(intPreferencesKey(PrefsConstants.APP_FONT_KEY), AppFont.RUBIK.value)
     val fontSize = getPreference(intPreferencesKey(PrefsConstants.FONT_SIZE_KEY), FontSizeSettings.NORMAL.value)
     val blockScreenshots = getPreference(booleanPreferencesKey(PrefsConstants.BLOCK_SCREENSHOTS_KEY), false)
     val useMaterialYou = getPreference(booleanPreferencesKey(PrefsConstants.SETTINGS_MATERIAL_YOU), false)

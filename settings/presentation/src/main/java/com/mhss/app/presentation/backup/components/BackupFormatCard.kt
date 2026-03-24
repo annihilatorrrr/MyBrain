@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -28,15 +26,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mhss.app.domain.model.BackupFormat
 import com.mhss.app.presentation.backup.UiExportFormat
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.export_format
+import com.mhss.app.ui.ic_drop_down
 import com.mhss.app.ui.theme.MyBrainTheme
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun BackupFormatCard(
@@ -44,7 +45,7 @@ fun BackupFormatCard(
     onFormatSelected: (BackupFormat) -> Unit,
     modifier: Modifier = Modifier,
     options: List<UiExportFormat> = UiExportFormat.entries,
-    titleRes: Int = R.string.export_format,
+    titleRes: StringResource = Res.string.export_format,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val selectedOption = options.firstOrNull { it.format == selectedFormat } ?: options.first()
@@ -99,7 +100,7 @@ fun BackupFormatCard(
                             )
                         }
                         Icon(
-                            imageVector = Icons.Default.ArrowDropDown,
+                            painter = painterResource(Res.drawable.ic_drop_down),
                             contentDescription = stringResource(titleRes),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(16.dp)

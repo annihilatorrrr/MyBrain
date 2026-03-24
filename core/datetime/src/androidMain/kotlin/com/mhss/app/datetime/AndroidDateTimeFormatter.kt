@@ -74,20 +74,30 @@ class AndroidDateTimeFormatter(private val context: Context) : DateTimeFormatter
         start: Long,
         end: Long,
         allDayString: String,
-        eventTimeAtRes: Int,
-        eventTimeRes: Int,
+        eventTimeAt: String,
+        eventTime: String,
         location: String?,
         allDay: Boolean
     ): String {
         return if (allDay) {
             allDayString
         } else {
-            context.getString(
-                if (!location.isNullOrBlank()) eventTimeAtRes else eventTimeRes,
-                formatTime(start),
-                formatTime(end),
-                location ?: ""
-            )
+            if (!location.isNullOrBlank()) {
+                String.format(
+                    Locale.getDefault(),
+                    eventTimeAt,
+                    formatTime(start),
+                    formatTime(end),
+                    location
+                )
+            } else {
+                String.format(
+                    Locale.getDefault(),
+                    eventTime,
+                    formatTime(start),
+                    formatTime(end)
+                )
+            }
         }
     }
 }

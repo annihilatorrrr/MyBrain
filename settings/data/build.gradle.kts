@@ -40,7 +40,6 @@ kotlin {
             dependencies {
                 implementation(projects.core.database)
 
-                implementation(libs.koin.android)
                 implementation(libs.koin.android.workmanager)
 
                 implementation(libs.androidx.work.runtime.ktx)

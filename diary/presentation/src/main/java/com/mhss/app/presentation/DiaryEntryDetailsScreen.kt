@@ -1,7 +1,5 @@
 package com.mhss.app.presentation
 
-import com.mhss.app.datetime.LocalDateTimeFormatter
-
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -41,25 +39,35 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.navigation.NavHostController
+import com.mhss.app.datetime.LocalDateTimeFormatter
+import com.mhss.app.datetime.now
 import com.mhss.app.domain.model.DiaryEntry
 import com.mhss.app.domain.model.Mood
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.cancel
 import com.mhss.app.ui.components.common.DateTimeDialog
 import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.components.common.defaultMarkdownTypography
 import com.mhss.app.ui.components.common.withHardLineBreaks
+import com.mhss.app.ui.content
+import com.mhss.app.ui.delete_diary_entry_confirmation_message
+import com.mhss.app.ui.delete_diary_entry_confirmation_title
+import com.mhss.app.ui.delete_entry
+import com.mhss.app.ui.ic_delete
+import com.mhss.app.ui.ic_read_mode
+import com.mhss.app.ui.mood
+import com.mhss.app.ui.reading_mode
 import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
-import com.mhss.app.datetime.now
+import com.mhss.app.ui.title
 import com.mikepenz.markdown.coil2.Coil2ImageTransformerImpl
 import com.mikepenz.markdown.m3.Markdown
-import org.koin.androidx.compose.koinViewModel
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import kotlin.uuid.Uuid
 
@@ -80,7 +88,6 @@ fun DiaryEntryDetailsScreen(
     var showDateDialog by remember {
         mutableStateOf(false)
     }
-    val context = LocalContext.current
 
     LaunchedEffect(state.entry) {
         val entry = state.entry
@@ -122,16 +129,16 @@ fun DiaryEntryDetailsScreen(
                         viewModel.onEvent(DiaryDetailsEvent.ToggleReadingMode)
                     }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_read_mode),
-                            contentDescription = stringResource(R.string.reading_mode),
+                            painter = painterResource(Res.drawable.ic_read_mode),
+                            contentDescription = stringResource(Res.string.reading_mode),
                             modifier = Modifier.size(24.dp),
                             tint = if (readingMode) Color.Green else Color.Gray
                         )
                     }
                     if (state.entry != null) IconButton(onClick = { openDialog = true }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_delete),
-                            contentDescription = stringResource(R.string.delete_entry)
+                            painter = painterResource(Res.drawable.ic_delete),
+                            contentDescription = stringResource(Res.string.delete_entry)
                         )
                     }
                     TextButton(onClick = {
@@ -156,7 +163,7 @@ fun DiaryEntryDetailsScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             Text(
-                text = stringResource(R.string.mood),
+                text = stringResource(Res.string.mood),
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(start = 10.dp)
             )
@@ -168,7 +175,7 @@ fun DiaryEntryDetailsScreen(
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text(text = stringResource(R.string.title)) },
+                label = { Text(text = stringResource(Res.string.title)) },
                 shape = RoundedCornerShape(15.dp),
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -187,7 +194,7 @@ fun DiaryEntryDetailsScreen(
                 OutlinedTextField(
                     value = content,
                     onValueChange = { content = it },
-                    label = { Text(text = stringResource(R.string.content)) },
+                    label = { Text(text = stringResource(Res.string.content)) },
                     shape = RoundedCornerShape(15.dp),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -207,11 +214,11 @@ fun DiaryEntryDetailsScreen(
             AlertDialog(
                 shape = RoundedCornerShape(25.dp),
                 onDismissRequest = { openDialog = false },
-                title = { Text(stringResource(R.string.delete_diary_entry_confirmation_title)) },
+                title = { Text(stringResource(Res.string.delete_diary_entry_confirmation_title)) },
                 text = {
                     Text(
                         stringResource(
-                            R.string.delete_diary_entry_confirmation_message
+                            Res.string.delete_diary_entry_confirmation_message
                         )
                     )
                 },
@@ -224,7 +231,7 @@ fun DiaryEntryDetailsScreen(
                         },
                     ) {
                         Text(
-                            stringResource(R.string.delete_entry),
+                            stringResource(Res.string.delete_entry),
                             color = Color.White
                         )
                     }
@@ -236,7 +243,7 @@ fun DiaryEntryDetailsScreen(
                             openDialog = false
                         }) {
                         Text(
-                            stringResource(R.string.cancel),
+                            stringResource(Res.string.cancel),
                             color = Color.White
                         )
                     }
@@ -278,7 +285,7 @@ private fun MoodItem(mood: Mood, chosen: Boolean, onMoodChange: () -> Unit) {
                 .padding(6.dp)
         ) {
             Icon(
-                painter = painterResource(id = mood.iconRes),
+                painter = painterResource(mood.iconRes),
                 contentDescription = stringResource(mood.titleRes),
                 tint = if (chosen) mood.color else Color.Gray,
                 modifier = Modifier.size(48.dp)

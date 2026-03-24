@@ -10,11 +10,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.experimental
 import com.mhss.app.ui.theme.MyBrainTheme
 
 @Composable
@@ -29,7 +30,7 @@ fun ExperimentalBadge(modifier: Modifier = Modifier) {
         shape = CircleShape
     ) {
         Text(
-            text = stringResource(R.string.experimental),
+            text = stringResource(Res.string.experimental),
             style = MaterialTheme.typography.labelSmall.copy(
                 color = MaterialTheme.colorScheme.secondary,
                 fontSize = 8.sp

@@ -28,11 +28,6 @@ kotlin {
                 implementation(libs.bundles.koin)
             }
         }
-        androidMain {
-            dependencies {
-                implementation(libs.koin.android)
-            }
-        }
     }
 }
 

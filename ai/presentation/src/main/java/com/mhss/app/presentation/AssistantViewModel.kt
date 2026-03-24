@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mhss.app.datetime.DateTimeFormatter
 import com.mhss.app.datetime.now
 import com.mhss.app.datetime.todayPlusDays
 import com.mhss.app.domain.model.AiMessage
@@ -53,7 +52,6 @@ class AssistantViewModel(
     private val getCalendarEvents: GetAllEventsUseCase,
     private val getNoteById: GetNoteUseCase,
     private val getTaskById: GetTaskByIdUseCase,
-    private val dateTimeFormatter: DateTimeFormatter
 ) : ViewModel() {
 
     private val _messages = mutableStateListOf<AiMessage>()
@@ -210,7 +208,6 @@ class AssistantViewModel(
                 is AiMessageAttachment.CalenderEvents -> {
                     builder.appendLine("Next 7 days events:")
                     builder.appendLine(Json.encodeToString(getEventsForNext7Days()))
-                    builder.appendLine("(Today's date: ${dateTimeFormatter.formatDate(now(), forceShowYear = true)})")
                 }
             }
         }

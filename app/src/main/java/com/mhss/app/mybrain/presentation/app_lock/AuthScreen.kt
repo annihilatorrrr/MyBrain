@@ -15,10 +15,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.auth_button
+import com.mhss.app.ui.auth_title
+import com.mhss.app.ui.ic_lock
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun AuthScreen(
@@ -30,13 +33,13 @@ fun AuthScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            painter = painterResource(R.drawable.ic_lock),
+            painter = painterResource(Res.drawable.ic_lock),
             contentDescription = null,
             modifier = Modifier.size(48.dp)
         )
         Spacer(Modifier.height(12.dp))
         Text(
-            text = stringResource(R.string.auth_title),
+            text = stringResource(Res.string.auth_title),
             style = MaterialTheme.typography.headlineSmall
         )
         Spacer(Modifier.height(24.dp))
@@ -45,7 +48,7 @@ fun AuthScreen(
             shape = RoundedCornerShape(99.dp),
         ) {
             Text(
-                text = stringResource(R.string.auth_button),
+                text = stringResource(Res.string.auth_button),
                 style = MaterialTheme.typography.bodyLarge,
             )
         }

@@ -13,14 +13,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mhss.app.presentation.backup.BackupResult
 import com.mhss.app.presentation.backup.toUiMessage
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.export_success
+import com.mhss.app.ui.import_success
 import com.mhss.app.ui.theme.SuccessColor
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun BackupStatusMessage(
@@ -60,8 +62,8 @@ fun BackupStatusMessage(
                     Text(
                         text = stringResource(
                             when (backupResult) {
-                                BackupResult.ExportSuccess -> R.string.export_success
-                                BackupResult.ImportSuccess -> R.string.import_success
+                                BackupResult.ExportSuccess -> Res.string.export_success
+                                BackupResult.ImportSuccess -> Res.string.import_success
                             }
                         ),
                         modifier = Modifier

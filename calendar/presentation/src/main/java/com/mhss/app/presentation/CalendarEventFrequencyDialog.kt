@@ -33,11 +33,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.mhss.app.domain.model.CalendarEventFrequency
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.cancel
+import com.mhss.app.ui.ok
+import com.mhss.app.ui.repeat
+import com.mhss.app.ui.repeats_every
 import kotlinx.datetime.DayOfWeek
 
 private val recurringWeekDays = listOf(
@@ -71,7 +75,7 @@ fun FrequencyDialog(
     if (open) {
         AlertDialog(
             onDismissRequest = onClose,
-            title = { Text(text = stringResource(R.string.repeat)) },
+            title = { Text(text = stringResource(Res.string.repeat)) },
             text = {
                 FrequencyDialogContent(
                     frequencies = frequencies,
@@ -104,12 +108,12 @@ fun FrequencyDialog(
                         )
                     }
                 ) {
-                    Text(text = stringResource(R.string.ok))
+                    Text(text = stringResource(Res.string.ok))
                 }
             },
             dismissButton = {
                 TextButton(onClick = onClose) {
-                    Text(text = stringResource(R.string.cancel))
+                    Text(text = stringResource(Res.string.cancel))
                 }
             }
         )
@@ -158,7 +162,7 @@ private fun FrequencyDialogContent(
                 OutlinedTextField(
                     value = intervalText,
                     onValueChange = onIntervalTextChanged,
-                    label = { Text(text = stringResource(R.string.repeats_every)) },
+                    label = { Text(text = stringResource(Res.string.repeats_every)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
                     modifier = Modifier.width(100.dp),

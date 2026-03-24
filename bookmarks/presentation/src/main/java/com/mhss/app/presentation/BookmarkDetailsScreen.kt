@@ -28,18 +28,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.navigation.NavHostController
 import com.mhss.app.domain.model.Bookmark
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.cancel
 import com.mhss.app.ui.components.common.MyBrainAppBar
+import com.mhss.app.ui.delete_bookmark
+import com.mhss.app.ui.delete_bookmark_confirmation_message
+import com.mhss.app.ui.delete_bookmark_confirmation_title
+import com.mhss.app.ui.description
+import com.mhss.app.ui.ic_delete
+import com.mhss.app.ui.ic_open_link
+import com.mhss.app.ui.invalid_url
+import com.mhss.app.ui.open_link
 import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
 import com.mhss.app.ui.snackbar.showSnackbar
+import com.mhss.app.ui.title
+import com.mhss.app.ui.url
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import kotlin.uuid.Uuid
 
@@ -95,20 +106,20 @@ fun BookmarkDetailsScreen(
                 actions = {
                     if (state.bookmark != null) IconButton(onClick = { openDialog = true }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_delete),
-                            contentDescription = stringResource(R.string.delete_bookmark)
+                            painter = painterResource(Res.drawable.ic_delete),
+                            contentDescription = stringResource(Res.string.delete_bookmark)
                         )
                     }
                     IconButton(onClick = {
                         if (url.isValidUrl()) {
                             uriHandler.openUri(if (!url.startsWith("https://") && !url.startsWith("http://")) "http://$url" else url)
                         } else scope.launch {
-                            snackbarHostState.showSnackbar(R.string.invalid_url)
+                            snackbarHostState.showSnackbar(Res.string.invalid_url)
                         }
                     }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_open_link),
-                            contentDescription = stringResource(R.string.open_link),
+                            painter = painterResource(Res.drawable.ic_open_link),
+                            contentDescription = stringResource(Res.string.open_link),
                             modifier = Modifier.size(24.dp),
                         )
                     }
@@ -125,7 +136,7 @@ fun BookmarkDetailsScreen(
             OutlinedTextField(
                 value = url,
                 onValueChange = { url = it },
-                label = { Text(text = stringResource(R.string.url)) },
+                label = { Text(text = stringResource(Res.string.url)) },
                 shape = RoundedCornerShape(15.dp),
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -133,7 +144,7 @@ fun BookmarkDetailsScreen(
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text(text = stringResource(R.string.title)) },
+                label = { Text(text = stringResource(Res.string.title)) },
                 shape = RoundedCornerShape(15.dp),
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -141,7 +152,7 @@ fun BookmarkDetailsScreen(
             OutlinedTextField(
                 value = description,
                 onValueChange = { description = it },
-                label = { Text(text = stringResource(R.string.description)) },
+                label = { Text(text = stringResource(Res.string.description)) },
                 shape = RoundedCornerShape(15.dp),
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -150,11 +161,11 @@ fun BookmarkDetailsScreen(
             AlertDialog(
                 shape = RoundedCornerShape(25.dp),
                 onDismissRequest = { openDialog = false },
-                title = { Text(stringResource(R.string.delete_bookmark_confirmation_title)) },
+                title = { Text(stringResource(Res.string.delete_bookmark_confirmation_title)) },
                 text = {
                     Text(
                         stringResource(
-                            R.string.delete_bookmark_confirmation_message
+                            Res.string.delete_bookmark_confirmation_message
                         )
                     )
                 },
@@ -166,7 +177,7 @@ fun BookmarkDetailsScreen(
                             viewModel.onEvent(BookmarkDetailsEvent.DeleteBookmark(state.bookmark!!))
                         },
                     ) {
-                        Text(stringResource(R.string.delete_bookmark), color = Color.White)
+                        Text(stringResource(Res.string.delete_bookmark), color = Color.White)
                     }
                 },
                 dismissButton = {
@@ -175,7 +186,7 @@ fun BookmarkDetailsScreen(
                         onClick = {
                             openDialog = false
                         }) {
-                        Text(stringResource(R.string.cancel), color = Color.White)
+                        Text(stringResource(Res.string.cancel), color = Color.White)
                     }
                 }
             )

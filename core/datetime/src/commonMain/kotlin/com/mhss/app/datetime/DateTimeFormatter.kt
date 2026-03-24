@@ -20,8 +20,8 @@ interface DateTimeFormatter {
         start: Long,
         end: Long,
         allDayString: String,
-        eventTimeAtRes: Int,
-        eventTimeRes: Int,
+        eventTimeAt: String,
+        eventTime: String,
         location: String?,
         allDay: Boolean
     ): String

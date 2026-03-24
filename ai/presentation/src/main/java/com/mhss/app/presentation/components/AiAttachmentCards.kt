@@ -1,7 +1,5 @@
 package com.mhss.app.presentation.components
 
-import com.mhss.app.datetime.LocalDateTimeFormatter
-
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,8 +23,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -44,20 +40,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.mhss.app.datetime.LocalDateTimeFormatter
+import com.mhss.app.datetime.isDueDateOverdue
 import com.mhss.app.domain.model.AiMessageAttachment
 import com.mhss.app.domain.model.Note
 import com.mhss.app.domain.model.SubTask
 import com.mhss.app.domain.model.Task
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.calendar
+import com.mhss.app.ui.calendar_events_next_7_days
 import com.mhss.app.ui.color
+import com.mhss.app.ui.delete_note
+import com.mhss.app.ui.due_date
+import com.mhss.app.ui.ic_alarm
+import com.mhss.app.ui.ic_calendar
+import com.mhss.app.ui.ic_check
+import com.mhss.app.ui.ic_remove
 import com.mhss.app.ui.theme.MyBrainTheme
-import com.mhss.app.datetime.isDueDateOverdue
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -203,7 +208,7 @@ internal fun TaskAttachmentCard(
                                 .fillMaxSize()
                                 .padding(4.dp)
                                 .align(Alignment.Center),
-                            painter = painterResource(id = R.drawable.ic_check),
+                            painter = painterResource(Res.drawable.ic_check),
                             contentDescription = null
                         )
                     }
@@ -236,8 +241,8 @@ internal fun TaskAttachmentCard(
                         ) {
                             Icon(
                                 modifier = Modifier.size(8.dp),
-                                painter = painterResource(R.drawable.ic_alarm),
-                                contentDescription = stringResource(R.string.due_date),
+                                painter = painterResource(Res.drawable.ic_alarm),
+                                contentDescription = stringResource(Res.string.due_date),
                                 tint = if (task.dueDate.isDueDateOverdue()) Color.Red else MaterialTheme.colorScheme.onBackground.copy(
                                     alpha = 0.8f
                                 )
@@ -284,15 +289,15 @@ fun CalendarEventsAttachmentCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_calendar),
-                    contentDescription = stringResource(R.string.calendar),
+                    painter = painterResource(Res.drawable.ic_calendar),
+                    contentDescription = stringResource(Res.string.calendar),
                     tint = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier
                         .size(16.dp),
                 )
                 Spacer(Modifier.width(6.dp))
                 Text(
-                    text = stringResource(R.string.calendar_events_next_7_days),
+                    text = stringResource(Res.string.calendar_events_next_7_days),
                     style = MaterialTheme.typography.bodyMedium,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 2
@@ -314,8 +319,8 @@ fun RemoveButton(
     onClick: () -> Unit,
 ) {
     Icon(
-        imageVector = Icons.Default.Clear,
-        contentDescription = stringResource(R.string.delete_note),
+        painter = painterResource(Res.drawable.ic_remove),
+        contentDescription = stringResource(Res.string.delete_note),
         modifier = modifier
             .offset(x = 4.dp, y = (-4).dp)
             .clip(CircleShape)
@@ -323,7 +328,8 @@ fun RemoveButton(
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .border((0.5f).dp, Color.LightGray, CircleShape)
             .padding(2.dp)
-            .size(10.dp),
+            .size(10.dp)
+            .padding(2.dp),
         tint = MaterialTheme.colorScheme.onSurfaceVariant
     )
 }

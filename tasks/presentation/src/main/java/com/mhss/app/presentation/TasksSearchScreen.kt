@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import com.mhss.app.ui.components.tasks.TaskSearchContent
 import com.mhss.app.ui.navigation.Screen
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun TasksSearchScreen(

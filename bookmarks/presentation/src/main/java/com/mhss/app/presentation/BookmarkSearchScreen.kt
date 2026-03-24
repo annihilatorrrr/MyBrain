@@ -28,16 +28,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.mhss.app.ui.ItemView
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.invalid_url
 import com.mhss.app.ui.navigation.Screen
+import com.mhss.app.ui.search_bookmarks
 import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
 import com.mhss.app.ui.snackbar.showSnackbar
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun BookmarkSearchScreen(
@@ -64,7 +66,7 @@ fun BookmarkSearchScreen(
             OutlinedTextField(
                 value = query,
                 onValueChange = { query = it },
-                label = { Text(stringResource(R.string.search_bookmarks)) },
+                label = { Text(stringResource(Res.string.search_bookmarks)) },
                 shape = RoundedCornerShape(15.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -88,7 +90,7 @@ fun BookmarkSearchScreen(
                             },
                             onInvalidUrl = {
                                 scope.launch {
-                                    snackbarHostState.showSnackbar(R.string.invalid_url)
+                                    snackbarHostState.showSnackbar(Res.string.invalid_url)
                                 }
                             }
                         )
@@ -114,7 +116,7 @@ fun BookmarkSearchScreen(
                                 },
                                 onInvalidUrl = {
                                     scope.launch {
-                                        snackbarHostState.showSnackbar(R.string.invalid_url)
+                                        snackbarHostState.showSnackbar(Res.string.invalid_url)
                                     }
                                 },
                                 modifier = Modifier.animateItem()

@@ -27,14 +27,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mhss.app.domain.model.CalendarEvent
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.all_day
+import com.mhss.app.ui.event_time
+import com.mhss.app.ui.event_time_at
 import com.mhss.app.ui.theme.MyBrainTheme
 @Composable
 fun LazyItemScope.CalendarEventItem(
@@ -42,7 +44,6 @@ fun LazyItemScope.CalendarEventItem(
     modifier: Modifier = Modifier,
     onClick: (CalendarEvent) -> Unit
 ) {
-    val context = LocalContext.current
     Card(
         modifier = modifier
             .animateItem(),
@@ -77,9 +78,9 @@ fun LazyItemScope.CalendarEventItem(
                     LocalDateTimeFormatter.current.formatEventStartEnd(
                         start = event.start,
                         end = event.end,
-                        allDayString = stringResource(R.string.all_day),
-                        eventTimeAtRes = R.string.event_time_at,
-                        eventTimeRes = R.string.event_time,
+                        allDayString = stringResource(Res.string.all_day),
+                        eventTimeAt = stringResource(Res.string.event_time_at),
+                        eventTime = stringResource(Res.string.event_time),
                         location = event.location,
                         allDay = event.allDay,
                     ),

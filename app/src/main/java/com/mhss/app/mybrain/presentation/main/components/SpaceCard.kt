@@ -16,21 +16,23 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
 import com.mhss.app.ui.components.common.singleGradientBackground
+import com.mhss.app.ui.notes_img
 import com.mhss.app.ui.theme.Blue
 import com.mhss.app.ui.theme.MyBrainTheme
+import org.jetbrains.compose.resources.DrawableResource
 import sv.lib.squircleshape.CornerSmoothing
 import sv.lib.squircleshape.SquircleShape
 
 @Composable
 fun SpaceCard(
     title: String,
-    image: Int,
+    image: DrawableResource,
     modifier: Modifier = Modifier,
     contentModifier: Modifier = Modifier,
     onClick: () -> Unit = {}
@@ -67,7 +69,7 @@ fun SpaceCard(
                 modifier = Modifier
                     .size(70.dp)
                     .align(Alignment.End),
-                painter = painterResource(id = image),
+                painter = painterResource(image),
                 contentDescription = title
             )
 
@@ -83,7 +85,7 @@ fun SpaceCardPreview() {
         Box(Modifier.size(175.dp)) {
             SpaceCard(
                 "Notes",
-                R.drawable.notes_img,
+                Res.drawable.notes_img,
                 contentModifier = Modifier.singleGradientBackground(
                     gradientColor = Blue,
                     background = MaterialTheme.colorScheme.surfaceVariant,

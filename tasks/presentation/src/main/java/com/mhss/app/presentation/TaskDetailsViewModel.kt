@@ -8,9 +8,10 @@ import com.mhss.app.domain.use_case.CanScheduleAlarmsUseCase
 import com.mhss.app.domain.use_case.DeleteTaskUseCase
 import com.mhss.app.domain.use_case.GetTaskByIdUseCase
 import com.mhss.app.domain.use_case.UpsertTaskUseCase
-import com.mhss.app.ui.R
 import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.datetime.now
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.error_item_not_found
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,7 +37,7 @@ class TaskDetailsViewModel(
         viewModelScope.launch {
             val task = getTask(taskId)
             if (taskId.isNotBlank() && task == null) {
-                taskDetailsUiState.value.snackbarHostState.showSnackbar(R.string.error_item_not_found)
+                taskDetailsUiState.value.snackbarHostState.showSnackbar(Res.string.error_item_not_found)
             }
             _taskDetailsUiState.update {
                 it.copy(

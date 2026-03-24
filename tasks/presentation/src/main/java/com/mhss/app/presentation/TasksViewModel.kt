@@ -20,7 +20,8 @@ import com.mhss.app.preferences.domain.model.toInt
 import com.mhss.app.preferences.domain.model.toOrder
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import com.mhss.app.preferences.domain.use_case.SavePreferenceUseCase
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.error_empty_title
 import com.mhss.app.ui.snackbar.showSnackbar
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
@@ -72,7 +73,7 @@ class TasksViewModel(
                         val scheduleSuccess = addTask(event.task)
                         if (!scheduleSuccess) tasksUiState = tasksUiState.copy(alarmError = true)
                     } else {
-                        tasksUiState.snackbarHostState.showSnackbar(R.string.error_empty_title)
+                        tasksUiState.snackbarHostState.showSnackbar(Res.string.error_empty_title)
                     }
                 }
             }

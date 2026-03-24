@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -35,20 +33,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mhss.app.domain.model.BackupFrequency
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.auto_backup
+import com.mhss.app.ui.auto_backup_description
+import com.mhss.app.ui.backup_folder
+import com.mhss.app.ui.backup_frequency
 import com.mhss.app.ui.components.common.NumberPicker
+import com.mhss.app.ui.ic_drop_down
+import com.mhss.app.ui.ic_folder
+import com.mhss.app.ui.ic_refresh
+import com.mhss.app.ui.repeats_every
+import com.mhss.app.ui.save
+import com.mhss.app.ui.select_backup_folder
 import com.mhss.app.ui.theme.MyBrainTheme
 import com.mhss.app.ui.titleRes
 import com.mohamedrejeb.calf.picker.FilePickerFileType
 import com.mohamedrejeb.calf.picker.FilePickerLauncher
 import com.mohamedrejeb.calf.picker.FilePickerSelectionMode
 import com.mohamedrejeb.calf.picker.rememberFilePickerLauncher
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.stringResource as cmpStringResource
 
 @Composable
 fun AutoBackupCard(
@@ -90,7 +99,7 @@ fun AutoBackupCard(
                     modifier = Modifier.weight(1f)
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.ic_refresh),
+                        painter = painterResource(Res.drawable.ic_refresh),
                         contentDescription = null,
                         modifier = Modifier.size(22.dp),
                         tint = MaterialTheme.colorScheme.primary
@@ -98,11 +107,11 @@ fun AutoBackupCard(
                     Spacer(Modifier.width(10.dp))
                     Column {
                         Text(
-                            text = stringResource(R.string.auto_backup),
+                            text = stringResource(Res.string.auto_backup),
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                         )
                         Text(
-                            text = stringResource(R.string.auto_backup_description),
+                            text = stringResource(Res.string.auto_backup_description),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -127,19 +136,19 @@ fun AutoBackupCard(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         DropDownItem(
-                            title = stringResource(R.string.backup_frequency),
+                            title = stringResource(Res.string.backup_frequency),
                             expanded = frequencyMenuVisible,
                             items = BackupFrequency.entries,
                             selectedItem = localFrequency,
                             getText = {
-                                stringResource(it.titleRes)
+                                cmpStringResource(it.titleRes)
                             },
                             onItemSelected = { localFrequency = it },
                             onDismissRequest = { frequencyMenuVisible = false },
                             onClick = { frequencyMenuVisible = true }
                         )
                         NumberPicker(
-                            stringResource(R.string.repeats_every),
+                            stringResource(Res.string.repeats_every),
                             localFrequencyAmount
                         ) {
                             if (it > 0) localFrequencyAmount = it
@@ -156,7 +165,7 @@ fun AutoBackupCard(
                                 shape = RoundedCornerShape(12.dp)
                             ) {
                                 Text(
-                                    text = stringResource(R.string.save),
+                                    text = stringResource(Res.string.save),
                                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                                     modifier = Modifier.padding(vertical = 4.dp)
                                 )
@@ -177,7 +186,7 @@ private fun AutoBackupFolderCard(
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
-            text = stringResource(R.string.backup_folder),
+            text = stringResource(Res.string.backup_folder),
             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -198,14 +207,14 @@ private fun AutoBackupFolderCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.ic_folder),
+                    painter = painterResource(Res.drawable.ic_folder),
                     contentDescription = null,
                     modifier = Modifier.size(20.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(Modifier.width(10.dp))
                 Text(
-                    text = selectedFolder ?: stringResource(R.string.select_backup_folder),
+                    text = selectedFolder ?: stringResource(Res.string.select_backup_folder),
                     style = MaterialTheme.typography.bodyMedium,
                     color = if (selectedFolder != null) MaterialTheme.colorScheme.onSurface
                     else MaterialTheme.colorScheme.onSurfaceVariant
@@ -253,9 +262,9 @@ private fun <T> DropDownItem(
         ) {
             Text(text = getText(selectedItem))
             Icon(
-                imageVector = Icons.Default.ArrowDropDown,
+                painter = painterResource(Res.drawable.ic_drop_down),
                 contentDescription = title,
-                modifier = Modifier.size(22.dp)
+                modifier = Modifier.size(20.dp)
             )
         }
     }

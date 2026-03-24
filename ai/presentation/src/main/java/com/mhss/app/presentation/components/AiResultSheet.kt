@@ -49,17 +49,23 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.add_to_note
 import com.mhss.app.ui.components.common.defaultMarkdownTypography
 import com.mhss.app.ui.components.common.drawGradientRadial
 import com.mhss.app.ui.components.common.frostedGlass
+import com.mhss.app.ui.copy
+import com.mhss.app.ui.ic_add_note
+import com.mhss.app.ui.ic_copy
+import com.mhss.app.ui.ic_replace
+import com.mhss.app.ui.replace
 import com.mhss.app.ui.theme.Blue
 import com.mhss.app.ui.theme.DarkOrange
 import com.mhss.app.ui.theme.LightPurple
@@ -71,6 +77,8 @@ import io.github.fletchmckee.liquid.liquefiable
 import io.github.fletchmckee.liquid.rememberLiquidState
 import sv.lib.squircleshape.CornerSmoothing
 import sv.lib.squircleshape.SquircleShape
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.StringResource
 
 @Composable
 fun AiResultSheet(
@@ -242,18 +250,18 @@ fun AiResultActions(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         AiResultAction(
-            textRes = R.string.copy,
-            iconRes = R.drawable.ic_copy,
+            textRes = Res.string.copy,
+            iconRes = Res.drawable.ic_copy,
             onClick = onCopyClick
         )
         AiResultAction(
-            textRes = R.string.replace,
-            iconRes = R.drawable.ic_replace,
+            textRes = Res.string.replace,
+            iconRes = Res.drawable.ic_replace,
             onClick = onReplaceClick
         )
         AiResultAction(
-            textRes = R.string.add_to_note,
-            iconRes = R.drawable.ic_add_note,
+            textRes = Res.string.add_to_note,
+            iconRes = Res.drawable.ic_add_note,
             onClick = onAddToNoteClick
         )
     }
@@ -261,8 +269,8 @@ fun AiResultActions(
 
 @Composable
 private fun RowScope.AiResultAction(
-    textRes: Int,
-    iconRes: Int,
+    textRes: StringResource,
+    iconRes: DrawableResource,
     onClick: () -> Unit
 ) {
     Column(
@@ -274,13 +282,13 @@ private fun RowScope.AiResultAction(
             .padding(bottom = 12.dp, top = 8.dp)
     ) {
         Icon(
-            painter = painterResource(id = iconRes),
-            contentDescription = stringResource(id = textRes),
+            painter = painterResource(iconRes),
+            contentDescription = stringResource(textRes),
             modifier = Modifier.size(16.dp)
         )
         Spacer(Modifier.height(4.dp))
         Text(
-            text = stringResource(id = textRes),
+            text = stringResource(textRes),
             style = MaterialTheme.typography.bodyMedium
         )
     }

@@ -2,23 +2,40 @@ package com.mhss.app.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.mhss.app.ui.R
 import com.mhss.app.domain.model.CalendarEvent
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.add_event
+import com.mhss.app.ui.calendar
+import com.mhss.app.ui.ic_add
+import com.mhss.app.ui.no_events
 import com.mhss.app.util.permissions.Permission
 import com.mhss.app.util.permissions.rememberPermissionState
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun CalendarDashboardWidget(
@@ -53,10 +70,10 @@ fun CalendarDashboardWidget(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(stringResource(R.string.calendar), style = MaterialTheme.typography.bodyLarge)
+                Text(stringResource(Res.string.calendar), style = MaterialTheme.typography.bodyLarge)
                 Icon(
-                    painterResource(R.drawable.ic_add),
-                    stringResource(R.string.add_event),
+                    painterResource(Res.drawable.ic_add),
+                    stringResource(Res.string.add_event),
                     modifier = Modifier
                         .size(18.dp)
                         .clickable {
@@ -83,7 +100,7 @@ fun CalendarDashboardWidget(
                         item {
                             LaunchedEffect(true) { onPermission(true) }
                             Text(
-                                text = stringResource(R.string.no_events),
+                                text = stringResource(Res.string.no_events),
                                 modifier = Modifier.padding(16.dp),
                                 style = MaterialTheme.typography.bodyLarge
                             )

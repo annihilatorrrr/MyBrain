@@ -30,8 +30,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -45,14 +45,23 @@ import com.mhss.app.presentation.backup.components.BackupFormatCard
 import com.mhss.app.presentation.backup.components.BackupStatusMessage
 import com.mhss.app.presentation.backup.components.ExportTypesCard
 import com.mhss.app.presentation.backup.components.SectionHeader
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.cancel
 import com.mhss.app.ui.components.common.MyBrainAppBar
+import com.mhss.app.ui.export
+import com.mhss.app.ui.export_import
+import com.mhss.app.ui.ic_export
+import com.mhss.app.ui.ic_import
+import com.mhss.app.ui.import_confirmation_message
+import com.mhss.app.ui.import_confirmation_title
+import com.mhss.app.ui.import_data
+import com.mhss.app.ui.import_format
 import com.mohamedrejeb.calf.core.LocalPlatformContext
 import com.mohamedrejeb.calf.io.getPath
 import com.mohamedrejeb.calf.picker.FilePickerFileType
 import com.mohamedrejeb.calf.picker.FilePickerSelectionMode
 import com.mohamedrejeb.calf.picker.rememberFilePickerLauncher
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun ImportExportScreen(
@@ -129,7 +138,7 @@ fun ImportExportScreen(
     }
 
     Scaffold(
-        topBar = { MyBrainAppBar(stringResource(R.string.export_import)) }
+        topBar = { MyBrainAppBar(stringResource(Res.string.export_import)) }
     ) { paddingValues ->
         Column(
             Modifier
@@ -141,8 +150,8 @@ fun ImportExportScreen(
             BackupStatusMessage(backupResult = backupResult)
 
             SectionHeader(
-                title = stringResource(R.string.export),
-                iconRes = R.drawable.ic_export
+                title = stringResource(Res.string.export),
+                iconRes = Res.drawable.ic_export
             )
             Spacer(Modifier.height(8.dp))
             BackupFormatCard(
@@ -170,13 +179,13 @@ fun ImportExportScreen(
                 contentPadding = ButtonDefaults.ContentPadding
             ) {
                 Icon(
-                    painterResource(R.drawable.ic_export),
+                    painterResource(Res.drawable.ic_export),
                     contentDescription = null,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = stringResource(R.string.export),
+                    text = stringResource(Res.string.export),
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                     modifier = Modifier.padding(vertical = 6.dp)
                 )
@@ -186,15 +195,15 @@ fun ImportExportScreen(
             Spacer(Modifier.height(20.dp))
 
             SectionHeader(
-                title = stringResource(R.string.import_data),
-                iconRes = R.drawable.ic_import
+                title = stringResource(Res.string.import_data),
+                iconRes = Res.drawable.ic_import
             )
             Spacer(Modifier.height(6.dp))
             BackupFormatCard(
                 selectedFormat = importFormat,
                 onFormatSelected = { importFormat = it },
                 options = listOf(UiExportFormat.JSON),
-                titleRes = R.string.import_format
+                titleRes = Res.string.import_format
             )
             Spacer(Modifier.height(12.dp))
 
@@ -204,13 +213,13 @@ fun ImportExportScreen(
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Icon(
-                    painterResource(R.drawable.ic_import),
+                    painterResource(Res.drawable.ic_import),
                     contentDescription = null,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = stringResource(R.string.import_data),
+                    text = stringResource(Res.string.import_data),
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                     modifier = Modifier.padding(vertical = 6.dp)
                 )
@@ -253,9 +262,9 @@ fun ImportExportScreen(
                     openImportDialog = false
                     pendingImportPath = null
                 },
-                title = { Text(stringResource(R.string.import_confirmation_title)) },
+                title = { Text(stringResource(Res.string.import_confirmation_title)) },
                 text = {
-                    Text(stringResource(R.string.import_confirmation_message))
+                    Text(stringResource(Res.string.import_confirmation_message))
                 },
                 confirmButton = {
                     Button(
@@ -275,7 +284,7 @@ fun ImportExportScreen(
                             pendingImportPath = null
                         },
                     ) {
-                        Text(stringResource(R.string.import_data))
+                        Text(stringResource(Res.string.import_data))
                     }
                 },
                 dismissButton = {
@@ -284,7 +293,7 @@ fun ImportExportScreen(
                             openImportDialog = false
                             pendingImportPath = null
                         }) {
-                        Text(stringResource(R.string.cancel))
+                        Text(stringResource(Res.string.cancel))
                     }
                 }
             )

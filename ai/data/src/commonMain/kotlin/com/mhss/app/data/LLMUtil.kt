@@ -20,6 +20,7 @@ import kotlinx.datetime.format.char
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
+import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 
@@ -57,6 +58,7 @@ fun List<AiMessage>.buildChatPrompt(systemMessage: String) = prompt("chat_prompt
 }
 
 
+@OptIn(ExperimentalUuidApi::class)
 fun Message.Tool.Call.toAiMessage(
     toolCallResult: Result<AiMessage.ToolCall>,
     thoughtSignature: String? = null
@@ -109,6 +111,7 @@ fun AiProvider.toLLMProvider() = when (this) {
     AiProvider.None -> LLMProvider.OpenAI // just a placeholder
 }
 
+@OptIn(ExperimentalUuidApi::class)
 fun Message.Assistant.toNewAssistantMessage() = AiMessage.AssistantMessage(
     uuid = Uuid.generateV7().toString(),
     content = content,

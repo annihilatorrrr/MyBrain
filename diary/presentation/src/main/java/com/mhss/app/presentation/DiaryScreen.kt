@@ -2,8 +2,6 @@
 
 package com.mhss.app.presentation
 
-import com.mhss.app.datetime.LocalDateTimeFormatter
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -39,22 +37,35 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.mhss.app.datetime.LocalDateTimeFormatter
 import com.mhss.app.preferences.domain.model.Order
 import com.mhss.app.preferences.domain.model.OrderType
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.add_entry
 import com.mhss.app.ui.components.common.LiquidFloatingActionButton
 import com.mhss.app.ui.components.common.MyBrainAppBar
+import com.mhss.app.ui.diary
+import com.mhss.app.ui.diary_chart
+import com.mhss.app.ui.diary_img
+import com.mhss.app.ui.ic_add
+import com.mhss.app.ui.ic_chart
+import com.mhss.app.ui.ic_search
+import com.mhss.app.ui.ic_settings_sliders
 import com.mhss.app.ui.navigation.Screen
+import com.mhss.app.ui.no_entries_message
+import com.mhss.app.ui.order_by
+import com.mhss.app.ui.search
 import com.mhss.app.ui.titleRes
 import io.github.fletchmckee.liquid.liquefiable
 import io.github.fletchmckee.liquid.rememberLiquidState
-import org.koin.androidx.compose.koinViewModel
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
+import org.jetbrains.compose.resources.stringResource as cmpStringResource
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -69,14 +80,14 @@ fun DiaryScreen(
     Scaffold(
         topBar = {
             MyBrainAppBar(
-                title = stringResource(R.string.diary),
+                title = stringResource(Res.string.diary),
                 actions = {
                     IconButton(onClick = {
                         navController.navigate(Screen.DiaryChartScreen)
                     }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_chart),
-                            contentDescription = stringResource(R.string.diary_chart),
+                            painter = painterResource(Res.drawable.ic_chart),
+                            contentDescription = stringResource(Res.string.diary_chart),
                             modifier = Modifier.size(34.dp)
                         )
                     }
@@ -90,8 +101,8 @@ fun DiaryScreen(
                         Screen.DiaryDetailScreen()
                     )
                 },
-                iconPainter = painterResource(R.drawable.ic_add),
-                contentDescription = stringResource(R.string.add_entry),
+                iconPainter = painterResource(Res.drawable.ic_add),
+                contentDescription = stringResource(Res.string.add_entry),
                 liquidState = liquidState
             )
         }
@@ -108,8 +119,8 @@ fun DiaryScreen(
                 IconButton(onClick = { orderSettingsVisible = !orderSettingsVisible }) {
                     Icon(
                         modifier = Modifier.size(25.dp),
-                        painter = painterResource(R.drawable.ic_settings_sliders),
-                        contentDescription = stringResource(R.string.order_by)
+                        painter = painterResource(Res.drawable.ic_settings_sliders),
+                        contentDescription = stringResource(Res.string.order_by)
                     )
                 }
                 IconButton(onClick = {
@@ -117,8 +128,8 @@ fun DiaryScreen(
                 }) {
                     Icon(
                         modifier = Modifier.size(25.dp),
-                        painter = painterResource(id = R.drawable.ic_search),
-                        contentDescription = stringResource(R.string.search)
+                        painter = painterResource(Res.drawable.ic_search),
+                        contentDescription = stringResource(Res.string.search)
                     )
                 }
             }
@@ -186,7 +197,7 @@ fun DiarySettingsSection(order: Order, onOrderChange: (Order) -> Unit) {
         Modifier.background(color = MaterialTheme.colorScheme.background)
     ) {
         Text(
-            text = stringResource(R.string.order_by),
+            text = stringResource(Res.string.order_by),
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(start = 8.dp)
         )
@@ -205,7 +216,7 @@ fun DiarySettingsSection(order: Order, onOrderChange: (Order) -> Unit) {
                         }
                     )
                     Text(
-                        text = stringResource(it.titleRes),
+                        text = cmpStringResource(it.titleRes),
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -226,7 +237,7 @@ fun DiarySettingsSection(order: Order, onOrderChange: (Order) -> Unit) {
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = stringResource(it.titleRes),
+                        text = cmpStringResource(it.titleRes),
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -244,7 +255,7 @@ fun NoEntriesMessage() {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = stringResource(R.string.no_entries_message),
+            text = stringResource(Res.string.no_entries_message),
             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
             color = Color.Gray,
             textAlign = TextAlign.Center
@@ -252,8 +263,8 @@ fun NoEntriesMessage() {
         Spacer(modifier = Modifier.height(12.dp))
         Image(
             modifier = Modifier.size(125.dp),
-            painter = painterResource(id = R.drawable.diary_img),
-            contentDescription = stringResource(R.string.no_entries_message),
+            painter = painterResource(Res.drawable.diary_img),
+            contentDescription = stringResource(Res.string.no_entries_message),
             alpha = 0.7f
         )
     }

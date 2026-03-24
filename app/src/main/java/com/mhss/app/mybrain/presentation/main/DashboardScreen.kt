@@ -10,16 +10,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.mhss.app.presentation.CalendarDashboardWidget
 import com.mhss.app.presentation.MoodCircularBar
 import com.mhss.app.presentation.TasksDashboardWidget
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
 import com.mhss.app.ui.components.common.MyBrainAppBar
+import com.mhss.app.ui.dashboard
 import com.mhss.app.ui.navigation.Screen
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 
 @Composable
@@ -29,7 +30,7 @@ fun DashboardScreen(
 ) {
     Scaffold(
         topBar = {
-            MyBrainAppBar(stringResource(R.string.dashboard))
+            MyBrainAppBar(stringResource(Res.string.dashboard))
         }
     ) {paddingValues ->
         LaunchedEffect(true) { viewModel.onDashboardEvent(DashboardEvent.InitAll) }

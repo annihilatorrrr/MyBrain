@@ -1,7 +1,5 @@
 package com.mhss.app.presentation.components
 
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
@@ -13,17 +11,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun SettingsBasicLinkItem(
-    @StringRes
-    title: Int,
+    title: StringResource,
     subtitle: String = "",
-    @DrawableRes
-    icon: Int,
+    icon: DrawableResource,
     link: String = "",
     onClick: () -> Unit = {}
 ) {
@@ -38,13 +36,13 @@ fun SettingsBasicLinkItem(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
-                painter = painterResource(id = icon),
-                contentDescription = stringResource(id = title),
+                painter = painterResource(icon),
+                contentDescription = stringResource(title),
                 modifier = Modifier.size(24.dp)
             )
             Spacer(Modifier.width(12.dp))
             Text(
-                text = stringResource(id = title),
+                text = stringResource(title),
                 style = MaterialTheme.typography.bodyLarge,
             )
         }

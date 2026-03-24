@@ -19,12 +19,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mhss.app.presentation.components.ExperimentalBadge
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.external_notes
+import com.mhss.app.ui.external_notes_description
+import com.mhss.app.ui.external_notes_warning
+import com.mhss.app.ui.select_source_folder_for_notes
+import com.mhss.app.ui.source_folder
 import com.mhss.app.ui.theme.MyBrainTheme
 import com.mohamedrejeb.calf.picker.FilePickerFileType
 import com.mohamedrejeb.calf.picker.FilePickerSelectionMode
@@ -59,7 +64,7 @@ fun ExternalNotesCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = stringResource(R.string.external_notes),
+                        text = stringResource(Res.string.external_notes),
                         style = MaterialTheme.typography.titleLarge
                     )
                     Spacer(Modifier.width(8.dp))
@@ -71,7 +76,7 @@ fun ExternalNotesCard(
                 )
             }
             Text(
-                text = stringResource(R.string.external_notes_description),
+                text = stringResource(Res.string.external_notes_description),
                 style = MaterialTheme.typography.bodyMedium,
             )
             Spacer(Modifier.height(8.dp))
@@ -107,7 +112,7 @@ private fun SourceFolderCard(
         modifier = modifier.fillMaxWidth().padding(8.dp)
     ) {
         Text(
-            text = stringResource(R.string.source_folder),
+            text = stringResource(Res.string.source_folder),
             style = MaterialTheme.typography.bodyLarge,
         )
         Spacer(Modifier.height(8.dp))
@@ -124,7 +129,7 @@ private fun SourceFolderCard(
             onClick = { chooseDirectoryLauncher.launch() }
         ) {
             Text(
-                text = selectedFolder ?: stringResource(R.string.select_source_folder_for_notes),
+                text = selectedFolder ?: stringResource(Res.string.select_source_folder_for_notes),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(8.dp)
             )
@@ -144,7 +149,7 @@ private fun WarningCard(modifier: Modifier = Modifier) {
         )
     ) {
         Text(
-            text = stringResource(R.string.external_notes_warning),
+            text = stringResource(Res.string.external_notes_warning),
             style = MaterialTheme.typography.bodyMedium.copy(
                 fontWeight = FontWeight.Medium
             ),

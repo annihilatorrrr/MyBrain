@@ -47,28 +47,41 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.mhss.app.preferences.domain.model.Order
 import com.mhss.app.preferences.domain.model.OrderType
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.add_task
 import com.mhss.app.ui.components.common.LiquidFloatingActionButton
 import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.components.tasks.TaskCard
+import com.mhss.app.ui.grant_permission
+import com.mhss.app.ui.ic_add
+import com.mhss.app.ui.ic_search
+import com.mhss.app.ui.ic_settings_sliders
 import com.mhss.app.ui.navigation.Screen
+import com.mhss.app.ui.no_alarm_permission
+import com.mhss.app.ui.no_tasks_message
+import com.mhss.app.ui.order_by
+import com.mhss.app.ui.search
+import com.mhss.app.ui.show_completed_tasks
 import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
 import com.mhss.app.ui.snackbar.showSnackbar
+import com.mhss.app.ui.tasks
+import com.mhss.app.ui.tasks_img
 import com.mhss.app.ui.titleRes
 import com.mhss.app.util.permissions.Permission
 import com.mhss.app.util.permissions.rememberPermissionState
 import io.github.fletchmckee.liquid.liquefiable
 import io.github.fletchmckee.liquid.rememberLiquidState
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
+import org.jetbrains.compose.resources.stringResource as cmpStringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -93,7 +106,7 @@ fun TasksScreen(
     Scaffold(
         snackbarHost = { LocalisedSnackbarHost(snackbarHostState) },
         topBar = {
-            MyBrainAppBar(stringResource(R.string.tasks))
+            MyBrainAppBar(stringResource(Res.string.tasks))
         },
         floatingActionButton = {
             AnimatedVisibility(!sheetState.isVisible) {
@@ -101,8 +114,8 @@ fun TasksScreen(
                     onClick = {
                         openSheet = true
                     },
-                    iconPainter = painterResource(R.drawable.ic_add),
-                    contentDescription = stringResource(R.string.add_task),
+                    iconPainter = painterResource(Res.drawable.ic_add),
+                    contentDescription = stringResource(Res.string.add_task),
                     liquidState = liquidState
                 )
             }
@@ -128,7 +141,7 @@ fun TasksScreen(
         }
         LaunchedEffect(uiState.alarmError) {
             if (uiState.alarmError) {
-                val snackbarResult = snackbarHostState.showSnackbar(R.string.no_alarm_permission, R.string.grant_permission)
+                val snackbarResult = snackbarHostState.showSnackbar(Res.string.no_alarm_permission, Res.string.grant_permission)
                 if (snackbarResult == SnackbarResult.ActionPerformed) {
                     alarmPermissionState.launchRequest()
                 }
@@ -158,8 +171,8 @@ fun TasksScreen(
                     IconButton(onClick = { orderSettingsVisible = !orderSettingsVisible }) {
                         Icon(
                             modifier = Modifier.size(25.dp),
-                            painter = painterResource(R.drawable.ic_settings_sliders),
-                            contentDescription = stringResource(R.string.order_by)
+                            painter = painterResource(Res.drawable.ic_settings_sliders),
+                            contentDescription = stringResource(Res.string.order_by)
                         )
                     }
                     IconButton(onClick = {
@@ -167,8 +180,8 @@ fun TasksScreen(
                     }) {
                         Icon(
                             modifier = Modifier.size(25.dp),
-                            painter = painterResource(id = R.drawable.ic_search),
-                            contentDescription = stringResource(R.string.search)
+                            painter = painterResource(Res.drawable.ic_search),
+                            contentDescription = stringResource(Res.string.search)
                         )
                     }
                 }
@@ -226,7 +239,7 @@ fun NoTasksMessage() {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = stringResource(R.string.no_tasks_message),
+            text = stringResource(Res.string.no_tasks_message),
             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
             color = Color.Gray,
             textAlign = TextAlign.Center
@@ -234,8 +247,8 @@ fun NoTasksMessage() {
         Spacer(modifier = Modifier.height(12.dp))
         Image(
             modifier = Modifier.size(125.dp),
-            painter = painterResource(id = R.drawable.tasks_img),
-            contentDescription = stringResource(R.string.no_tasks_message),
+            painter = painterResource(Res.drawable.tasks_img),
+            contentDescription = stringResource(Res.string.no_tasks_message),
             alpha = 0.7f
         )
     }
@@ -269,7 +282,7 @@ fun TasksSettingsSection(
         Modifier.background(color = MaterialTheme.colorScheme.background)
     ) {
         Text(
-            text = stringResource(R.string.order_by),
+            text = stringResource(Res.string.order_by),
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(start = 8.dp)
         )
@@ -288,7 +301,7 @@ fun TasksSettingsSection(
                         }
                     )
                     Text(
-                        text = stringResource(it.titleRes),
+                        text = cmpStringResource(it.titleRes),
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -309,7 +322,7 @@ fun TasksSettingsSection(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = stringResource(it.titleRes),
+                        text = cmpStringResource(it.titleRes),
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -319,7 +332,7 @@ fun TasksSettingsSection(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(checked = showCompleted, onCheckedChange = { onShowCompletedChange(it) })
             Text(
-                text = stringResource(R.string.show_completed_tasks),
+                text = stringResource(Res.string.show_completed_tasks),
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(start = 8.dp)
             )

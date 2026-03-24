@@ -17,11 +17,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.bookmarks
+import com.mhss.app.ui.diary
+import com.mhss.app.ui.export_types
+import com.mhss.app.ui.notes
+import com.mhss.app.ui.tasks
 import com.mhss.app.ui.theme.MyBrainTheme
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -51,7 +56,7 @@ fun ExportTypesCard(
                 .padding(12.dp)
         ) {
             Text(
-                text = stringResource(R.string.export_types),
+                text = stringResource(Res.string.export_types),
                 style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -60,22 +65,22 @@ fun ExportTypesCard(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 ExportTypeChip(
-                    text = stringResource(R.string.notes),
+                    text = stringResource(Res.string.notes),
                     selected = exportNotes,
                     onClick = { onExportNotesChanged(!exportNotes) }
                 )
                 ExportTypeChip(
-                    text = stringResource(R.string.tasks),
+                    text = stringResource(Res.string.tasks),
                     selected = exportTasks,
                     onClick = { onExportTasksChanged(!exportTasks) }
                 )
                 ExportTypeChip(
-                    text = stringResource(R.string.diary),
+                    text = stringResource(Res.string.diary),
                     selected = exportDiary,
                     onClick = { onExportDiaryChanged(!exportDiary) }
                 )
                 ExportTypeChip(
-                    text = stringResource(R.string.bookmarks),
+                    text = stringResource(Res.string.bookmarks),
                     selected = exportBookmarks,
                     onClick = { onExportBookmarksChanged(!exportBookmarks) }
                 )

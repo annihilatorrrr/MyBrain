@@ -7,7 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.domain.model.Bookmark
-import com.mhss.app.domain.use_case.*
+import com.mhss.app.domain.use_case.AddBookmarkUseCase
+import com.mhss.app.domain.use_case.GetAllBookmarksUseCase
+import com.mhss.app.domain.use_case.SearchBookmarksUseCase
 import com.mhss.app.preferences.domain.model.Order
 import com.mhss.app.preferences.domain.model.OrderType
 import com.mhss.app.preferences.domain.model.intPreferencesKey

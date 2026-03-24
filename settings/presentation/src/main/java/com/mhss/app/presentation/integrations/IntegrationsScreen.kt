@@ -7,14 +7,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.domain.model.booleanPreferencesKey
 import com.mhss.app.presentation.integrations.components.ExternalNotesCard
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
 import com.mhss.app.ui.components.common.MyBrainAppBar
-import org.koin.androidx.compose.koinViewModel
+import com.mhss.app.ui.integrations
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun IntegrationsScreen(
@@ -24,7 +25,7 @@ fun IntegrationsScreen(
     Scaffold(
         topBar = {
             MyBrainAppBar(
-                title = stringResource(R.string.integrations)
+                title = stringResource(Res.string.integrations)
             )
         }
     ) { paddingValues ->

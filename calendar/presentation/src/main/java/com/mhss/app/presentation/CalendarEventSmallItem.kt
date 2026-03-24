@@ -4,7 +4,14 @@ import com.mhss.app.datetime.LocalDateTimeFormatter
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -15,19 +22,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.mhss.app.domain.model.CalendarEvent
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.all_day
+import com.mhss.app.ui.event_time
+import com.mhss.app.ui.event_time_at
+
 @Composable
 fun CalendarEventSmallItem(
     event: CalendarEvent,
     onClick: (CalendarEvent) -> Unit
 ) {
-    val context = LocalContext.current
     Card(
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.elevatedCardElevation(
@@ -63,9 +72,9 @@ fun CalendarEventSmallItem(
                     LocalDateTimeFormatter.current.formatEventStartEnd(
                         start = event.start,
                         end = event.end,
-                        allDayString = stringResource(R.string.all_day),
-                        eventTimeAtRes = R.string.event_time_at,
-                        eventTimeRes = R.string.event_time,
+                        allDayString = stringResource(Res.string.all_day),
+                        eventTimeAt = stringResource(Res.string.event_time_at),
+                        eventTime = stringResource(Res.string.event_time),
                         location = event.location,
                         allDay = event.allDay,
                     ),

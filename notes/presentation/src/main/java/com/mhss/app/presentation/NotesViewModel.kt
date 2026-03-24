@@ -19,11 +19,12 @@ import com.mhss.app.preferences.domain.model.toOrder
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import com.mhss.app.preferences.domain.use_case.SavePreferenceUseCase
 import com.mhss.app.ui.ItemView
-import com.mhss.app.ui.R
 import com.mhss.app.ui.errors.toMessageResId
 import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.ui.toNotesView
 import com.mhss.app.domain.model.NoteException
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.error_empty_title
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -134,7 +135,7 @@ class NotesViewModel(
 
             is NoteEvent.CreateFolder -> viewModelScope.launch(exceptionHandler) {
                 if (event.name.isBlank()) {
-                    notesUiState.value.snackbarHostState.showSnackbar(R.string.error_empty_title)
+                    notesUiState.value.snackbarHostState.showSnackbar(Res.string.error_empty_title)
                 } else {
                     createFolder(event.name)
                 }

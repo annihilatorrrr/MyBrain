@@ -23,10 +23,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.unit.dp
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.custom_base_url
+import com.mhss.app.ui.ic_info
+import com.mhss.app.ui.save
 
 @Composable
 fun SavableTextField(
@@ -55,7 +58,7 @@ fun SavableTextField(
                 if (infoURL != null) {
                     IconButton(onClick = { uriHandler.openUri(infoURL) }) {
                         Icon(
-                            painterResource(id = R.drawable.ic_info),
+                            painterResource(Res.drawable.ic_info),
                             contentDescription = null
                         )
                     }
@@ -68,7 +71,7 @@ fun SavableTextField(
                 shape = RoundedCornerShape(8.dp),
                 onClick = { onSave(localText.trim()) }
             ) {
-                Text(text = stringResource(R.string.save))
+                Text(text = stringResource(Res.string.save))
             }
         }
     }
@@ -94,7 +97,7 @@ fun CustomURLSection(
             ) {
                 Checkbox(checked = enabled, onCheckedChange = onEnable)
                 Text(
-                    text = stringResource(R.string.custom_base_url),
+                    text = stringResource(Res.string.custom_base_url),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

@@ -17,18 +17,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
 import com.mhss.app.ui.components.common.AnimatedTabIndicator
-import org.koin.androidx.compose.koinViewModel
+import com.mhss.app.ui.last_30_days
+import com.mhss.app.ui.last_year
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun DiaryChartScreen(
@@ -58,37 +59,37 @@ fun DiaryChartScreen(
 fun MonthlyOrYearlyTab(
     onChange: (Boolean) -> Unit
 ) {
-    var selected by remember { mutableIntStateOf(R.string.last_30_days) }
+    var monthlySelected by remember { mutableStateOf(true) }
     LaunchedEffect(true){
         onChange(true)
     }
     PrimaryTabRow(
-        selectedTabIndex = if (selected == R.string.last_30_days) 0 else 1,
+        selectedTabIndex = if (monthlySelected) 0 else 1,
         indicator = {
-            AnimatedTabIndicator(Modifier.tabIndicatorOffset(if (selected == R.string.last_30_days) 0 else 1))
+            AnimatedTabIndicator(Modifier.tabIndicatorOffset(if (monthlySelected) 0 else 1))
         },
         divider = {},
         modifier = Modifier.clip(RoundedCornerShape(14.dp))
     ) {
         Tab(
             text = { Text(
-                stringResource(R.string.last_30_days),
+                stringResource(Res.string.last_30_days),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             ) },
-            selected = selected == R.string.last_30_days,
+            selected = monthlySelected,
             onClick = {
-                selected = R.string.last_30_days
+                monthlySelected = true
                 onChange(true)
             },
         )
         Tab(
             text = { Text(
-                stringResource(R.string.last_year),
+                stringResource(Res.string.last_year),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             ) },
-            selected = selected == R.string.last_year,
+            selected = !monthlySelected,
             onClick = {
-                selected = R.string.last_year
+                monthlySelected = false
                 onChange(false)
             }
         )

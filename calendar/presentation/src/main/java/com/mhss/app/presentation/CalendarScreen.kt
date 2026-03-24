@@ -17,8 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DropdownMenu
@@ -41,33 +39,44 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.mhss.app.domain.model.Calendar
-import com.mhss.app.domain.model.CalendarDay
-import com.mhss.app.domain.model.CalendarEvent
-import com.mhss.app.ui.R
-import com.mhss.app.ui.components.common.LiquidFloatingActionButton
-import com.mhss.app.ui.components.common.MyBrainAppBar
-import com.mhss.app.ui.navigation.Screen
 import com.mhss.app.datetime.HOUR_MILLIS
 import com.mhss.app.datetime.LocalDateTimeFormatter
 import com.mhss.app.datetime.currentLocalDate
 import com.mhss.app.datetime.now
 import com.mhss.app.datetime.withTimeFrom
+import com.mhss.app.domain.model.Calendar
+import com.mhss.app.domain.model.CalendarDay
+import com.mhss.app.domain.model.CalendarEvent
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.add_event
+import com.mhss.app.ui.calendar
+import com.mhss.app.ui.components.common.LiquidFloatingActionButton
+import com.mhss.app.ui.components.common.MyBrainAppBar
+import com.mhss.app.ui.go_to_settings
+import com.mhss.app.ui.grant_permission
+import com.mhss.app.ui.ic_add
+import com.mhss.app.ui.ic_drop_down
+import com.mhss.app.ui.ic_list_view
+import com.mhss.app.ui.ic_monthly_view
+import com.mhss.app.ui.ic_settings_sliders
+import com.mhss.app.ui.include_calendars
+import com.mhss.app.ui.navigation.Screen
+import com.mhss.app.ui.no_read_calendar_permission_message
 import com.mhss.app.util.permissions.Permission
 import com.mhss.app.util.permissions.rememberPermissionState
 import io.github.fletchmckee.liquid.liquefiable
 import io.github.fletchmckee.liquid.rememberLiquidState
 import kotlinx.coroutines.launch
 import kotlinx.datetime.number
-import org.koin.androidx.compose.koinViewModel
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 
 
 @Composable
@@ -129,11 +138,11 @@ fun CalendarScreen(
     Scaffold(
         topBar = {
             MyBrainAppBar(
-                title = stringResource(R.string.calendar),
+                title = stringResource(Res.string.calendar),
                 actions = {
                     if (viewMode == CalendarViewMode.List && months.isNotEmpty()) {
                         MonthDropDownMenu(
-                            selectedMonth = selectedMonthLabel.ifEmpty { stringResource(R.string.calendar) },
+                            selectedMonth = selectedMonthLabel.ifEmpty { stringResource(Res.string.calendar) },
                             months = months,
                             onMonthSelected = { selected ->
                                 scope.launch {
@@ -186,8 +195,8 @@ fun CalendarScreen(
                             )
                         )
                     },
-                    iconPainter = painterResource(R.drawable.ic_add),
-                    contentDescription = stringResource(R.string.add_event),
+                    iconPainter = painterResource(Res.drawable.ic_add),
+                    contentDescription = stringResource(Res.string.add_event),
                     liquidState = liquidState
                 )
             }
@@ -215,8 +224,8 @@ fun CalendarScreen(
                         IconButton(onClick = { settingsVisible = !settingsVisible }) {
                             Icon(
                                 modifier = Modifier.size(25.dp),
-                                painter = painterResource(R.drawable.ic_settings_sliders),
-                                contentDescription = stringResource(R.string.include_calendars)
+                                painter = painterResource(Res.drawable.ic_settings_sliders),
+                                contentDescription = stringResource(Res.string.include_calendars)
                             )
                         }
                     }
@@ -297,19 +306,19 @@ fun NoReadCalendarPermissionMessage(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = stringResource(R.string.no_read_calendar_permission_message),
+            text = stringResource(Res.string.no_read_calendar_permission_message),
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(12.dp))
         if (shouldShowRationale) {
             TextButton(onClick = onOpenSettings) {
-                Text(text = stringResource(R.string.go_to_settings))
+                Text(text = stringResource(Res.string.go_to_settings))
             }
 
         } else {
             TextButton(onClick = { onRequest() }) {
-                Text(text = stringResource(R.string.grant_permission))
+                Text(text = stringResource(Res.string.grant_permission))
             }
         }
     }
@@ -365,7 +374,7 @@ fun MonthDropDownMenu(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = null)
+            Icon(painter = painterResource(Res.drawable.ic_drop_down), contentDescription = null)
         }
         DropdownMenu(
             expanded = expanded,
@@ -393,12 +402,12 @@ private fun ViewModeToggleButton(
     IconButton(onClick = onToggle) {
         if (mode == CalendarViewMode.List) {
             Icon(
-                painter = painterResource(R.drawable.ic_list_view),
+                painter = painterResource(Res.drawable.ic_list_view),
                 contentDescription = null
             )
         } else {
             Icon(
-                painter = painterResource(R.drawable.ic_monthly_view),
+                painter = painterResource(Res.drawable.ic_monthly_view),
                 contentDescription = null
             )
         }
@@ -413,7 +422,7 @@ fun CalendarSettingsSection(
     Column {
         HorizontalDivider()
         Text(
-            text = stringResource(R.string.include_calendars),
+            text = stringResource(Res.string.include_calendars),
             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
             modifier = Modifier.padding(8.dp)
         )
@@ -432,7 +441,7 @@ fun CalendarSettingsSection(
                         text = calendar,
                         style = MaterialTheme.typography.bodyLarge
                     )
-                    Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = null)
+                    Icon(painter = painterResource(Res.drawable.ic_drop_down), contentDescription = null)
                 }
                 DropdownMenu(
                     expanded = expanded,

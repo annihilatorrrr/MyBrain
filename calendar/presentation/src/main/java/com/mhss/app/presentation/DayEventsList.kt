@@ -17,11 +17,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.unit.dp
 import com.mhss.app.domain.model.CalendarDay
 import com.mhss.app.domain.model.CalendarEvent
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.no_events
+
+
 @Composable
 fun DayEventsList(
     modifier: Modifier = Modifier,
@@ -55,7 +58,7 @@ fun DayEventsList(
             if (selectedDate.events.isEmpty()) {
                 item {
                     Text(
-                        text = stringResource(R.string.no_events),
+                        text = stringResource(Res.string.no_events),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

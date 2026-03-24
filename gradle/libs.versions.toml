@@ -24,12 +24,14 @@ ksp = "2.3.4"
 koinBOM = "4.1.1"
 koinKSP = "2.3.1"
 kotlinxDatetime = "0.7.1"
+material3 = "1.9.0"
 material = "1.13.0"
 ktor = "3.4.1"
 squircleShape = "4.0.0"
 markdownRenderer = "0.39.2"
 koog = "0.7.2"
 liquid = "1.1.1"
+composeMultiplatform = "1.10.3"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -48,13 +50,10 @@ androidx-glance-appwidget-preview = { module = "androidx.glance:glance-appwidget
 androidx-junit = { module = "androidx.test.ext:junit", version.ref = "junitVersion" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleVersion" }
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleVersion" }
-compose-material = { module = "androidx.compose.material3:material3" }
-compose-icons = { module = "androidx.compose.material:material-icons-extended"}
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-room3-runtime = { module = "androidx.room3:room3-runtime", version.ref = "room3" }
 androidx-room3-compiler = { module = "androidx.room3:room3-compiler", version.ref = "room3" }
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
-compose-ui = { module = "androidx.compose.ui:ui" }
 compose-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
@@ -65,8 +64,9 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koinBOM" }
 koin-android-workmanager = { module = "io.insert-koin:koin-androidx-workmanager" }
 koin-android = { module = "io.insert-koin:koin-android" }
+koin-compose = { module = "io.insert-koin:koin-compose" }
+koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel" }
 koin-core = { module = "io.insert-koin:koin-core" }
-koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose"}
 koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koinKSP" }
 koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref = "koinKSP" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime"}
@@ -83,6 +83,11 @@ markdown-renderer = { module = "com.mikepenz:multiplatform-markdown-renderer-m3"
 markdown-coil2 = { module = "com.mikepenz:multiplatform-markdown-renderer-coil2", version.ref = "markdownRenderer" }
 koog-agents = { module = "ai.koog:koog-agents", version.ref = "koog"}
 liquid = { module = "io.github.fletchmckee.liquid:liquid", version.ref = "liquid"}
+compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatform" }
+compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatform" }
+compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatform" }
+compose-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform"}
+compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
@@ -92,12 +97,13 @@ android-library = { id = "com.android.library", version.ref = "androidGradlePlug
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "androidGradlePlugin" }
 room3 = { id = "androidx.room3", version.ref = "room3" }
 
 [bundles]
 koin = ["koin-core", "koin-annotations"]
-compose = ["compose-icons", "compose-ui", "compose-material", "androidx-navigation-compose", "compose-ui-tooling", "androidx-lifecycle-runtime-compose", "compose-ui-tooling-preview", "koin-androidx-compose", "markdown-renderer", "markdown-coil2"]
+compose = ["compose-resources", "compose-foundation", "compose-runtime", "compose-ui", "compose-material3", "androidx-navigation-compose", "compose-ui-tooling", "androidx-lifecycle-runtime-compose", "compose-ui-tooling-preview", "koin-compose", "koin-compose-viewmodel",  "markdown-renderer", "markdown-coil2"]
 androidx-glance = ["androidx-glance", "androidx-glance-appwidget", "androidx-glance-material", "androidx-glance-preview", "androidx-glance-appwidget-preview"]
 ktor-core = ["ktor-core", "ktor-serialization", "ktor-content-negotiation", "ktor-logging"]
 

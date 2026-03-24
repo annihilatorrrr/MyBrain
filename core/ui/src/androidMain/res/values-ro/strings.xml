@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">My Brain</string>
+    <string name="reminders_channel_description">Canal de notificare pentru trimiterea de notificări de reamintire a sarcinilor</string>
+    <string name="reminders_channel_name">Mementouri</string>
+    <string name="complete">Complet</string>
+    <string name="notes">Note</string>
+    <string name="tasks">Sarcini</string>
+    <string name="calendar">Calendar</string>
+    <string name="due_date">Data limită</string>
+    <string name="error_empty_title">Titlul nu poate fi gol</string>
+    <string name="cancel">Anulare</string>
+    <string name="no_tasks_message">Nu aveți nicio sarcină\n Faceți clic pe butonul + pentru a adăuga o nouă sarcină\n sau \nprin utilizarea comenzii rapide din meniul de setări rapide</string>
+    <string name="no_notes_message">Nu aveți nicio notă\n Faceți clic pe butonul + pentru a adăuga o nouă notă</string>
+    <string name="bookmark_saved">Marcaj salvat cu succes</string>
+    <string name="invalid_url">Adresă URL invalidă</string>
+    <string name="no_read_calendar_permission_message">Este necesară permisiunea de citire a calendarului pentru ca această funcție să fie disponibilă.\nTe rog să acorzi permisiunea</string>
+    <string name="go_to_settings">Accesează setările</string>
+    <string name="added_task">Adăugat la sarcini</string>
+    <string name="no_events">Niciun eveniment încă</string>
+    <string name="loading">Încărcare…</string>
+    <string name="calendar_widget_refresh_message">Faceți clic pe butonul de reîmprospătare dacă ați acordat deja permisiunea</string>
+    <string name="thursday_30_calendar_preview">Joi 30</string>
+    <string name="sunday_5_calendar_preview">Duminică 5</string>
+    <string name="dinner_with_ali_calender_preview">Cina cu Ali</string>
+    <string name="cs_lecture_calender_preview">Curs CS</string>
+    <string name="visit_dentist_tasks_preview">Vizitează dentistul</string>
+    <string name="buy_groceries_tasks_preview">Cumpără alimente</string>
+    <string name="call_mom_tasks_preview">Sun-o pe mama</string>
+    <string name="auth_title">Unlock to use the App</string>
+    <string name="added_note">Added to notes</string>
+    <string name="add_note">Adaugă notă</string>
+    <string name="save_bookmark">Marchează link-ul</string>
+    <string name="add_to_tasks">Adaugă la sarcini</string>
+    <string name="add_task_to_my_brain">Adaugă sarcina la My Brain</string>
+    <string name="exception_stack_trace_copied">Exception stack trace copied to clipboard</string>
+</resources>

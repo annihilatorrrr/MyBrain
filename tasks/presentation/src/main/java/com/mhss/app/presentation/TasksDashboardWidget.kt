@@ -2,7 +2,16 @@ package com.mhss.app.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,12 +25,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mhss.app.domain.model.Task
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.add_event
+import com.mhss.app.ui.ic_add
+import com.mhss.app.ui.no_tasks_message
+import com.mhss.app.ui.tasks
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun TasksDashboardWidget(
@@ -53,10 +66,10 @@ fun TasksDashboardWidget(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(stringResource(R.string.tasks), style = MaterialTheme.typography.bodyLarge)
+                Text(stringResource(Res.string.tasks), style = MaterialTheme.typography.bodyLarge)
                 Icon(
-                    painterResource(R.drawable.ic_add),
-                    stringResource(R.string.add_event),
+                    painterResource(Res.drawable.ic_add),
+                    stringResource(Res.string.add_event),
                     modifier = Modifier
                         .size(18.dp)
                         .clickable {
@@ -79,7 +92,7 @@ fun TasksDashboardWidget(
                 if (tasks.isEmpty()){
                     item {
                         Text(
-                            text = stringResource(R.string.no_tasks_message),
+                            text = stringResource(Res.string.no_tasks_message),
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center

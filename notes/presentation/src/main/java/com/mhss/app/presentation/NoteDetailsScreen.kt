@@ -2,9 +2,6 @@
 
 package com.mhss.app.presentation
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -49,37 +46,66 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.mhss.app.datetime.LocalDateTimeFormatter
 import com.mhss.app.presentation.components.AiResultSheet
 import com.mhss.app.presentation.components.GradientIconButton
 import com.mhss.app.presentation.components.ShareNoteAsPlainTextOption
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.auto_format
+import com.mhss.app.ui.cancel
+import com.mhss.app.ui.change_folder
 import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.components.common.defaultMarkdownTypography
 import com.mhss.app.ui.components.common.withHardLineBreaks
+import com.mhss.app.ui.correct_spelling
+import com.mhss.app.ui.delete_note
+import com.mhss.app.ui.delete_note_confirmation_message
+import com.mhss.app.ui.delete_note_confirmation_title
+import com.mhss.app.ui.delete_task
+import com.mhss.app.ui.folders
+import com.mhss.app.ui.ic_auto_format
+import com.mhss.app.ui.ic_create_folder
+import com.mhss.app.ui.ic_delete
+import com.mhss.app.ui.ic_folder
+import com.mhss.app.ui.ic_pin
+import com.mhss.app.ui.ic_pin_filled
+import com.mhss.app.ui.ic_read_mode
+import com.mhss.app.ui.ic_share
+import com.mhss.app.ui.ic_spelling
+import com.mhss.app.ui.ic_summarize
+import com.mhss.app.ui.none
+import com.mhss.app.ui.note_content
+import com.mhss.app.ui.pin_note
+import com.mhss.app.ui.reading_mode
+import com.mhss.app.ui.share_note
 import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
+import com.mhss.app.ui.summarize
 import com.mhss.app.ui.theme.Orange
-import com.mhss.app.datetime.LocalDateTimeFormatter
+import com.mhss.app.ui.title
+import com.mhss.app.util.clipboard.copyText
 import com.mikepenz.markdown.coil2.Coil2ImageTransformerImpl
 import com.mikepenz.markdown.m3.Markdown
 import io.github.fletchmckee.liquid.liquefiable
 import io.github.fletchmckee.liquid.rememberLiquidState
 import kotlinx.coroutines.delay
-import org.koin.androidx.compose.koinViewModel
+import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import androidx.compose.foundation.text.selection.SelectionContainer
 
@@ -97,9 +123,11 @@ fun NoteDetailsScreen(
     var openFolderDialog by rememberSaveable { mutableStateOf(false) }
     var showShareMenu by rememberSaveable { mutableStateOf(false) }
 
-    val context = LocalContext.current
     val formatter = LocalDateTimeFormatter.current
     val keyboardController = LocalSoftwareKeyboardController.current
+    val clipboard = LocalClipboard.current
+
+    val scope = rememberCoroutineScope()
 
     val title = viewModel.title
     val content = viewModel.content
@@ -147,8 +175,8 @@ fun NoteDetailsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                painterResource(R.drawable.ic_folder),
-                                stringResource(R.string.folders),
+                                painterResource(Res.drawable.ic_folder),
+                                stringResource(Res.string.folders),
                                 modifier = Modifier
                                     .padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
                                     .size(16.dp),
@@ -165,16 +193,16 @@ fun NoteDetailsScreen(
                     } else {
                         IconButton(onClick = { openFolderDialog = true }) {
                             Icon(
-                                painterResource(R.drawable.ic_create_folder),
-                                stringResource(R.string.folders),
+                                painterResource(Res.drawable.ic_create_folder),
+                                stringResource(Res.string.folders),
                                 modifier = Modifier.size(18.dp)
                             )
                         }
                     }
                     IconButton(onClick = { showShareMenu = true }) {
                         Icon(
-                            painterResource(R.drawable.ic_share),
-                            stringResource(R.string.share_note),
+                            painterResource(Res.drawable.ic_share),
+                            stringResource(Res.string.share_note),
                             modifier = Modifier.size(18.dp),
                         )
                         DropdownMenu(
@@ -190,8 +218,8 @@ fun NoteDetailsScreen(
                     }
                     if (state.note != null) IconButton(onClick = { openDeleteDialog = true }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_delete),
-                            contentDescription = stringResource(R.string.delete_task),
+                            painter = painterResource(Res.drawable.ic_delete),
+                            contentDescription = stringResource(Res.string.delete_task),
                             modifier = Modifier.size(18.dp),
                         )
                     }
@@ -199,9 +227,9 @@ fun NoteDetailsScreen(
                         viewModel.onEvent(NoteDetailsEvent.UpdatePinned(!pinned))
                     }) {
                         Icon(
-                            painter = if (pinned) painterResource(id = R.drawable.ic_pin_filled)
-                            else painterResource(id = R.drawable.ic_pin),
-                            contentDescription = stringResource(R.string.pin_note),
+                            painter = if (pinned) painterResource(Res.drawable.ic_pin_filled)
+                            else painterResource(Res.drawable.ic_pin),
+                            contentDescription = stringResource(Res.string.pin_note),
                             modifier = Modifier.size(18.dp),
                             tint = Orange
                         )
@@ -210,8 +238,8 @@ fun NoteDetailsScreen(
                         viewModel.onEvent(NoteDetailsEvent.ToggleReadingMode)
                     }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_read_mode),
-                            contentDescription = stringResource(R.string.reading_mode),
+                            painter = painterResource(Res.drawable.ic_read_mode),
+                            contentDescription = stringResource(Res.string.reading_mode),
                             modifier = Modifier.size(18.dp),
                             tint = if (readingMode) Color.Green else Color.Gray
                         )
@@ -234,7 +262,7 @@ fun NoteDetailsScreen(
             OutlinedTextField(
                 value = title,
                 onValueChange = { viewModel.onEvent(NoteDetailsEvent.UpdateTitle(it)) },
-                label = { Text(text = stringResource(R.string.title)) },
+                label = { Text(text = stringResource(Res.string.title)) },
                 shape = RoundedCornerShape(15.dp),
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -248,8 +276,8 @@ fun NoteDetailsScreen(
                 ) {
                     item {
                         GradientIconButton(
-                            text = stringResource(id = R.string.summarize),
-                            iconPainter = painterResource(id = R.drawable.ic_summarize),
+                            text = stringResource(Res.string.summarize),
+                            iconPainter = painterResource(Res.drawable.ic_summarize),
                         ) {
                             viewModel.onEvent(NoteDetailsEvent.Summarize(content))
                             keyboardController?.hide()
@@ -257,8 +285,8 @@ fun NoteDetailsScreen(
                     }
                     item {
                         GradientIconButton(
-                            text = stringResource(id = R.string.auto_format),
-                            iconPainter = painterResource(id = R.drawable.ic_auto_format),
+                            text = stringResource(Res.string.auto_format),
+                            iconPainter = painterResource(Res.drawable.ic_auto_format),
                         ) {
                             viewModel.onEvent(NoteDetailsEvent.AutoFormat(content))
                             keyboardController?.hide()
@@ -266,8 +294,8 @@ fun NoteDetailsScreen(
                     }
                     item {
                         GradientIconButton(
-                            text = stringResource(id = R.string.correct_spelling),
-                            iconPainter = painterResource(id = R.drawable.ic_spelling),
+                            text = stringResource(Res.string.correct_spelling),
+                            iconPainter = painterResource(Res.drawable.ic_spelling),
                         ) {
                             viewModel.onEvent(NoteDetailsEvent.CorrectSpelling(content))
                             keyboardController?.hide()
@@ -293,7 +321,7 @@ fun NoteDetailsScreen(
                     value = content,
                     onValueChange = { viewModel.onEvent(NoteDetailsEvent.UpdateContent(it)) },
                     label = {
-                        Text(text = stringResource(R.string.note_content))
+                        Text(text = stringResource(Res.string.note_content))
                     },
                     shape = RoundedCornerShape(15.dp),
                     modifier = Modifier
@@ -342,10 +370,9 @@ fun NoteDetailsScreen(
                     result = aiState.result,
                     error = aiState.error?.toUserMessage(),
                     onCopyClick = {
-                        val clipboard =
-                            context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                        val clip = ClipData.newPlainText("ai result", aiState.result.toString())
-                        clipboard.setPrimaryClip(clip)
+                        scope.launch {
+                            clipboard.copyText("ai result", aiState.result.toString())
+                        }
                         viewModel.onEvent(NoteDetailsEvent.AiResultHandled)
                     },
                     onReplaceClick = {
@@ -364,11 +391,11 @@ fun NoteDetailsScreen(
             AlertDialog(
                 shape = RoundedCornerShape(25.dp),
                 onDismissRequest = { openDeleteDialog = false },
-                title = { Text(stringResource(R.string.delete_note_confirmation_title)) },
+                title = { Text(stringResource(Res.string.delete_note_confirmation_title)) },
                 text = {
                     Text(
                         stringResource(
-                            R.string.delete_note_confirmation_message,
+                            Res.string.delete_note_confirmation_message,
                             state.note?.title!!
                         )
                     )
@@ -381,7 +408,7 @@ fun NoteDetailsScreen(
                             viewModel.onEvent(NoteDetailsEvent.DeleteNote(state.note!!))
                         },
                     ) {
-                        Text(stringResource(R.string.delete_note), color = Color.White)
+                        Text(stringResource(Res.string.delete_note), color = Color.White)
                     }
                 },
                 dismissButton = {
@@ -390,7 +417,7 @@ fun NoteDetailsScreen(
                         onClick = {
                             openDeleteDialog = false
                         }) {
-                        Text(stringResource(R.string.cancel), color = Color.White)
+                        Text(stringResource(Res.string.cancel), color = Color.White)
                     }
                 }
             )
@@ -402,7 +429,7 @@ fun NoteDetailsScreen(
                     Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.Start
                 ) {
-                    Text(stringResource(R.string.change_folder))
+                    Text(stringResource(Res.string.change_folder))
                     FlowRow {
                         Row(
                             modifier = Modifier
@@ -417,7 +444,7 @@ fun NoteDetailsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = stringResource(R.string.none),
+                                text = stringResource(Res.string.none),
                                 modifier = Modifier.padding(8.dp),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = if (folder == null) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.onBackground
@@ -437,8 +464,8 @@ fun NoteDetailsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
-                                    painterResource(R.drawable.ic_folder),
-                                    stringResource(R.string.folders),
+                                    painterResource(Res.drawable.ic_folder),
+                                    stringResource(Res.string.folders),
                                     modifier = Modifier.padding(
                                         start = 8.dp,
                                         top = 8.dp,

@@ -2,9 +2,6 @@
 
 package com.mhss.app.presentation
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -35,15 +32,16 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -57,14 +55,19 @@ import com.mhss.app.presentation.components.AttachTaskSheet
 import com.mhss.app.presentation.components.AttachmentDropDownMenu
 import com.mhss.app.presentation.components.AttachmentMenuItem
 import com.mhss.app.presentation.components.MessageCard
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.ai_not_enabled
+import com.mhss.app.ui.assistant
 import com.mhss.app.ui.components.common.LeftToRight
 import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.navigation.Screen
 import com.mhss.app.ui.theme.MyBrainTheme
+import com.mhss.app.util.clipboard.copyText
 import io.github.fletchmckee.liquid.liquefiable
 import io.github.fletchmckee.liquid.rememberLiquidState
-import org.koin.androidx.compose.koinViewModel
+import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun AssistantScreen(
@@ -108,6 +111,8 @@ fun AssistantScreenContent(
     var openTaskSheet by remember { mutableStateOf(false) }
     val lazyListState = rememberLazyListState()
     val focusManager = LocalFocusManager.current
+    val clipboardManager = LocalClipboard.current
+    val scope = rememberCoroutineScope()
     val keyboardController = LocalSoftwareKeyboardController.current
     val liquidState = rememberLiquidState()
     val density = LocalDensity.current
@@ -124,7 +129,7 @@ fun AssistantScreenContent(
 
     Scaffold(
         topBar = {
-            MyBrainAppBar(stringResource(id = R.string.assistant))
+            MyBrainAppBar(stringResource(Res.string.assistant))
         },
         bottomBar = {
             AssistantChatBar(
@@ -248,10 +253,9 @@ fun AssistantScreenContent(
                             MessageCard(
                                 message = message,
                                 onCopy = { content ->
-                                    val clipboard =
-                                        context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                    val clip = ClipData.newPlainText("label", content)
-                                    clipboard.setPrimaryClip(clip)
+                                    scope.launch {
+                                        clipboardManager.copyText("message", content)
+                                    }
                                 },
                                 onNoteClick = { note ->
                                     navController.navigate(Screen.NoteDetailsScreen(noteId = note.id, folderId = note.folderId))
@@ -285,7 +289,7 @@ fun AssistantScreenContent(
                         .fillMaxWidth()
                 ) {
                     Text(
-                        text = stringResource(R.string.ai_not_enabled),
+                        text = stringResource(Res.string.ai_not_enabled),
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier
                             .padding(16.dp)

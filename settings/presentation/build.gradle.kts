@@ -63,7 +63,6 @@ dependencies {
 
     implementation(platform(libs.koin.bom))
     implementation(libs.bundles.koin)
-    implementation(libs.koin.android)
     ksp(libs.koin.ksp.compiler)
 
     implementation(libs.calf.file.picker)

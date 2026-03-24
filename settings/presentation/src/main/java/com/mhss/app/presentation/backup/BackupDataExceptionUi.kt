@@ -1,30 +1,36 @@
 package com.mhss.app.presentation.backup
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
 import com.mhss.app.domain.exception.BackupDataException
-import com.mhss.app.ui.R
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.backup_error_create_directory
+import com.mhss.app.ui.backup_error_create_file
+import com.mhss.app.ui.backup_error_generic
+import com.mhss.app.ui.backup_error_invalid_location
+import com.mhss.app.ui.backup_error_read_file
+import com.mhss.app.ui.backup_error_write_file
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun BackupDataException.toUiMessage(): String = when (this) {
     is BackupDataException.InvalidBackupLocation -> stringResource(
-        R.string.backup_error_invalid_location,
+        Res.string.backup_error_invalid_location,
         uri
     )
     is BackupDataException.CouldNotCreateDirectory -> stringResource(
-        R.string.backup_error_create_directory,
+        Res.string.backup_error_create_directory,
         path(parent, directoryName)
     )
     is BackupDataException.CouldNotCreateFile -> stringResource(
-        R.string.backup_error_create_file,
+        Res.string.backup_error_create_file,
         path(parent, fileName)
     )
-    BackupDataException.CouldNotReadFile -> stringResource(R.string.backup_error_read_file)
+    BackupDataException.CouldNotReadFile -> stringResource(Res.string.backup_error_read_file)
     is BackupDataException.CouldNotWriteFile -> stringResource(
-        R.string.backup_error_write_file,
+        Res.string.backup_error_write_file,
         path(parent, fileName)
     )
-    is BackupDataException.GenericError -> stringResource(R.string.backup_error_generic)
+    is BackupDataException.GenericError -> stringResource(Res.string.backup_error_generic)
 }
 
 private fun path(parent: String, child: String): String {

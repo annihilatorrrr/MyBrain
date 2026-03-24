@@ -17,7 +17,8 @@ dependencyResolutionManagement {
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 rootProject.name = "MyBrain"
-include ':app'
+include ':composeApp'
+include ':androidApp'
 include ':core:datetime'
 include ':tasks:domain'
 include ':core:alarm'

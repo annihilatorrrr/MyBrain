@@ -19,6 +19,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.core.database)
+                implementation(projects.core.alarm)
                 implementation(projects.tasks.domain)
 
                 implementation(libs.kotlinx.coroutines.core)

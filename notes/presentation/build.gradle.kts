@@ -20,6 +20,9 @@ kotlin {
         compilerOptions {
             jvmTarget = JvmTarget.JVM_17
         }
+        lint {
+            disable += "NullSafeMutableLiveData"
+        }
     }
 
     sourceSets {

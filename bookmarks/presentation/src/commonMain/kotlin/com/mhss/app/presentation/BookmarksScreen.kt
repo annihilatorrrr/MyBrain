@@ -42,7 +42,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -80,7 +79,6 @@ fun BookmarksScreen(
     navController: NavHostController,
     viewModel: BookmarksViewModel = koinViewModel()
 ) {
-    val context = LocalContext.current
     val uiState = viewModel.uiState
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }

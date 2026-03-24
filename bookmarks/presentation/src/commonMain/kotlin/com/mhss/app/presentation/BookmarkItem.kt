@@ -67,7 +67,7 @@ fun BookmarkItem(
                 onClick = {
                     if (bookmark.url.isValidUrl()){
                         uriHandler.openUri(
-                            if (!bookmark.url.startsWith("https://") && !bookmark.url.startsWith("http://")) "http://${bookmark.url}" else bookmark.url
+                            if (!bookmark.url.startsWith("https://") && !bookmark.url.startsWith("http://")) "http://${bookmark.url}".trim() else bookmark.url.trim()
                         )
                     } else
                         onInvalidUrl()

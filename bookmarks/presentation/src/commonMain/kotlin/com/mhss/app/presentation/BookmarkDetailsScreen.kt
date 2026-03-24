@@ -15,7 +15,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,10 +25,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
-import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.navigation.NavHostController
@@ -50,17 +46,20 @@ import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.ui.title
 import com.mhss.app.ui.url
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 @Composable
 fun BookmarkDetailsScreen(
     navController: NavHostController,
     bookmarkId: String?,
     viewModel: BookmarkDetailsViewModel = koinViewModel(parameters = { parametersOf(bookmarkId.orEmpty()) }),
 ) {
-    val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
     val state = viewModel.bookmarkDetailsUiState
     val snackbarHostState = state.snackbarHostState
@@ -112,7 +111,7 @@ fun BookmarkDetailsScreen(
                     }
                     IconButton(onClick = {
                         if (url.isValidUrl()) {
-                            uriHandler.openUri(if (!url.startsWith("https://") && !url.startsWith("http://")) "http://$url" else url)
+                            uriHandler.openUri(if (!url.startsWith("https://") && !url.startsWith("http://")) "http://$url".trim() else url.trim())
                         } else scope.launch {
                             snackbarHostState.showSnackbar(Res.string.invalid_url)
                         }

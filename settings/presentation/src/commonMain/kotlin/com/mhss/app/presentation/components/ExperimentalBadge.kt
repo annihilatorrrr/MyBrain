@@ -1,6 +1,5 @@
 package com.mhss.app.presentation.components
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
@@ -10,13 +9,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mhss.app.ui.Res
 import com.mhss.app.ui.experimental
-import com.mhss.app.ui.theme.MyBrainTheme
+import com.mhss.app.ui.preview.BasePreview
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ExperimentalBadge(modifier: Modifier = Modifier) {
@@ -41,14 +40,17 @@ fun ExperimentalBadge(modifier: Modifier = Modifier) {
 }
 
 @Preview
-@Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun ExperimentalBadgePreview() {
-    MyBrainTheme {
-        Surface(
-            color = MaterialTheme.colorScheme.surfaceVariant
-        ) {
-            ExperimentalBadge()
-        }
+    BasePreview {
+        ExperimentalBadge()
+    }
+}
+
+@Preview
+@Composable
+fun ExperimentalBadgePreviewDark() {
+    BasePreview(darkTheme = true) {
+        ExperimentalBadge()
     }
 }

@@ -13,10 +13,10 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun ShareNoteAsPlainTextOption(
+actual fun ShareNoteAsPlainTextOption(
     title: String,
     content: String,
-    onOptionSelected: () -> Unit
+    onOptionSelected: () -> Unit,
 ) {
     val context = LocalContext.current
     DropdownMenuItem(

@@ -1,8 +1,5 @@
 package com.mhss.app.presentation
 
-import com.mhss.app.datetime.LocalDateTimeFormatter
-
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -27,17 +24,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.mhss.app.datetime.LocalDateTimeFormatter
 import com.mhss.app.domain.model.CalendarEvent
 import com.mhss.app.ui.Res
 import com.mhss.app.ui.all_day
 import com.mhss.app.ui.event_time
 import com.mhss.app.ui.event_time_at
-import com.mhss.app.ui.theme.MyBrainTheme
+import com.mhss.app.ui.preview.BasePreview
+import org.jetbrains.compose.resources.stringResource
+
 @Composable
 fun LazyItemScope.CalendarEventItem(
     event: CalendarEvent,
@@ -94,28 +93,44 @@ fun LazyItemScope.CalendarEventItem(
     }
 }
 
+private val calendarEventItemPreviewSample = CalendarEvent(
+    title = "Sample Event",
+    start = System.currentTimeMillis(),
+    end = System.currentTimeMillis() + 60 * 60 * 1000L,
+    color = Color.Red.toArgb(),
+    location = "Office",
+    allDay = false,
+    id = 2,
+    calendarId = 1
+)
+
 @Preview
-@Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun CalendarEventItemPreview() {
-    val sampleEvent = CalendarEvent(
-        title = "Sample Event",
-        start = System.currentTimeMillis(),
-        end = System.currentTimeMillis() + 60 * 60 * 1000L,
-        color = Color.Red.toArgb(),
-        location = "Office",
-        allDay = false,
-        id = 2,
-        calendarId = 1
-    )
-
-    MyBrainTheme {
+    BasePreview {
         LazyColumn(
             contentPadding = PaddingValues(8.dp)
         ) {
             item {
                 CalendarEventItem(
-                    event = sampleEvent,
+                    event = calendarEventItemPreviewSample,
+                    onClick = {}
+                )
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun CalendarEventItemPreviewDark() {
+    BasePreview(darkTheme = true) {
+        LazyColumn(
+            contentPadding = PaddingValues(8.dp)
+        ) {
+            item {
+                CalendarEventItem(
+                    event = calendarEventItemPreviewSample,
                     onClick = {}
                 )
             }

@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mhss.app.domain.model.CalendarDay
+import com.mhss.app.ui.preview.BasePreview
 
 @Composable
 fun CalendarDayCell(
@@ -124,7 +125,7 @@ fun EventDots(colors: List<Int>) {
 @Preview(showBackground = true)
 @Composable
 fun CalendarDayCellContentPreview() {
-    MaterialTheme {
+    BasePreview {
         Box(
             Modifier.width(40.dp)
         ) {

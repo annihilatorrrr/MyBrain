@@ -2,6 +2,7 @@ package com.mhss.app.ui.preview
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -30,7 +31,9 @@ fun BasePreview(
         LocalDateTimeFormatter provides previewDateTimeFormatter
     ) {
         MyBrainTheme(darkTheme = darkTheme) {
-            Surface {
+            Surface(
+                color = MaterialTheme.colorScheme.background
+            ) {
                 Box(modifier = Modifier.padding(6.dp)) {
                     content()
                 }

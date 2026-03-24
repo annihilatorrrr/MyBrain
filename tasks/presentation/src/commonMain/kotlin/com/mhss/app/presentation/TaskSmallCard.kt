@@ -42,6 +42,7 @@ import com.mhss.app.ui.Res
 import com.mhss.app.ui.due_date
 import com.mhss.app.ui.ic_alarm
 import com.mhss.app.ui.ic_check
+import com.mhss.app.ui.preview.BasePreview
 
 @Composable
 fun TaskSmallCard(
@@ -110,6 +111,25 @@ fun TaskSmallCard(
     }
 }
 
+@Preview
+@Composable
+fun TaskSmallCardPreview() {
+    BasePreview {
+        TaskSmallCard(
+            task = Task(
+                title = "Task 1",
+                description = "Task 1 description",
+                dueDate = 1666999999999L,
+                priority = Priority.MEDIUM,
+                isCompleted = false,
+                id = "1"
+            ),
+            onComplete = {},
+            onClick = {}
+        )
+    }
+}
+
 @Composable
 fun TaskDashboardCheckBox(
     isComplete: Boolean,
@@ -132,21 +152,4 @@ fun TaskDashboardCheckBox(
             )
         }
     }
-}
-
-@Preview
-@Composable
-fun TaskSmallCardPreview() {
-    TaskSmallCard(
-        task = Task(
-            title = "Task 1",
-            description = "Task 1 description",
-            dueDate = 1666999999999L,
-            priority = Priority.MEDIUM,
-            isCompleted = false,
-            id = "1"
-        ),
-        onComplete = {},
-        onClick = {}
-    )
 }

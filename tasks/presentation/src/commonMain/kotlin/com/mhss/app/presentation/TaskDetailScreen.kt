@@ -51,7 +51,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleStartEffect
@@ -95,6 +94,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.uuid.ExperimentalUuidApi
 import org.jetbrains.compose.resources.stringResource as cmpStringResource
 
 @Suppress("AssignedValueIsNeverRead")
@@ -108,7 +108,6 @@ fun TaskDetailScreen(
     val uiState by viewModel.taskDetailsUiState.collectAsState()
     val snackbarHostState = uiState.snackbarHostState
     var openDialog by rememberSaveable { mutableStateOf(false) }
-    val context = LocalContext.current
 
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -268,6 +267,7 @@ fun TaskDetailScreen(
         )
 }
 
+@OptIn(ExperimentalUuidApi::class)
 @Composable
 fun TaskDetailsContent(
     modifier: Modifier = Modifier,

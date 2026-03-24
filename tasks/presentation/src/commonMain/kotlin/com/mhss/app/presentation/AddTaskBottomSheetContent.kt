@@ -23,9 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mhss.app.domain.model.Priority
@@ -36,14 +34,17 @@ import com.mhss.app.datetime.LocalDateTimeFormatter
 import com.mhss.app.datetime.now
 import com.mhss.app.ui.Res
 import com.mhss.app.ui.add_task
+import com.mhss.app.ui.preview.BasePreview
 import kotlin.uuid.Uuid
+import org.jetbrains.compose.resources.stringResource
+import kotlin.uuid.ExperimentalUuidApi
 
+@OptIn(ExperimentalUuidApi::class)
 @Composable
 fun AddTaskBottomSheetContent(
     onAddTask: (Task) -> Unit,
     focusRequester: FocusRequester,
 ) {
-    val context = LocalContext.current
     var completed by rememberSaveable { mutableStateOf(false) }
     var title by rememberSaveable { mutableStateOf("") }
     var description by rememberSaveable { mutableStateOf("") }
@@ -144,5 +145,7 @@ fun AddTaskBottomSheetContent(
 @Preview(showBackground = true)
 @Composable
 fun AddTaskSheetPreview() {
-    AddTaskBottomSheetContent(onAddTask = {}, remember { FocusRequester() })
+    BasePreview {
+        AddTaskBottomSheetContent(onAddTask = {}, remember { FocusRequester() })
+    }
 }

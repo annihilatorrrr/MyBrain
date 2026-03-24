@@ -33,6 +33,7 @@ import com.mhss.app.domain.model.SubTask
 import com.mhss.app.ui.Res
 import com.mhss.app.ui.delete_sub_task
 import com.mhss.app.ui.ic_delete
+import com.mhss.app.ui.preview.BasePreview
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -110,5 +111,7 @@ fun SubTaskItem(
 @Preview(showBackground = true)
 @Composable
 private fun SubTaskItemPreview() {
-    SubTaskItem(subTask = SubTask("Title", true), {}, {})
+    BasePreview {
+        SubTaskItem(subTask = SubTask("Title", true), {}, {})
+    }
 }

@@ -40,9 +40,8 @@ class TaskActionButtonBroadcastReceiver : BroadcastReceiver(), KoinComponent {
         }
     }
 
-    // The new is uuid string but previously it was an int which is same as alarm id
     private suspend fun Intent.getTaskBackwardsCompat(): Task? {
-        val taskId = getStringExtra(NotificationConstants.TASK_ID_EXTRA) // uuid
+        val taskId = getStringExtra(NotificationConstants.TASK_ID_EXTRA)
         taskId?.let { return getTaskById(it) }
         val alarmId = getIntExtra(NotificationConstants.TASK_ID_EXTRA, -1).takeIf { it != -1 }
         return alarmId?.let { getTaskByAlarm(it) }

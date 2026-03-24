@@ -1,6 +1,5 @@
 package com.mhss.app.notification
 
-import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -29,22 +28,26 @@ class AlarmReceiver : BroadcastReceiver(), KoinComponent {
                 return@launch
             }
 
-            val manager =
-                context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            manager.sendNotification(task, context, task.alarmId ?: return@launch)
-            deleteAlarmUseCase(task.alarmId ?: return@launch)
+            val ctx = context ?: run {
+                pendingResult.finish()
+                return@launch
+            }
+
+            val alarmId = task.alarmId ?: run {
+                pendingResult.finish()
+                return@launch
+            }
+            showTaskReminderNotification(ctx, task, alarmId)
+            deleteAlarmUseCase(alarmId)
 
             pendingResult.finish()
         }
     }
 
-
-    // Newly used name is alarm id but previous versions use task id name
     private suspend fun Intent.getTaskBackwardsCompat(): Task? {
         val alarmId =
             getIntExtra(NotificationConstants.ALARM_ID_EXTRA, -1).takeIf { it != -1 }
                 ?: getIntExtra(NotificationConstants.TASK_ID_EXTRA, -1).takeIf { it != -1 }
         return alarmId?.let { getTaskByAlarm(it) }
     }
-
 }

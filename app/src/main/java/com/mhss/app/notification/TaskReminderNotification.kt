@@ -7,12 +7,19 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.app.TaskStackBuilder
 import androidx.core.net.toUri
-import com.mhss.app.util.Constants
 import com.mhss.app.domain.model.Priority
 import com.mhss.app.domain.model.Task
 import com.mhss.app.ui.R
+import com.mhss.app.util.Constants
 
-fun NotificationManager.sendNotification(task: Task, context: Context, id: Int) {
+fun showTaskReminderNotification(
+    context: Context,
+    task: Task,
+    notificationId: Int,
+) {
+    val manager =
+        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
     val completeIntent = Intent(context, TaskActionButtonBroadcastReceiver::class.java).apply {
         action = NotificationConstants.ACTION_COMPLETE
         putExtra(NotificationConstants.TASK_ID_EXTRA, task.id)
@@ -22,12 +29,12 @@ fun NotificationManager.sendNotification(task: Task, context: Context, id: Int) 
             context,
             task.alarmId ?: return,
             completeIntent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
 
     val taskDetailIntent = Intent(
         Intent.ACTION_VIEW,
-        "${Constants.TASK_DETAILS_URI}/${task.id}".toUri()
+        "${Constants.TASK_DETAILS_URI}/${task.id}".toUri(),
     )
     val taskDetailsPendingIntent: PendingIntent? = TaskStackBuilder.create(context).run {
         addNextIntentWithParentStack(taskDetailIntent)
@@ -44,11 +51,11 @@ fun NotificationManager.sendNotification(task: Task, context: Context, id: Int) 
                 Priority.LOW -> NotificationCompat.PRIORITY_DEFAULT
                 Priority.MEDIUM -> NotificationCompat.PRIORITY_HIGH
                 Priority.HIGH -> NotificationCompat.PRIORITY_MAX
-            }
+            },
         )
         .addAction(R.drawable.ic_check, context.getString(R.string.complete), completePendingIntent)
         .setAutoCancel(true)
         .build()
 
-    notify(id, notification)
+    manager.notify(notificationId, notification)
 }

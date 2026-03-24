@@ -88,7 +88,6 @@ dependencies {
     implementation(projects.settings.domain)
     implementation(projects.ai.domain)
 
-    implementation(projects.core.notification)
     implementation(projects.core.ui)
     implementation(projects.core.di)
     implementation(projects.core.alarm)

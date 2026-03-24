@@ -11,7 +11,6 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.qualifier.named
-import kotlin.getValue
 
 class BootBroadcastReceiver : BroadcastReceiver(), KoinComponent {
 
@@ -34,7 +33,5 @@ class BootBroadcastReceiver : BroadcastReceiver(), KoinComponent {
                 }
             }
         }
-
     }
-
 }

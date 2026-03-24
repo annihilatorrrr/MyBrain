@@ -19,7 +19,6 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 rootProject.name = "MyBrain"
 include ':app'
 include ':core:datetime'
-include ':core:notification'
 include ':tasks:domain'
 include ':core:alarm'
 include ':notes:domain'

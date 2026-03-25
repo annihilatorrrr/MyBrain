@@ -7,7 +7,8 @@ enum class AppFont(val value: Int) {
     DEFAULT(0),
     RUBIK(1),
     MONOSPACE(2),
-    SANS_SERIF(3);
+    SANS_SERIF(3),
+    IBM_PLEX(4);
 
     companion object {
         fun fromValue(value: Int): AppFont =
@@ -26,5 +27,6 @@ fun AppFont.getName(): String {
         AppFont.RUBIK -> "Rubik"
         AppFont.MONOSPACE -> "Monospace"
         AppFont.SANS_SERIF -> "Sans Serif"
+        AppFont.IBM_PLEX -> "IBM Plex"
     }
 }

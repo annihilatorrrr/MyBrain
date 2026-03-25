@@ -178,8 +178,8 @@ fun SettingsScreen(
                 val screen = viewModel
                     .getSettings(
                         intPreferencesKey(PrefsConstants.APP_FONT_KEY),
-                        AppFont.RUBIK.value
-                    ).collectAsStateWithLifecycle(AppFont.RUBIK.value)
+                        AppFont.IBM_PLEX.value
+                    ).collectAsStateWithLifecycle(AppFont.IBM_PLEX.value)
                 AppFontSettingsItem(
                     screen.value,
                 ) { font ->

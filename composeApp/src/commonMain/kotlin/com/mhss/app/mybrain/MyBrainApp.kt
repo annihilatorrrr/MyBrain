@@ -83,7 +83,7 @@ fun MyBrainApp(
     var appUnlocked by remember { mutableStateOf(true) }
     val useMaterialYou by viewModel.useMaterialYou.collectAsStateWithLifecycle(false)
     val lifecycleOwner = LocalLifecycleOwner.current
-    val font = viewModel.font.collectAsStateWithLifecycle(AppFont.RUBIK.value)
+    val font = viewModel.font.collectAsStateWithLifecycle(AppFont.IBM_PLEX.value)
     val fontSize = viewModel.fontSize.collectAsStateWithLifecycle(1)
     var startDestination: Screen by remember { mutableStateOf(Screen.SpacesScreen) }
     LaunchedEffect(Unit) {

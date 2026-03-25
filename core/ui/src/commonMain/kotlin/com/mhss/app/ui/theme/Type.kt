@@ -8,6 +8,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.mhss.app.ui.AppFont
 import com.mhss.app.ui.Res
+import com.mhss.app.ui.ibm_plex
+import com.mhss.app.ui.ibm_plex_bold
 import com.mhss.app.ui.rubik_bold
 import com.mhss.app.ui.rubik_regular
 import org.jetbrains.compose.resources.Font as ResourceFont
@@ -22,6 +24,10 @@ fun AppFont.toFontFamily(): FontFamily {
         )
         AppFont.MONOSPACE -> FontFamily.Monospace
         AppFont.SANS_SERIF -> FontFamily.SansSerif
+        AppFont.IBM_PLEX -> FontFamily(
+            ResourceFont(Res.font.ibm_plex),
+            ResourceFont(Res.font.ibm_plex_bold, FontWeight.Bold)
+        )
     }
 }
 

@@ -55,7 +55,7 @@ private val LightColorPalette = lightColorScheme(
 fun MyBrainTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     useDynamicColors: Boolean = false,
-    fontFamily: FontFamily = AppFont.RUBIK.toFontFamily(),
+    fontFamily: FontFamily = AppFont.IBM_PLEX.toFontFamily(),
     fontSizeScale: Float = 1.0f,
     content: @Composable () -> Unit
 ) {

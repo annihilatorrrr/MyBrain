@@ -19,6 +19,7 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 rootProject.name = "MyBrain"
 include ':composeApp'
 include ':androidApp'
+include ':appfunctions'
 include ':core:datetime'
 include ':tasks:domain'
 include ':core:alarm'

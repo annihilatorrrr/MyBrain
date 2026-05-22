@@ -34,4 +34,5 @@
     <string name="add_to_tasks">Add to tasks</string>
     <string name="add_task_to_my_brain">Add task to My Brain</string>
     <string name="exception_stack_trace_copied">Exception stack trace copied to clipboard</string>
+    <string name="app_visible_description">Manage notes, tasks, bookmarks, and diary.</string>
 </resources>

@@ -76,6 +76,7 @@ kotlin {
         androidMain {
             dependencies {
                 implementation(projects.widget)
+                implementation(projects.appfunctions)
 
                 implementation(libs.androidx.appcompat)
                 implementation(libs.androidx.core.ktx)

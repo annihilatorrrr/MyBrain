@@ -9,20 +9,22 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
+import androidx.appfunctions.service.AppFunctionConfiguration
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.mhss.app.alarm.di.AlarmModule
-import com.mhss.app.data.di.AiDataModule
 import com.mhss.app.data.NoteDataModule
-import com.mhss.app.data.di.CalendarDataModule
+import com.mhss.app.data.di.AiDataModule
 import com.mhss.app.data.di.BookmarksDataModule
+import com.mhss.app.data.di.CalendarDataModule
 import com.mhss.app.data.di.DiaryDataModule
 import com.mhss.app.data.di.SettingsDataModule
 import com.mhss.app.data.di.TasksDataModule
 import com.mhss.app.data.noteMarkdownModule
 import com.mhss.app.data.noteRoomModule
 import com.mhss.app.database.di.databaseModule
+import com.mhss.app.datetime.DateTimeModule
 import com.mhss.app.di.coroutinesModule
 import com.mhss.app.domain.di.AiDomainModule
 import com.mhss.app.domain.di.BookmarksDomainModule
@@ -31,7 +33,8 @@ import com.mhss.app.domain.di.DiaryDomainModule
 import com.mhss.app.domain.di.NoteDomainModule
 import com.mhss.app.domain.di.SettingsDomainModule
 import com.mhss.app.domain.di.TasksDomainModule
-import com.mhss.app.datetime.DateTimeModule
+import com.mhss.app.mybrain.appfunctions.MyBrainAppFunctions
+import com.mhss.app.mybrain.appfunctions.appFunctionsModule
 import com.mhss.app.mybrain.di.MainPresentationModule
 import com.mhss.app.mybrain.di.platformModule
 import com.mhss.app.mybrain.notification.NotificationConstants
@@ -56,6 +59,7 @@ import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.workmanager.koin.workManagerFactory
+import org.koin.core.context.GlobalContext
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.startKoin
 import org.koin.ksp.generated.module
@@ -63,7 +67,13 @@ import kotlin.system.exitProcess
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PrefsConstants.SETTINGS_PREFERENCES)
 
-class MyBrainApplication : Application() {
+class MyBrainApplication : Application(), AppFunctionConfiguration.Provider {
+
+    override val appFunctionConfiguration: AppFunctionConfiguration by lazy {
+        AppFunctionConfiguration.Builder()
+            .addEnclosingClassFactory(MyBrainAppFunctions::class.java) { GlobalContext.get().get<MyBrainAppFunctions>() }
+            .build()
+    }
 
     private val getPreference: GetPreferenceUseCase by inject()
 
@@ -74,6 +84,7 @@ class MyBrainApplication : Application() {
             androidContext(this@MyBrainApplication)
             androidLogger()
             modules(
+                appFunctionsModule,
                 platformModule,
                 DateTimeModule().module,
                 MainPresentationModule().module,

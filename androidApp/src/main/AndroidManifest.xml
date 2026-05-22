@@ -27,6 +27,10 @@
         android:theme="@style/Theme.MyBrain"
         android:usesCleartextTraffic="true"
         tools:ignore="UnusedAttribute">
+
+        <property android:name="android.app.appfunctions.app_metadata"
+                  android:resource="@xml/app_metadata" />
+
         <activity
             android:name=".presentation.main.MainActivity"
             android:exported="true"

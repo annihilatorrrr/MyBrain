@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AppFunctionAppMetadata xmlns:appfn="http://schemas.android.com/apk/androidx.appfunctions"
+    appfn:description="The app manages personal notes, tasks, diary, and bookmarks.
+    Operational Patterns:
+    - Use search functions to retrieve existing items by query before updating them.
+    Constraints:
+    - IDs must be valid strings. Use creation or search tools to get valid IDs."
+    appfn:displayDescription="@string/app_visible_description" />

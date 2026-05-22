@@ -34,4 +34,5 @@
     <string name="add_to_tasks">إضافة الى المهام</string>
     <string name="add_task_to_my_brain">إضافة مهمة</string>
     <string name="exception_stack_trace_copied">تم نسخ نص الخطأ في الحافظة</string>
+    <string name="app_visible_description">إدارة الملاحظات والمهام والإشارات المرجعية واليوميات.</string>
 </resources>

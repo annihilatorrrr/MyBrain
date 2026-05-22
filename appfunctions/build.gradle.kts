@@ -1,0 +1,57 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+plugins {
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.ksp)
+}
+
+android {
+    namespace = "com.mhss.app.mybrain.appfunctions"
+    compileSdk = 36
+
+    defaultConfig {
+        minSdk = 26
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_17
+        }
+    }
+}
+
+dependencies {
+    implementation(projects.notes.domain)
+    implementation(projects.tasks.domain)
+    implementation(projects.diary.domain)
+    implementation(projects.bookmarks.domain)
+
+    implementation(libs.androidx.appfunctions)
+    api(libs.androidx.appfunctions.service)
+    ksp(libs.androidx.appfunctions.compiler)
+
+    implementation(libs.kotlinx.coroutines.core)
+
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.core)
+}
+
+ksp {
+    arg("appfunctions:aggregateAppFunctions", "true")
+}

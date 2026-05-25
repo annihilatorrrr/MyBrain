@@ -3,31 +3,31 @@ package com.mhss.app.database.migrations
 
 import androidx.room3.migration.Migration
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.executeSQL
+import androidx.sqlite.execSQL
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 val MIGRATION_1_2 = object : Migration(1, 2) {
     override suspend fun migrate(connection: SQLiteConnection) {
-        connection.executeSQL("CREATE TABLE note_folders (name TEXT NOT NULL, id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)")
+        connection.execSQL("CREATE TABLE note_folders (name TEXT NOT NULL, id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)")
 
-        connection.executeSQL("CREATE TABLE IF NOT EXISTS `notes_new` (`title` TEXT NOT NULL, `content` TEXT NOT NULL, `created_date` INTEGER NOT NULL, `updated_date` INTEGER NOT NULL, `pinned` INTEGER NOT NULL, `folder_id` INTEGER, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, FOREIGN KEY (folder_id) REFERENCES note_folders (id) ON UPDATE NO ACTION ON DELETE CASCADE)")
-        connection.executeSQL("INSERT INTO notes_new (title, content, created_date, updated_date, pinned, id) SELECT title, content, created_date, updated_date, pinned, id FROM notes")
-        connection.executeSQL("DROP TABLE notes")
-        connection.executeSQL("ALTER TABLE notes_new RENAME TO notes")
+        connection.execSQL("CREATE TABLE IF NOT EXISTS `notes_new` (`title` TEXT NOT NULL, `content` TEXT NOT NULL, `created_date` INTEGER NOT NULL, `updated_date` INTEGER NOT NULL, `pinned` INTEGER NOT NULL, `folder_id` INTEGER, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, FOREIGN KEY (folder_id) REFERENCES note_folders (id) ON UPDATE NO ACTION ON DELETE CASCADE)")
+        connection.execSQL("INSERT INTO notes_new (title, content, created_date, updated_date, pinned, id) SELECT title, content, created_date, updated_date, pinned, id FROM notes")
+        connection.execSQL("DROP TABLE notes")
+        connection.execSQL("ALTER TABLE notes_new RENAME TO notes")
     }
 }
 
 val MIGRATION_2_3 = object : Migration(2, 3) {
     override suspend fun migrate(connection: SQLiteConnection) {
-        connection.executeSQL("ALTER TABLE tasks ADD COLUMN recurring INTEGER NOT NULL DEFAULT 0")
-        connection.executeSQL("ALTER TABLE tasks ADD COLUMN frequency INTEGER NOT NULL DEFAULT 0")
+        connection.execSQL("ALTER TABLE tasks ADD COLUMN recurring INTEGER NOT NULL DEFAULT 0")
+        connection.execSQL("ALTER TABLE tasks ADD COLUMN frequency INTEGER NOT NULL DEFAULT 0")
     }
 }
 
 val MIGRATION_3_4 = object : Migration(3, 4) {
     override suspend fun migrate(connection: SQLiteConnection) {
-        connection.executeSQL("ALTER TABLE tasks ADD COLUMN frequency_amount INTEGER NOT NULL DEFAULT 1")
+        connection.execSQL("ALTER TABLE tasks ADD COLUMN frequency_amount INTEGER NOT NULL DEFAULT 1")
     }
 }
 
@@ -36,8 +36,8 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
     override suspend fun migrate(connection: SQLiteConnection) {
         val folderIdMapping = HashMap<Int, String>()
 
-        connection.executeSQL("CREATE TABLE note_folders_new (name TEXT NOT NULL, id TEXT PRIMARY KEY NOT NULL)")
-        connection.executeSQL("CREATE TABLE notes_new (title TEXT NOT NULL, content TEXT NOT NULL, created_date INTEGER NOT NULL, updated_date INTEGER NOT NULL, pinned INTEGER NOT NULL, folder_id TEXT, id TEXT PRIMARY KEY NOT NULL)")
+        connection.execSQL("CREATE TABLE note_folders_new (name TEXT NOT NULL, id TEXT PRIMARY KEY NOT NULL)")
+        connection.execSQL("CREATE TABLE notes_new (title TEXT NOT NULL, content TEXT NOT NULL, created_date INTEGER NOT NULL, updated_date INTEGER NOT NULL, pinned INTEGER NOT NULL, folder_id TEXT, id TEXT PRIMARY KEY NOT NULL)")
 
         val folders = mutableListOf<Pair<Int, String>>()
         connection.prepare("SELECT id, name FROM note_folders").use { stmt ->
@@ -90,12 +90,12 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
             }
         }
 
-        connection.executeSQL("DROP TABLE notes")
-        connection.executeSQL("DROP TABLE note_folders")
-        connection.executeSQL("ALTER TABLE note_folders_new RENAME TO note_folders")
-        connection.executeSQL("ALTER TABLE notes_new RENAME TO notes")
+        connection.execSQL("DROP TABLE notes")
+        connection.execSQL("DROP TABLE note_folders")
+        connection.execSQL("ALTER TABLE note_folders_new RENAME TO note_folders")
+        connection.execSQL("ALTER TABLE notes_new RENAME TO notes")
 
-        connection.executeSQL("CREATE TABLE bookmarks_new (url TEXT NOT NULL, title TEXT NOT NULL, description TEXT NOT NULL, created_date INTEGER NOT NULL, updated_date INTEGER NOT NULL, id TEXT PRIMARY KEY NOT NULL)")
+        connection.execSQL("CREATE TABLE bookmarks_new (url TEXT NOT NULL, title TEXT NOT NULL, description TEXT NOT NULL, created_date INTEGER NOT NULL, updated_date INTEGER NOT NULL, id TEXT PRIMARY KEY NOT NULL)")
 
         data class OldBookmark(
             val url: String, val title: String, val description: String,
@@ -128,11 +128,11 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
             }
         }
 
-        connection.executeSQL("DROP TABLE bookmarks")
-        connection.executeSQL("ALTER TABLE bookmarks_new RENAME TO bookmarks")
+        connection.execSQL("DROP TABLE bookmarks")
+        connection.execSQL("ALTER TABLE bookmarks_new RENAME TO bookmarks")
 
         val alarmIdSet = HashSet<Int>()
-        connection.executeSQL("CREATE TABLE alarms_new (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, time INTEGER NOT NULL)")
+        connection.execSQL("CREATE TABLE alarms_new (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, time INTEGER NOT NULL)")
 
         data class OldAlarm(val id: Int, val time: Long)
         val alarms = mutableListOf<OldAlarm>()
@@ -150,10 +150,10 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
             alarmIdSet.add(alarm.id)
         }
 
-        connection.executeSQL("DROP TABLE alarms")
-        connection.executeSQL("ALTER TABLE alarms_new RENAME TO alarms")
+        connection.execSQL("DROP TABLE alarms")
+        connection.execSQL("ALTER TABLE alarms_new RENAME TO alarms")
 
-        connection.executeSQL("CREATE TABLE tasks_new (title TEXT NOT NULL, description TEXT NOT NULL, is_completed INTEGER NOT NULL, priority INTEGER NOT NULL, created_date INTEGER NOT NULL, updated_date INTEGER NOT NULL, sub_tasks TEXT NOT NULL, dueDate INTEGER NOT NULL, recurring INTEGER NOT NULL, frequency INTEGER NOT NULL, frequency_amount INTEGER NOT NULL, alarmId INTEGER, id TEXT PRIMARY KEY NOT NULL)")
+        connection.execSQL("CREATE TABLE tasks_new (title TEXT NOT NULL, description TEXT NOT NULL, is_completed INTEGER NOT NULL, priority INTEGER NOT NULL, created_date INTEGER NOT NULL, updated_date INTEGER NOT NULL, sub_tasks TEXT NOT NULL, dueDate INTEGER NOT NULL, recurring INTEGER NOT NULL, frequency INTEGER NOT NULL, frequency_amount INTEGER NOT NULL, alarmId INTEGER, id TEXT PRIMARY KEY NOT NULL)")
 
         data class OldTask(
             val id: Int, val title: String, val description: String,
@@ -203,10 +203,10 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
             }
         }
 
-        connection.executeSQL("DROP TABLE tasks")
-        connection.executeSQL("ALTER TABLE tasks_new RENAME TO tasks")
+        connection.execSQL("DROP TABLE tasks")
+        connection.execSQL("ALTER TABLE tasks_new RENAME TO tasks")
 
-        connection.executeSQL("CREATE TABLE diary_new (title TEXT NOT NULL, content TEXT NOT NULL, created_date INTEGER NOT NULL, updated_date INTEGER NOT NULL, mood INTEGER NOT NULL, id TEXT PRIMARY KEY NOT NULL)")
+        connection.execSQL("CREATE TABLE diary_new (title TEXT NOT NULL, content TEXT NOT NULL, created_date INTEGER NOT NULL, updated_date INTEGER NOT NULL, mood INTEGER NOT NULL, id TEXT PRIMARY KEY NOT NULL)")
 
         data class OldDiary(
             val title: String, val content: String, val createdDate: Long,
@@ -239,7 +239,7 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
             }
         }
 
-        connection.executeSQL("DROP TABLE diary")
-        connection.executeSQL("ALTER TABLE diary_new RENAME TO diary")
+        connection.execSQL("DROP TABLE diary")
+        connection.execSQL("ALTER TABLE diary_new RENAME TO diary")
     }
 }

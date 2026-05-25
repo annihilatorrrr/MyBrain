@@ -8,11 +8,9 @@ kotlin {
     android {
         namespace = "com.mhss.app.ai.domain"
         compileSdk {
-            version = release(36) {
-                minorApiLevel = 1
-            }
+            version = release(libs.versions.compileSdk.get().toInt())
         }
-        minSdk = 26
+        minSdk = libs.versions.minSdk.get().toInt()
     }
 
     sourceSets {

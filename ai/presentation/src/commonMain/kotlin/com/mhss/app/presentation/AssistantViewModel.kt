@@ -28,6 +28,7 @@ import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import com.mhss.app.ui.ItemView
 import com.mhss.app.ui.toIntList
 import com.mhss.app.ui.toNotesView
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,6 +42,7 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import org.koin.android.annotation.KoinViewModel
 import kotlin.uuid.ExperimentalUuidApi
@@ -205,31 +207,32 @@ class AssistantViewModel(
         }
     }
 
-    private suspend fun getAttachmentText(attachments: List<AiMessageAttachment>): String {
-        val builder = StringBuilder()
-        if (attachments.isEmpty()) return ""
-        builder.appendLine()
-        builder.appendLine("Attached content from the user:")
-        for (attachment in attachments) {
-            when (attachment) {
-                is AiMessageAttachment.Note -> {
-                    builder.appendLine("Attached Note:")
-                    builder.appendLine(Json.encodeToString(attachment.note))
-                }
+    private suspend fun getAttachmentText(attachments: List<AiMessageAttachment>): String =
+        withContext(Dispatchers.Default) {
+            val builder = StringBuilder()
+            if (attachments.isEmpty()) return@withContext ""
+            builder.appendLine()
+            builder.appendLine("Attached content from the user:")
+            for (attachment in attachments) {
+                when (attachment) {
+                    is AiMessageAttachment.Note -> {
+                        builder.appendLine("Attached Note:")
+                        builder.appendLine(Json.encodeToString(attachment.note))
+                    }
 
-                is AiMessageAttachment.Task -> {
-                    builder.appendLine("Attached Task:")
-                    builder.appendLine(Json.encodeToString(attachment.task))
-                }
+                    is AiMessageAttachment.Task -> {
+                        builder.appendLine("Attached Task:")
+                        builder.appendLine(Json.encodeToString(attachment.task))
+                    }
 
-                is AiMessageAttachment.CalenderEvents -> {
-                    builder.appendLine("Next 7 days events:")
-                    builder.appendLine(Json.encodeToString(getEventsForNext7Days()))
+                    is AiMessageAttachment.CalenderEvents -> {
+                        builder.appendLine("Next 7 days events:")
+                        builder.appendLine(Json.encodeToString(getEventsForNext7Days()))
+                    }
                 }
             }
+            return@withContext builder.toString()
         }
-        return builder.toString()
-    }
 
     private suspend fun getEventsForNext7Days(): Map<String, List<CalendarEvent>> {
         val excluded = getPreference(

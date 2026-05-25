@@ -19,6 +19,7 @@ import kotlinx.datetime.format.byUnicodePattern
 import kotlinx.datetime.format.char
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.serialization.json.Json
 import kotlin.time.Clock
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -108,6 +109,7 @@ fun AiProvider.toLLMProvider() = when (this) {
     AiProvider.OpenRouter -> LLMProvider.OpenRouter
     AiProvider.Ollama -> LLMProvider.Ollama
     AiProvider.LmStudio -> LLMProvider.OpenAI
+    AiProvider.GeminiNano -> LLMProvider.Google
     AiProvider.None -> LLMProvider.OpenAI // just a placeholder
 }
 
@@ -152,3 +154,5 @@ fun Throwable.getRootCause(): Throwable {
     }
     return rootCause ?: this
 }
+
+internal val json = Json { ignoreUnknownKeys = true }

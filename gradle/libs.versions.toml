@@ -36,6 +36,7 @@ koog = "0.7.2"
 liquid = "1.1.1"
 composeMultiplatform = "1.11.0"
 appFunctions = "1.0.0-alpha09"
+mlkitGenaiPrompt = "1.0.0-beta2"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -96,6 +97,7 @@ compose-material3 = { module = "org.jetbrains.compose.material3:material3", vers
 androidx-appfunctions = { module = "androidx.appfunctions:appfunctions", version.ref = "appFunctions" }
 androidx-appfunctions-service = { module = "androidx.appfunctions:appfunctions-service", version.ref = "appFunctions" }
 androidx-appfunctions-compiler = { module = "androidx.appfunctions:appfunctions-compiler", version.ref = "appFunctions" }
+mlkit-genai-prompt = { group = "com.google.mlkit", name = "genai-prompt", version.ref = "mlkitGenaiPrompt" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }

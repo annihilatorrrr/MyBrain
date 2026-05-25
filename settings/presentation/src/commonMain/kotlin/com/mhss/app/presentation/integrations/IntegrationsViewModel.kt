@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mhss.app.data.noteMarkdownModule
 import com.mhss.app.data.noteRoomModule
-import com.mhss.app.storage.FileUtilsRepository
+import com.mhss.app.domain.gemininano.GeminiNanoService
+import com.mhss.app.domain.gemininano.GeminiNanoStatus
+import com.mhss.app.domain.gemininano.toGeminiNanoMode
 import com.mhss.app.domain.use_case.UpdateExternalNotesFolderUseCase
 import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.domain.model.AiProvider
@@ -19,6 +21,8 @@ import com.mhss.app.preferences.domain.model.stringPreferencesKey
 import com.mhss.app.preferences.domain.model.toAiProvider
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import com.mhss.app.preferences.domain.use_case.SavePreferenceUseCase
+import com.mhss.app.storage.FileUtilsRepository
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -32,8 +36,20 @@ class IntegrationsViewModel(
     private val savePreference: SavePreferenceUseCase,
     private val getPreference: GetPreferenceUseCase,
     private val updateExternalNotesFolder: UpdateExternalNotesFolderUseCase,
-    private val fileUtilsRepository: FileUtilsRepository
+    private val fileUtilsRepository: FileUtilsRepository,
+    private val geminiNanoService: GeminiNanoService
 ) : ViewModel() {
+
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        throwable.printStackTrace()
+    }
+    val geminiNanoStatus: Flow<GeminiNanoStatus> = geminiNanoService.status
+
+    init {
+        viewModelScope.launch(exceptionHandler) {
+            refreshGeminiNanoIfEnabled()
+        }
+    }
 
     fun <T> getSettings(key: PrefsKey<T>, defaultValue: T): Flow<T> {
         return getPreference(key, defaultValue)
@@ -68,6 +84,9 @@ class IntegrationsViewModel(
                     IntKey(PrefsConstants.AI_PROVIDER_KEY),
                     event.provider.id
                 )
+                if (event.provider == AiProvider.GeminiNano) {
+                    viewModelScope.launch { refreshGeminiNanoStatus() }
+                }
             }
 
             is IntegrationsEvent.UpdateApiKey -> {
@@ -79,6 +98,11 @@ class IntegrationsViewModel(
             is IntegrationsEvent.UpdateModel -> {
                 event.provider.modelPrefsKey?.let { key ->
                     saveSettings(key, event.model)
+                }
+                if (event.provider == AiProvider.GeminiNano) {
+                    viewModelScope.launch(exceptionHandler) {
+                        geminiNanoService.refreshStatus(event.model.toGeminiNanoMode())
+                    }
                 }
             }
 
@@ -107,6 +131,16 @@ class IntegrationsViewModel(
                     BooleanKey(PrefsConstants.AI_TOOLS_ENABLED_KEY),
                     event.enabled
                 )
+            }
+
+            IntegrationsEvent.DownloadGeminiNanoModel -> {
+                viewModelScope.launch(exceptionHandler) {
+                    val model = getPreference(
+                        stringPreferencesKey(PrefsConstants.GEMINI_NANO_MODEL_KEY),
+                        AiProvider.GeminiNano.defaultModel.orEmpty()
+                    ).first()
+                    geminiNanoService.download(model.toGeminiNanoMode())
+                }
             }
 
             is IntegrationsEvent.SelectExternalNotesFolder -> {
@@ -144,5 +178,22 @@ class IntegrationsViewModel(
             savePreference(key, value)
         }
     }
-}
 
+    private suspend fun refreshGeminiNanoStatus() {
+        val model = getPreference(
+            stringPreferencesKey(PrefsConstants.GEMINI_NANO_MODEL_KEY),
+            AiProvider.GeminiNano.defaultModel.orEmpty()
+        ).first()
+        geminiNanoService.refreshStatus(model.toGeminiNanoMode())
+    }
+
+    private suspend fun refreshGeminiNanoIfEnabled() {
+        val provider = getPreference(
+            IntKey(PrefsConstants.AI_PROVIDER_KEY),
+            AiProvider.None.id
+        ).first().toAiProvider()
+        if (provider != AiProvider.GeminiNano) return
+
+        refreshGeminiNanoStatus()
+    }
+}

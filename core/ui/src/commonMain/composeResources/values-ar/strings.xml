@@ -269,4 +269,22 @@
     <string name="export_types">محتوى التصدير</string>
     <string name="export_format_json">ملف JSON</string>
     <string name="export_format_markdown">ملفات Markdown</string>
+    <string name="offline">بدون إنترنت</string>
+    <string name="gemini_nano_fast">سريع</string>
+    <string name="gemini_nano_fast_description">الأكثر كفاءة, مصمم للردود السريعة</string>
+    <string name="gemini_nano_full">كامل</string>
+    <string name="gemini_nano_full_description">الأكثر قدرة, إجابات عالية الجودة</string>
+    <string name="gemini_nano_status_check_error">تعذر التحقق من حالة Gemini Nano. قد يكون غير مدعوم على هذا الجهاز.\nالخطأ: %1$s</string>
+    <string name="gemini_nano_error">حدث خطأ غير متوقع: %1$s</string>
+    <string name="gemini_nano_unsupported">Gemini Nano غير متوفر على هذا الجهاز</string>
+    <string name="downloading_model">جاري تحميل النموذج</string>
+    <string name="gemini_nano_error_not_available">خدمة Gemini Nano غير متوفرة.</string>
+    <string name="gemini_nano_error_busy">Gemini Nano مشغول بالمعالجة حالياً. يرجى المحاولة مرة أخرى.</string>
+    <string name="gemini_nano_error_request_too_large">الطلب يتجاوز حدود الحجم المسموح بها لـ Gemini Nano.</string>
+    <string name="gemini_nano_error_system_update_needed">مطلوب تحديث النظام لتشغيل Gemini Nano.</string>
+    <string name="gemini_nano_error_incompatible">هذا الجهاز غير متوافق مع Gemini Nano.</string>
+    <string name="gemini_nano_error_no_disk_space">لا توجد مساحة كافية لتشغيل Gemini Nano.</string>
+    <string name="gemini_nano_error_background_blocked">تشغيل الذكاء الاصطناعي في الخلفية محظور بواسطة النظام.</string>
+    <string name="gemini_nano_error_battery_quota_exceeded">تم تجاوز حصة استهلاك البطارية للذكاء الاصطناعي على الجهاز.</string>
+    <string name="download_model">تحميل النموذج</string>
 </resources>

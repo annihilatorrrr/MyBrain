@@ -272,4 +272,23 @@
     <string name="sunday">Sunday</string>
     <string name="monday">Monday</string>
     <string name="saturday">Saturday</string>
+    <string name="gemini_nano" translatable="false">Gemini Nano</string>
+    <string name="offline">Offline</string>
+    <string name="gemini_nano_fast">Fast</string>
+    <string name="gemini_nano_fast_description">Most efficient, designed for fast responses</string>
+    <string name="gemini_nano_full">Full</string>
+    <string name="gemini_nano_full_description">Most capable, highest quality answers</string>
+    <string name="gemini_nano_status_check_error">Unable to check Gemini Nano status. This device is likely unsupported.\nError: %1$s</string>
+    <string name="gemini_nano_error">Unexpected error occurred: %1$s</string>
+    <string name="gemini_nano_unsupported">Gemini Nano is not available on this device</string>
+    <string name="downloading_model">Downloading model</string>
+    <string name="gemini_nano_error_not_available">Gemini Nano service is not available.</string>
+    <string name="gemini_nano_error_busy">Gemini Nano is busy processing. Please try again.</string>
+    <string name="gemini_nano_error_request_too_large">The request exceeds Gemini Nano\'s size limits.</string>
+    <string name="gemini_nano_error_system_update_needed">A system update is required to run Gemini Nano.</string>
+    <string name="gemini_nano_error_incompatible">This device is incompatible with Gemini Nano.</string>
+    <string name="gemini_nano_error_no_disk_space">Not enough disk space to run Gemini Nano.</string>
+    <string name="gemini_nano_error_background_blocked">Background execution of on-device AI is blocked by the system.</string>
+    <string name="gemini_nano_error_battery_quota_exceeded">Battery usage quota exceeded for on-device AI.</string>
+    <string name="download_model">Download model</string>
 </resources>

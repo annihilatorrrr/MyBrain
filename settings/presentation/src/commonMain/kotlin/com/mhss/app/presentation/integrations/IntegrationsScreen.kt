@@ -35,6 +35,7 @@ fun IntegrationsScreen(
                     getAiProvider = viewModel::getAiProvider,
                     getStringSetting = viewModel::getSettings,
                     getBooleanSetting = viewModel::getSettings,
+                    getGeminiNanoStatus = { viewModel.geminiNanoStatus },
                     onEvent = viewModel::onEvent
                 )
             }

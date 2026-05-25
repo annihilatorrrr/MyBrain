@@ -10,8 +10,8 @@
     <!-- to start the alarms after restart. (By default, all alarms are canceled when a device shuts down) -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <!--  For markdown features that require internet and other future app features -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="com.google.android.apps.aicore.service.BIND_SERVICE" />
 
 
     <application

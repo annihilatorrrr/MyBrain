@@ -35,6 +35,11 @@ kotlin {
                 implementation(libs.bundles.koin)
             }
         }
+        androidMain {
+            dependencies {
+                implementation(libs.mlkit.genai.prompt)
+            }
+        }
     }
 }
 

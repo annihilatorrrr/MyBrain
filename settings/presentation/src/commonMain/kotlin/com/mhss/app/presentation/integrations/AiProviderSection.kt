@@ -1,7 +1,6 @@
 package com.mhss.app.presentation.integrations
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -31,12 +29,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.Painter
-import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mhss.app.domain.gemininano.GeminiNanoStatus
 import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.domain.model.AiProvider
 import com.mhss.app.preferences.domain.model.PrefsKey
@@ -44,76 +40,36 @@ import com.mhss.app.preferences.domain.model.customUrlEnabledPrefsKey
 import com.mhss.app.preferences.domain.model.customUrlPrefsKey
 import com.mhss.app.preferences.domain.model.keyPrefsKey
 import com.mhss.app.preferences.domain.model.modelPrefsKey
-import com.mhss.app.presentation.components.ExperimentalBadge
+import com.mhss.app.presentation.integrations.components.AiDropdownOfflineBadge
+import com.mhss.app.presentation.integrations.components.AiProviderOption
+import com.mhss.app.presentation.integrations.components.AiToolsSwitch
 import com.mhss.app.presentation.integrations.components.CustomURLSection
+import com.mhss.app.presentation.integrations.components.GeminiNanoSettingsContent
 import com.mhss.app.presentation.integrations.components.SavableTextField
 import com.mhss.app.ui.Res
 import com.mhss.app.ui.ai
 import com.mhss.app.ui.ai_provider
-import com.mhss.app.ui.anthropic
 import com.mhss.app.ui.api_key
 import com.mhss.app.ui.base_url
-import com.mhss.app.ui.enable_ai_tools
 import com.mhss.app.ui.enable_ai_tools_description
-import com.mhss.app.ui.gemini
-import com.mhss.app.ui.ic_anthropic
-import com.mhss.app.ui.ic_gemini
-import com.mhss.app.ui.ic_lmstudio
-import com.mhss.app.ui.ic_ollama
-import com.mhss.app.ui.ic_openai
-import com.mhss.app.ui.ic_openrouter
-import com.mhss.app.ui.ic_tools
 import com.mhss.app.ui.insecure_url_warning
-import com.mhss.app.ui.lm_studio
 import com.mhss.app.ui.model
-import com.mhss.app.ui.ollama
-import com.mhss.app.ui.openai
-import com.mhss.app.ui.openrouter
 import com.mhss.app.ui.theme.MyBrainTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun AiProviderSection(
     getAiProvider: () -> Flow<AiProvider>,
     getStringSetting: (PrefsKey<String>, String) -> Flow<String>,
     getBooleanSetting: (PrefsKey<Boolean>, Boolean) -> Flow<Boolean>,
+    getGeminiNanoStatus: () -> Flow<GeminiNanoStatus>,
     onEvent: (IntegrationsEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val provider by getAiProvider().collectAsStateWithLifecycle(AiProvider.None)
-    val providerOptions = listOf(
-        ProviderOption(
-            provider = AiProvider.OpenAI,
-            label = stringResource(Res.string.openai),
-            icon = painterResource(Res.drawable.ic_openai)
-        ),
-        ProviderOption(
-            provider = AiProvider.Gemini,
-            label = stringResource(Res.string.gemini),
-            icon = painterResource(Res.drawable.ic_gemini)
-        ),
-        ProviderOption(
-            provider = AiProvider.Anthropic,
-            label = stringResource(Res.string.anthropic),
-            icon = painterResource(Res.drawable.ic_anthropic)
-        ),
-        ProviderOption(
-            provider = AiProvider.OpenRouter,
-            label = stringResource(Res.string.openrouter),
-            icon = painterResource(Res.drawable.ic_openrouter)
-        ),
-        ProviderOption(
-            provider = AiProvider.LmStudio,
-            label = stringResource(Res.string.lm_studio),
-            icon = painterResource(Res.drawable.ic_lmstudio)
-        ),
-        ProviderOption(
-            provider = AiProvider.Ollama,
-            label = stringResource(Res.string.ollama),
-            icon = painterResource(Res.drawable.ic_ollama)
-        )
-    )
     val aiEnabled = provider != AiProvider.None
     val aiToolsEnabled by getBooleanSetting(
         PrefsKey.BooleanKey(PrefsConstants.AI_TOOLS_ENABLED_KEY),
@@ -152,7 +108,6 @@ fun AiProviderSection(
                 Column {
                     Spacer(Modifier.height(12.dp))
                     ProviderSelector(
-                        options = providerOptions,
                         selected = provider,
                         onSelected = { selected ->
                             onEvent(IntegrationsEvent.SelectProvider(selected))
@@ -168,70 +123,35 @@ fun AiProviderSection(
                     ProviderSettingsContent(
                         provider = provider,
                         settings = providerSettings[provider],
+                        geminiNanoStatusFlow = getGeminiNanoStatus,
                         onEvent = onEvent
                     )
-                    AiToolsSwitch(
-                        checked = aiToolsEnabled,
-                        onCheck = { onEvent(IntegrationsEvent.ToggleAiTools(it)) }
-                    )
-                    Text(
-                        text = stringResource(Res.string.enable_ai_tools_description),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(horizontal = 12.dp)
-                    )
+                    if (provider != AiProvider.GeminiNano) {
+                        AiToolsSwitch(
+                            checked = aiToolsEnabled,
+                            onCheck = { onEvent(IntegrationsEvent.ToggleAiTools(it)) }
+                        )
+                        Text(
+                            text = stringResource(Res.string.enable_ai_tools_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 12.dp)
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-@Composable
-private fun AiToolsSwitch(
-    modifier: Modifier = Modifier,
-    checked: Boolean,
-    onCheck: (Boolean) -> Unit
-) {
-    Row(
-        modifier
-            .fillMaxWidth()
-            .clickable { onCheck(!checked) }
-            .padding(horizontal = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                painter = painterResource(Res.drawable.ic_tools),
-                contentDescription = "",
-                modifier = Modifier.size(16.dp)
-            )
-            Spacer(Modifier.width(8.dp))
-            Text(
-                text = stringResource(Res.string.enable_ai_tools),
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Spacer(Modifier.width(8.dp))
-            ExperimentalBadge()
-        }
-        Switch(checked = checked, onCheckedChange = { onCheck(it) })
-    }
-}
-
-private data class ProviderOption(
-    val provider: AiProvider,
-    val label: String,
-    val icon: Painter
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ProviderSelector(
-    options: List<ProviderOption>,
     selected: AiProvider,
     onSelected: (AiProvider) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val options = remember { AiProviderOption.entries }
     var expanded by remember { mutableStateOf(false) }
     val selectedOption = options.firstOrNull { it.provider == selected } ?: options.first()
     ExposedDropdownMenuBox(
@@ -243,12 +163,12 @@ private fun ProviderSelector(
             modifier = Modifier
                 .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true)
                 .fillMaxWidth(),
-            value = selectedOption.label,
+            value = stringResource(selectedOption.labelRes),
             onValueChange = {},
             readOnly = true,
             shape = RoundedCornerShape(16.dp),
             label = { Text(text = stringResource(Res.string.ai_provider)) },
-            leadingIcon = { Icon(painter = selectedOption.icon, contentDescription = null) },
+            leadingIcon = { Icon(painter = painterResource(selectedOption.iconRes), contentDescription = null) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             colors = ExposedDropdownMenuDefaults.textFieldColors()
         )
@@ -259,12 +179,18 @@ private fun ProviderSelector(
             options.forEach { option ->
                 DropdownMenuItem(
                     text = {
-                        Text(
-                            text = option.label,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = stringResource(option.labelRes),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            if (option.provider == AiProvider.GeminiNano) {
+                                Spacer(Modifier.width(6.dp))
+                                AiDropdownOfflineBadge()
+                            }
+                        }
                     },
-                    leadingIcon = { Icon(painter = option.icon, contentDescription = null) },
+                    leadingIcon = { Icon(painter = painterResource(option.iconRes), contentDescription = null) },
                     onClick = {
                         expanded = false
                         onSelected(option.provider)
@@ -315,9 +241,18 @@ private fun AiProvider.collectPreferences(
 private fun ProviderSettingsContent(
     provider: AiProvider,
     settings: ProviderPreferences?,
+    geminiNanoStatusFlow: () -> Flow<GeminiNanoStatus>,
     onEvent: (IntegrationsEvent) -> Unit
 ) {
     if (provider == AiProvider.None || settings == null) return
+    if (provider == AiProvider.GeminiNano) {
+        GeminiNanoSettingsContent(
+            selectedMode = settings.model,
+            statusFlow = geminiNanoStatusFlow,
+            onEvent = onEvent
+        )
+        return
+    }
     provider.keyPref?.let {
         SavableTextField(
             text = settings.key,
@@ -367,7 +302,7 @@ fun AiProviderSectionPreview() {
         val stringSetting: (PrefsKey<String>, String) -> Flow<String> = { _, default ->
             flowOf(default)
         }
-        val booleanSetting: (PrefsKey<Boolean>, Boolean) -> Flow<Boolean> = { _, default ->
+        val booleanSetting: (PrefsKey<Boolean>, Boolean) -> Flow<Boolean> = { _, _ ->
             flowOf(true)
         }
 
@@ -375,8 +310,30 @@ fun AiProviderSectionPreview() {
             getAiProvider = { providerFlow },
             getStringSetting = stringSetting,
             getBooleanSetting = booleanSetting,
+            getGeminiNanoStatus = { flowOf(GeminiNanoStatus.Unsupported()) },
             onEvent = {}
         )
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun AiProviderSectionEnabledPreview() {
+    MyBrainTheme {
+        val providerFlow = flowOf(AiProvider.GeminiNano)
+        val stringSetting: (PrefsKey<String>, String) -> Flow<String> = { _, default ->
+            flowOf(default)
+        }
+        val booleanSetting: (PrefsKey<Boolean>, Boolean) -> Flow<Boolean> = { _, _ ->
+            flowOf(true)
+        }
+
+        AiProviderSection(
+            getAiProvider = { providerFlow },
+            getStringSetting = stringSetting,
+            getBooleanSetting = booleanSetting,
+            getGeminiNanoStatus = { flowOf(GeminiNanoStatus.Downloadable(0.2f, true)) },
+            onEvent = {}
+        )
+    }
+}

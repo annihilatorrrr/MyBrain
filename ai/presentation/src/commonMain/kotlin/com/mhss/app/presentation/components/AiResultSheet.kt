@@ -1,5 +1,7 @@
 package com.mhss.app.presentation.components
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.RepeatMode
@@ -41,6 +43,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -90,6 +93,15 @@ fun AiResultSheet(
     onAddToNoteClick: () -> Unit,
     onCopyClick: () -> Unit
 ) {
+    val scrollState = rememberScrollState()
+    LaunchedEffect(result, scrollState.maxValue) {
+        if (result != null && loading) {
+            scrollState.animateScrollTo(scrollState.maxValue)
+        } else if (result != null) {
+            scrollState.animateScrollTo(0)
+        }
+    }
+
     val infiniteTransition = rememberInfiniteTransition(label = "infiniteTransition")
 
     val offset by infiniteTransition.animateValue(
@@ -200,23 +212,37 @@ fun AiResultSheet(
                         modifier = Modifier
                             .fillMaxWidth()
                             .heightIn(max = 440.dp)
-                            .verticalScroll(rememberScrollState())
+                            .verticalScroll(scrollState)
                     ) {
-                        Markdown(
-                            content = result,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 24.dp, start = 24.dp, end = 24.dp),
-                            imageTransformer = Coil2ImageTransformerImpl,
-                            typography = defaultMarkdownTypography()
+                        AnimatedContent(targetState = loading) { isLoading ->
+                            if (!isLoading) {
+                                Markdown(
+                                    content = result,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 24.dp, start = 24.dp, end = 24.dp),
+                                    imageTransformer = Coil2ImageTransformerImpl,
+                                    typography = defaultMarkdownTypography()
+                                )
+                            } else {
+                                Text(
+                                    text = result,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 24.dp, start = 24.dp, end = 24.dp),
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                        }
+                    }
+                    AnimatedVisibility(!loading) {
+                        Spacer(Modifier.height(12.dp))
+                        AiResultActions(
+                            onCopyClick = onCopyClick,
+                            onReplaceClick = onReplaceClick,
+                            onAddToNoteClick = onAddToNoteClick
                         )
                     }
-                    Spacer(Modifier.height(12.dp))
-                    AiResultActions(
-                        onCopyClick = onCopyClick,
-                        onReplaceClick = onReplaceClick,
-                        onAddToNoteClick = onAddToNoteClick
-                    )
                 }
                 if (error != null) {
                     Text(

@@ -11,16 +11,16 @@ import ai.koog.prompt.executor.clients.google.GoogleLLMClient
 import ai.koog.prompt.executor.clients.openai.OpenAIClientSettings
 import ai.koog.prompt.executor.clients.openai.OpenAILLMClient
 import ai.koog.prompt.executor.clients.openrouter.OpenRouterLLMClient
-import ai.koog.prompt.executor.llms.SingleLLMPromptExecutor
+import ai.koog.prompt.executor.llms.MultiLLMPromptExecutor
 import ai.koog.prompt.executor.model.PromptExecutor
 import ai.koog.prompt.executor.ollama.client.OllamaClient
 import ai.koog.prompt.llm.LLModel
 import ai.koog.prompt.message.Message
 import ai.koog.prompt.params.LLMParams
+import ai.koog.prompt.streaming.StreamFrame
 import com.mhss.app.data.EmptyAiClient
 import com.mhss.app.data.buildChatPrompt
 import com.mhss.app.data.buildChatSystemMessage
-import com.mhss.app.data.getRootCause
 import com.mhss.app.data.nano.GeminiNanoException
 import com.mhss.app.data.nano.toAssistantResult
 import com.mhss.app.data.nowMillis
@@ -48,6 +48,7 @@ import com.mhss.app.preferences.domain.model.intPreferencesKey
 import com.mhss.app.preferences.domain.model.stringPreferencesKey
 import com.mhss.app.preferences.domain.model.toAiProvider
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -55,7 +56,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.io.IOException
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Named
@@ -97,42 +97,47 @@ class AiRepositoryImpl(
         }
     }
 
-    override suspend fun sendPrompt(prompt: String): AssistantResult<String> = withContext(Dispatchers.IO) {
+    override fun sendPrompt(prompt: String): Flow<String> = flow {
         if (selectedProvider == AiProvider.GeminiNano) {
-            return@withContext try {
-                val result = geminiNanoService.sendPrompt(
+            try {
+                geminiNanoService.sendPrompt(
                     prompt = prompt,
                     mode = geminiNanoModel.toGeminiNanoMode()
-                )
-                AssistantResult.Success(result)
+                ).collect { chunk ->
+                    emit(chunk)
+                }
             } catch (e: GeminiNanoException) {
-                e.toAssistantResult()
+                throw AiRepositoryException(e.toAssistantResult())
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 e.printStackTrace()
-                AssistantResult.OtherError(e.getRootCause().message ?: e.message)
+                throw AiRepositoryException(AssistantResult.OtherError(e.message))
             }
+            return@flow
         }
 
-        val client = llmExecutor ?: return@withContext AssistantResult.OtherError()
-        val model = llModel ?: return@withContext AssistantResult.OtherError()
+        val client = llmExecutor ?: throw AiRepositoryException(AssistantResult.OtherError("AI Client not initialized"))
+        val model = llModel ?: throw AiRepositoryException(AssistantResult.OtherError("Model not selected"))
 
         val llmPrompt = prompt("user_prompt", LLMParams()) {
             user(prompt)
         }
 
-        return@withContext try {
-            val result = client.execute(prompt = llmPrompt, model = model)
-            AssistantResult.Success(result.first().content)
+        try {
+            client.executeStreaming(prompt = llmPrompt, model = model).collect { frame ->
+                if (frame is StreamFrame.TextDelta) emit(frame.text)
+            }
         } catch (e: LLMClientException) {
-            AssistantResult.OtherError(e.message)
+            throw AiRepositoryException(AssistantResult.OtherError(e.message))
         } catch (e: IOException) {
             e.printStackTrace()
-            AssistantResult.InternetError
+            throw AiRepositoryException(AssistantResult.InternetError)
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             e.printStackTrace()
-            AssistantResult.OtherError(e.getRootCause().message ?: e.message)
+            throw AiRepositoryException(AssistantResult.OtherError(e.message))
         }
-    }
+    }.flowOn(Dispatchers.IO).batchStream()
 
     @OptIn(InternalAgentToolsApi::class, ExperimentalUuidApi::class)
     override fun sendMessage(messages: List<AiMessage>): Flow<AiMessage> = flow {
@@ -154,8 +159,7 @@ class AiRepositoryImpl(
                 throw AiRepositoryException(e.toAssistantResult())
             } catch (e: Exception) {
                 e.printStackTrace()
-                val message = e.getRootCause().message ?: e.message
-                throw AiRepositoryException(AssistantResult.OtherError(message))
+                throw AiRepositoryException(AssistantResult.OtherError(e.message))
             }
             return@flow
         }
@@ -216,9 +220,9 @@ class AiRepositoryImpl(
             e.printStackTrace()
             throw AiRepositoryException(AssistantResult.InternetError)
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             e.printStackTrace()
-            val message = e.getRootCause().message ?: e.message
-            throw AiRepositoryException(AssistantResult.OtherError(message))
+            throw AiRepositoryException(AssistantResult.OtherError(e.message))
         }
     }.flowOn(Dispatchers.IO)
 
@@ -309,5 +313,22 @@ private fun AiProvider.getExecutor(key: String, customUrl: String, llModel: LLMo
         AiProvider.GeminiNano -> EmptyAiClient
         AiProvider.None -> EmptyAiClient
     }
-    return SingleLLMPromptExecutor(client)
+    return MultiLLMPromptExecutor(client)
+}
+
+private fun Flow<String>.batchStream(durationMillis: Long = 150L): Flow<String> = flow {
+    val accumulated = StringBuilder()
+    var lastEmitTime = 0L
+    collect { chunk ->
+        accumulated.append(chunk)
+        val currentTime = nowMillis()
+        if (currentTime - lastEmitTime >= durationMillis) {
+            emit(accumulated.toString())
+            accumulated.clear()
+            lastEmitTime = currentTime
+        }
+    }
+    if (accumulated.isNotEmpty()) {
+        emit(accumulated.toString())
+    }
 }

@@ -1,6 +1,7 @@
 package com.mhss.app.domain.gemininano
 
 import com.mhss.app.domain.model.AiMessage
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 enum class GeminiNanoMode(val value: String) {
@@ -35,8 +36,8 @@ interface GeminiNanoService {
         mode: GeminiNanoMode
     ): String
 
-    suspend fun sendPrompt(
+    fun sendPrompt(
         prompt: String,
         mode: GeminiNanoMode
-    ): String
+    ): Flow<String>
 }

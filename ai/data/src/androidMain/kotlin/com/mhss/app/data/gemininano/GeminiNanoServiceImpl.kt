@@ -16,11 +16,15 @@ import com.mhss.app.domain.gemininano.GeminiNanoService
 import com.mhss.app.domain.gemininano.GeminiNanoStatus
 import com.mhss.app.domain.model.AiMessage
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.Named
 import org.koin.core.annotation.Single
@@ -100,26 +104,29 @@ class GeminiNanoServiceImpl(
     ): String {
         val model = getOrInitModel(mode, detectedReleaseStage)
         val request = generateContentRequest(TextPart(toGeminiNanoPrompt(messages))) {
-            temperature = 0.7f
-            topK = 30
+            temperature = 0.65f
+            topK = 20
             promptPrefix = PromptPrefix(systemMessage)
         }
 
         return model.generateContent(request).candidates.firstOrNull()?.text ?: ""
     }
 
-    override suspend fun sendPrompt(
+    override fun sendPrompt(
         prompt: String,
         mode: GeminiNanoMode
-    ): String {
+    ): Flow<String> = flow {
         val model = getOrInitModel(mode, detectedReleaseStage)
-        return model.generateContent(
-            generateContentRequest(TextPart(prompt)) {
-                temperature = 0.7f
-                topK = 30
+        val request = generateContentRequest(TextPart(prompt)) {
+            temperature = 0.65f
+            topK = 20
+        }
+        model.generateContentStream(request).collect { response ->
+            response.candidates.firstOrNull()?.text?.let { chunk ->
+                emit(chunk)
             }
-        ).candidates.firstOrNull()?.text ?: ""
-    }
+        }
+    }.flowOn(Dispatchers.IO)
 
     private fun startDownload(mode: GeminiNanoMode, releaseStage: Int) {
         if (downloadJob?.isActive == true && downloadingMode == mode && downloadingReleaseStage == releaseStage) return

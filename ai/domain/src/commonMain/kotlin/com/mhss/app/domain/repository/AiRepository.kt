@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface AiRepository {
 
-    suspend fun sendPrompt(prompt: String): AssistantResult<String>
+    fun sendPrompt(prompt: String): Flow<String>
 
     fun sendMessage(messages: List<AiMessage>): Flow<AiMessage>
 }

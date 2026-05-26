@@ -6,10 +6,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mhss.app.datetime.now
 import com.mhss.app.domain.autoFormatNotePrompt
 import com.mhss.app.domain.correctSpellingNotePrompt
+import com.mhss.app.domain.model.AiRepositoryException
 import com.mhss.app.domain.model.AssistantResult
 import com.mhss.app.domain.model.Note
+import com.mhss.app.domain.model.NoteException
 import com.mhss.app.domain.model.NoteFolder
 import com.mhss.app.domain.summarizeNotePrompt
 import com.mhss.app.domain.use_case.DeleteNoteUseCase
@@ -23,12 +26,11 @@ import com.mhss.app.preferences.domain.model.AiProvider
 import com.mhss.app.preferences.domain.model.intPreferencesKey
 import com.mhss.app.preferences.domain.model.toAiProvider
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
-import com.mhss.app.ui.errors.toSnackbarError
-import com.mhss.app.ui.snackbar.showSnackbar
-import com.mhss.app.datetime.now
-import com.mhss.app.domain.model.NoteException
 import com.mhss.app.ui.Res
 import com.mhss.app.ui.error_item_not_found
+import com.mhss.app.ui.errors.toSnackbarError
+import com.mhss.app.ui.snackbar.showSnackbar
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -165,15 +167,24 @@ class NoteDetailsViewModel(
                     result = null,
                     error = null
                 )
-                val result = sendAiPrompt(prompt)
-                aiState = when (result) {
-                    is AssistantResult.Success -> aiState.copy(
+                try {
+                    val accumulatedResult = StringBuilder()
+                    sendAiPrompt(prompt).collect { chunk ->
+                        accumulatedResult.append(chunk)
+                        aiState = aiState.copy(
+                            result = accumulatedResult.toString(),
+                            error = null
+                        )
+                    }
+                    aiState = aiState.copy(loading = false)
+                } catch (e: AiRepositoryException) {
+                    aiState = aiState.copy(loading = false, error = e.failure)
+                } catch (e: Exception) {
+                    if (e is CancellationException) throw e
+                    aiState = aiState.copy(
                         loading = false,
-                        result = result.data,
-                        error = null
+                        error = AssistantResult.OtherError(e.message)
                     )
-
-                    is AssistantResult.Failure -> aiState.copy(error = result, loading = false)
                 }
             }
 

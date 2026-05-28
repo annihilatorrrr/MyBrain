@@ -14,4 +14,8 @@ sealed interface AssistantEvent {
     data object AddAttachmentEvents: AssistantEvent
     data class RemoveAttachment(val index: Int): AssistantEvent
     data object CancelMessage: AssistantEvent
+    data object NewChat : AssistantEvent
+    data class LoadThread(val threadId: String) : AssistantEvent
+    data class DeleteThread(val threadId: String) : AssistantEvent
+    data object DeleteAllThreads : AssistantEvent
 }

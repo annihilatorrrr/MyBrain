@@ -28,11 +28,11 @@ import com.mhss.app.domain.model.ToolCallResultObject
 import com.mhss.app.domain.use_case.GetCalendarEventByIdUseCase
 import com.mhss.app.domain.use_case.GetNoteUseCase
 import com.mhss.app.domain.use_case.GetTaskByIdUseCase
-import org.koin.core.annotation.Factory
+import org.koin.core.annotation.Single
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-@Factory
+@Single
 class AiToolExecutor(
     private val getNote: GetNoteUseCase,
     private val getTaskById: GetTaskByIdUseCase,
@@ -65,65 +65,67 @@ class AiToolExecutor(
         )
     }
 
-    private suspend fun extractResultObject(
+    internal suspend fun extractResultObject(
         toolName: String,
         resultJson: String
-    ): ToolCallResultObject? = when (toolName) {
-        SEARCH_NOTES_TOOL -> runCatching {
-            val searchResult = json.decodeFromString<SearchNotesResult>(resultJson)
-            if (searchResult.notes.size == 1) ToolCallResultObject.Notes(searchResult.notes) else null
-        }.getOrNull()
-
-        CREATE_NOTE_TOOL -> runCatching {
-            val createResult = json.decodeFromString<NoteIdResult>(resultJson)
-            getNote(createResult.createdNoteId)?.let {
-                ToolCallResultObject.Notes(listOf(it))
+    ): ToolCallResultObject? = runCatching {
+        when (toolName) {
+            SEARCH_NOTES_TOOL ->  {
+                val searchResult = json.decodeFromString<SearchNotesResult>(resultJson)
+                if (searchResult.notes.size == 1) ToolCallResultObject.Notes(searchResult.notes) else null
             }
-        }.getOrNull()
 
-        CREATE_MULTIPLE_NOTES_TOOL -> runCatching {
-            val createResult = json.decodeFromString<NoteIdsResult>(resultJson)
-            val notes = createResult.createdNoteIds.mapNotNull { getNote(it) }
-            if (notes.isNotEmpty()) ToolCallResultObject.Notes(notes) else null
-        }.getOrNull()
-
-        CREATE_TASK_TOOL -> runCatching {
-            val createResult = json.decodeFromString<TaskIdResult>(resultJson)
-            getTaskById(createResult.createdTaskId)?.let {
-                ToolCallResultObject.Tasks(listOf(it))
-            }
-        }.getOrNull()
-
-        CREATE_MULTIPLE_TASKS_TOOL -> runCatching {
-            val createResult = json.decodeFromString<TaskIdsResult>(resultJson)
-            val tasks = createResult.createdTaskIds.mapNotNull { getTaskById(it) }
-            if (tasks.isNotEmpty()) ToolCallResultObject.Tasks(tasks) else null
-        }.getOrNull()
-
-        CREATE_EVENT_TOOL -> runCatching {
-            val createResult = json.decodeFromString<CalendarEventIdResult>(resultJson)
-            createResult.createdEventId?.let { id ->
-                getCalendarEventById(id)?.let {
-                    ToolCallResultObject.CalendarEvents(listOf(it))
+            CREATE_NOTE_TOOL -> {
+                val createResult = json.decodeFromString<NoteIdResult>(resultJson)
+                getNote(createResult.createdNoteId)?.let {
+                    ToolCallResultObject.Notes(listOf(it))
                 }
             }
-        }.getOrNull()
 
-        CREATE_EVENTS_TOOL -> runCatching {
-            val createResult = json.decodeFromString<CalendarEventIdsResult>(resultJson)
-            val events = createResult.createdEventIds.mapNotNull { id ->
-                id?.let { getCalendarEventById(it) }
+            CREATE_MULTIPLE_NOTES_TOOL -> {
+                val createResult = json.decodeFromString<NoteIdsResult>(resultJson)
+                val notes = createResult.createdNoteIds.mapNotNull { getNote(it) }
+                if (notes.isNotEmpty()) ToolCallResultObject.Notes(notes) else null
             }
-            if (events.isNotEmpty()) ToolCallResultObject.CalendarEvents(events) else null
-        }.getOrNull()
 
-        SEARCH_EVENTS_BY_NAME_WITHIN_RANGE_TOOL -> runCatching {
-            val searchResult = json.decodeFromString<SearchEventsResult>(resultJson)
-            if (searchResult.events.size == 1) ToolCallResultObject.CalendarEvents(searchResult.events) else null
-        }.getOrNull()
+            CREATE_TASK_TOOL -> {
+                val createResult = json.decodeFromString<TaskIdResult>(resultJson)
+                getTaskById(createResult.createdTaskId)?.let {
+                    ToolCallResultObject.Tasks(listOf(it))
+                }
+            }
 
-        else -> null
-    }
+            CREATE_MULTIPLE_TASKS_TOOL -> {
+                val createResult = json.decodeFromString<TaskIdsResult>(resultJson)
+                val tasks = createResult.createdTaskIds.mapNotNull { getTaskById(it) }
+                if (tasks.isNotEmpty()) ToolCallResultObject.Tasks(tasks) else null
+            }
+
+            CREATE_EVENT_TOOL -> {
+                val createResult = json.decodeFromString<CalendarEventIdResult>(resultJson)
+                createResult.createdEventId?.let { id ->
+                    getCalendarEventById(id)?.let {
+                        ToolCallResultObject.CalendarEvents(listOf(it))
+                    }
+                }
+            }
+
+            CREATE_EVENTS_TOOL -> {
+                val createResult = json.decodeFromString<CalendarEventIdsResult>(resultJson)
+                val events = createResult.createdEventIds.mapNotNull { id ->
+                    id?.let { getCalendarEventById(it) }
+                }
+                if (events.isNotEmpty()) ToolCallResultObject.CalendarEvents(events) else null
+            }
+
+            SEARCH_EVENTS_BY_NAME_WITHIN_RANGE_TOOL -> {
+                val searchResult = json.decodeFromString<SearchEventsResult>(resultJson)
+                if (searchResult.events.size == 1) ToolCallResultObject.CalendarEvents(searchResult.events) else null
+            }
+
+            else -> null
+        }
+    }.getOrNull()
 
     fun extractThoughtSignatures(messages: List<Message.Response>): Map<Message.Tool.Call, String?> {
         val signatures = HashMap<Message.Tool.Call, String?>()

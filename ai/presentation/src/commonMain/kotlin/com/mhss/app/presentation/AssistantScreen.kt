@@ -20,10 +20,16 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,6 +42,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -48,23 +55,30 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.mhss.app.domain.model.AiMessage
 import com.mhss.app.domain.model.AiMessageAttachment
+import com.mhss.app.domain.model.AssistantThread
 import com.mhss.app.presentation.components.AssistantChatBar
 import com.mhss.app.presentation.components.AttachNoteSheet
 import com.mhss.app.presentation.components.AttachTaskSheet
 import com.mhss.app.presentation.components.AttachmentDropDownMenu
 import com.mhss.app.presentation.components.AttachmentMenuItem
+import com.mhss.app.presentation.components.ChatHistoryPanel
 import com.mhss.app.presentation.components.MessageCard
 import com.mhss.app.ui.Res
 import com.mhss.app.ui.ai_not_enabled
 import com.mhss.app.ui.assistant
+import com.mhss.app.ui.chat_history
 import com.mhss.app.ui.components.common.LeftToRight
 import com.mhss.app.ui.components.common.MyBrainAppBar
+import com.mhss.app.ui.ic_history
+import com.mhss.app.ui.ic_new_chat
 import com.mhss.app.ui.navigation.Screen
+import com.mhss.app.ui.new_chat
 import com.mhss.app.ui.preview.BasePreview
 import com.mhss.app.util.clipboard.copyText
 import io.github.fletchmckee.liquid.liquefiable
 import io.github.fletchmckee.liquid.rememberLiquidState
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -75,9 +89,14 @@ fun AssistantScreen(
 ) {
     val messages by viewModel.messages.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val threads by viewModel.threads.collectAsStateWithLifecycle()
+    val currentThreadId by viewModel.currentThreadId.collectAsStateWithLifecycle()
+
     AssistantScreenContent(
         uiState = uiState,
         messages = messages,
+        threads = threads,
+        currentThreadId = currentThreadId,
         onEvent = viewModel::onEvent,
         navController = navController
     )
@@ -88,6 +107,8 @@ fun AssistantScreen(
 fun AssistantScreenContent(
     uiState: AssistantViewModel.UiState,
     messages: List<AiMessage>,
+    threads: List<AssistantThread>,
+    currentThreadId: String?,
     onEvent: (AssistantEvent) -> Unit,
     navController: NavHostController,
 ) {
@@ -115,186 +136,222 @@ fun AssistantScreenContent(
     val liquidState = rememberLiquidState()
     val density = LocalDensity.current
     val isKeyboardVisible = WindowInsets.ime.getBottom(density) > 0
+    val historyPanelState = rememberDrawerState(initialValue = DrawerValue.Closed)
+
     LaunchedEffect(isKeyboardVisible) {
         if (!isKeyboardVisible) focusManager.clearFocus()
     }
-
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) {
             lazyListState.animateScrollToItem(0)
         }
     }
 
-    Scaffold(
-        topBar = {
-            MyBrainAppBar(stringResource(Res.string.assistant))
-        },
-        bottomBar = {
-            AssistantChatBar(
-                text = text,
-                enabled = aiEnabled && !loading && text.isNotBlank(),
-                attachments = attachments,
-                onTextChange = { text = it },
-                onAttachClick = { attachmentsMenuExpanded = true },
-                onRemoveAttachment = {
-                    onEvent(AssistantEvent.RemoveAttachment(it))
-                },
-                loading = loading,
-                onSend = {
-                    onEvent(
-                        AssistantEvent.SendMessage(
-                            content = text,
-                            attachments = uiState.attachments
-                        )
-                    )
-                    text = ""
-                    keyboardController?.hide()
-                },
-                onCancel = {
-                    onEvent(AssistantEvent.CancelMessage)
-                },
-                liquidState = liquidState,
-            )
-            val excludedItems by remember {
-                derivedStateOf {
-                    if (attachments.contains(AiMessageAttachment.CalenderEvents)) {
-                        listOf(AttachmentMenuItem.CalendarEvents)
-                    } else {
-                        emptyList()
-                    }
-                }
+    ModalNavigationDrawer(
+        drawerState = historyPanelState,
+        drawerContent = {
+            ModalDrawerSheet {
+                ChatHistoryPanel(
+                    threads = threads,
+                    currentThreadId = currentThreadId,
+                    onDismiss = { scope.launch { historyPanelState.close() } },
+                    onThreadSelected = { onEvent(AssistantEvent.LoadThread(it)) },
+                    onDeleteThread = { onEvent(AssistantEvent.DeleteThread(it)) },
+                    onDeleteAllThreads = { onEvent(AssistantEvent.DeleteAllThreads) }
+                )
             }
-            AttachmentDropDownMenu(
-                modifier = Modifier.fillMaxWidth(),
-                expanded = attachmentsMenuExpanded,
-                liquidState = liquidState,
-                onDismiss = { attachmentsMenuExpanded = false },
-                excludedItems = excludedItems,
-                onItemClick = {
-                    when (it) {
-                        AttachmentMenuItem.Note -> openNoteSheet = true
-                        AttachmentMenuItem.Task -> openTaskSheet = true
-                        AttachmentMenuItem.CalendarEvents -> onEvent(AssistantEvent.AddAttachmentEvents)
-                    }
-                    attachmentsMenuExpanded = false
-                }
-            )
         },
-        modifier = Modifier.imePadding()
-    ) { paddingValues ->
-        if (openNoteSheet) AttachNoteSheet(
-            state = noteSheetState,
-            onDismissRequest = { openNoteSheet = false },
-            notes = uiState.searchNotes,
-            view = uiState.noteView,
-            onQueryChange = { onEvent(AssistantEvent.SearchNotes(it)) }
-        ) {
-            onEvent(AssistantEvent.AddAttachmentNote(it.id))
-            openNoteSheet = false
-        }
-        if (openTaskSheet) AttachTaskSheet(
-            state = taskSheetState,
-            onDismissRequest = { openTaskSheet = false },
-            tasks = uiState.searchTasks,
-            onQueryChange = { onEvent(AssistantEvent.SearchTasks(it)) }
-        ) {
-            onEvent(AssistantEvent.AddAttachmentTask(it.id))
-            openTaskSheet = false
-        }
-        Column(
-            modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            if (aiEnabled) {
-                LeftToRight {
-                    LazyColumn(
-                        state = lazyListState,
-                        reverseLayout = true,
-                        modifier = Modifier.fillMaxSize().liquefiable(liquidState)
-                    ) {
-                        item(key = "initial_spacer") {
-                            Spacer(
-                                Modifier
-                                    .padding(bottom = paddingValues.calculateBottomPadding())
-                                    .windowInsetsPadding(WindowInsets.navigationBars)
-                            )
-                        }
-                        error?.let { error ->
-                            item(key = "error_message") {
-                                Card(
-                                    shape = RoundedCornerShape(18.dp),
-                                    border = BorderStroke(
-                                        1.dp,
-                                        MaterialTheme.colorScheme.onErrorContainer
-                                    ),
-                                    colors = CardDefaults.cardColors(
-                                        contentColor = MaterialTheme.colorScheme.errorContainer
-                                    ),
-                                    modifier = Modifier
-                                        .padding(16.dp)
-                                        .fillMaxWidth()
-                                ) {
-                                    Text(
-                                        text = error.toUserMessage(),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        modifier = Modifier
-                                            .padding(16.dp)
-                                            .align(Alignment.CenterHorizontally),
-                                        textAlign = TextAlign.Center,
-                                        color = MaterialTheme.colorScheme.onErrorContainer
-                                    )
-                                }
+        modifier = Modifier.fillMaxSize().clipToBounds()
+    ) {
+        Scaffold(
+            topBar = {
+                MyBrainAppBar(
+                    title = stringResource(Res.string.assistant),
+                    actions = {
+                        if (currentThreadId != null) {
+                            IconButton(onClick = { onEvent(AssistantEvent.NewChat) }) {
+                                Icon(
+                                    painter = painterResource(Res.drawable.ic_new_chat),
+                                    contentDescription = stringResource(Res.string.new_chat)
+                                )
                             }
                         }
-                        items(messages, key = { it.uuid }) { message ->
-                            MessageCard(
-                                message = message,
-                                onCopy = { content ->
-                                    scope.launch {
-                                        clipboardManager.copyText("message", content)
-                                    }
-                                },
-                                onNoteClick = { note ->
-                                    navController.navigate(Screen.NoteDetailsScreen(noteId = note.id, folderId = note.folderId))
-                                },
-                                onTaskClick = { task ->
-                                    navController.navigate(Screen.TaskDetailScreen(taskId = task.id))
-                                },
-                                onEventClick = { event ->
-                                    navController.navigate(
-                                        Screen.CalendarEventDetailsScreen(
-                                            event.id
-                                        )
-                                    )
-                                }
+                        IconButton(onClick = { scope.launch { historyPanelState.open() } }) {
+                            Icon(
+                                painter = painterResource(Res.drawable.ic_history),
+                                contentDescription = stringResource(Res.string.chat_history)
                             )
                         }
                     }
+                )
+            },
+            bottomBar = {
+                AssistantChatBar(
+                    text = text,
+                    enabled = aiEnabled && !loading && text.isNotBlank(),
+                    attachments = attachments,
+                    onTextChange = { text = it },
+                    onAttachClick = { attachmentsMenuExpanded = true },
+                    onRemoveAttachment = {
+                        onEvent(AssistantEvent.RemoveAttachment(it))
+                    },
+                    loading = loading,
+                    onSend = {
+                        onEvent(
+                            AssistantEvent.SendMessage(
+                                content = text,
+                                attachments = uiState.attachments
+                            )
+                        )
+                        text = ""
+                        keyboardController?.hide()
+                    },
+                    onCancel = {
+                        onEvent(AssistantEvent.CancelMessage)
+                    },
+                    liquidState = liquidState,
+                )
+                val excludedItems by remember {
+                    derivedStateOf {
+                        if (attachments.contains(AiMessageAttachment.CalenderEvents)) {
+                            listOf(AttachmentMenuItem.CalendarEvents)
+                        } else {
+                            emptyList()
+                        }
+                    }
                 }
-            } else {
-                Card(
-                    shape = RoundedCornerShape(18.dp),
-                    border = BorderStroke(
-                        1.dp,
-                        MaterialTheme.colorScheme.onErrorContainer
-                    ),
-                    colors = CardDefaults.cardColors(
-                        contentColor = MaterialTheme.colorScheme.errorContainer
-                    ),
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth()
-                ) {
-                    Text(
-                        text = stringResource(Res.string.ai_not_enabled),
-                        style = MaterialTheme.typography.bodyMedium,
+                AttachmentDropDownMenu(
+                    modifier = Modifier.fillMaxWidth(),
+                    expanded = attachmentsMenuExpanded,
+                    liquidState = liquidState,
+                    onDismiss = { attachmentsMenuExpanded = false },
+                    excludedItems = excludedItems,
+                    onItemClick = {
+                        when (it) {
+                            AttachmentMenuItem.Note -> openNoteSheet = true
+                            AttachmentMenuItem.Task -> openTaskSheet = true
+                            AttachmentMenuItem.CalendarEvents -> onEvent(AssistantEvent.AddAttachmentEvents)
+                        }
+                        attachmentsMenuExpanded = false
+                    }
+                )
+            },
+            modifier = Modifier.imePadding()
+        ) { paddingValues ->
+            if (openNoteSheet) AttachNoteSheet(
+                state = noteSheetState,
+                onDismissRequest = { openNoteSheet = false },
+                notes = uiState.searchNotes,
+                view = uiState.noteView,
+                onQueryChange = { onEvent(AssistantEvent.SearchNotes(it)) }
+            ) {
+                onEvent(AssistantEvent.AddAttachmentNote(it.id))
+                openNoteSheet = false
+            }
+            if (openTaskSheet) AttachTaskSheet(
+                state = taskSheetState,
+                onDismissRequest = { openTaskSheet = false },
+                tasks = uiState.searchTasks,
+                onQueryChange = { onEvent(AssistantEvent.SearchTasks(it)) }
+            ) {
+                onEvent(AssistantEvent.AddAttachmentTask(it.id))
+                openTaskSheet = false
+            }
+            Column(
+                modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                if (aiEnabled) {
+                    LeftToRight {
+                        LazyColumn(
+                            state = lazyListState,
+                            reverseLayout = true,
+                            modifier = Modifier.fillMaxSize().liquefiable(liquidState)
+                        ) {
+                            item(key = "initial_spacer") {
+                                Spacer(
+                                    Modifier
+                                        .padding(bottom = paddingValues.calculateBottomPadding())
+                                        .windowInsetsPadding(WindowInsets.navigationBars)
+                                )
+                            }
+                            error?.let { error ->
+                                item(key = "error_message") {
+                                    Card(
+                                        shape = RoundedCornerShape(18.dp),
+                                        border = BorderStroke(
+                                            1.dp,
+                                            MaterialTheme.colorScheme.onErrorContainer
+                                        ),
+                                        colors = CardDefaults.cardColors(
+                                            contentColor = MaterialTheme.colorScheme.errorContainer
+                                        ),
+                                        modifier = Modifier
+                                            .padding(16.dp)
+                                            .fillMaxWidth()
+                                    ) {
+                                        Text(
+                                            text = error.toUserMessage(),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            modifier = Modifier
+                                                .padding(16.dp)
+                                                .align(Alignment.CenterHorizontally),
+                                            textAlign = TextAlign.Center,
+                                            color = MaterialTheme.colorScheme.onErrorContainer
+                                        )
+                                    }
+                                }
+                            }
+                            items(messages, key = { it.uuid }) { message ->
+                                MessageCard(
+                                    message = message,
+                                    onCopy = { content ->
+                                        scope.launch {
+                                            clipboardManager.copyText("message", content)
+                                        }
+                                    },
+                                    onNoteClick = { note ->
+                                        navController.navigate(Screen.NoteDetailsScreen(noteId = note.id, folderId = note.folderId))
+                                    },
+                                    onTaskClick = { task ->
+                                        navController.navigate(Screen.TaskDetailScreen(taskId = task.id))
+                                    },
+                                    onEventClick = { event ->
+                                        navController.navigate(
+                                            Screen.CalendarEventDetailsScreen(
+                                                event.id
+                                            )
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    Card(
+                        shape = RoundedCornerShape(18.dp),
+                        border = BorderStroke(
+                            1.dp,
+                            MaterialTheme.colorScheme.onErrorContainer
+                        ),
+                        colors = CardDefaults.cardColors(
+                            contentColor = MaterialTheme.colorScheme.errorContainer
+                        ),
                         modifier = Modifier
                             .padding(16.dp)
-                            .align(Alignment.CenterHorizontally),
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onErrorContainer
-                    )
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.ai_not_enabled),
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .align(Alignment.CenterHorizontally),
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    }
                 }
             }
         }
@@ -335,6 +392,11 @@ private fun AssistantScreenContentPreviewInner() {
                 uuid = "1"
             )
         ),
+        threads = listOf(
+            AssistantThread(id = "1", title = "First Chat", createdAt = 0L, updatedAt = 0L),
+            AssistantThread(id = "2", title = "Second Chat", createdAt = 0L, updatedAt = 0L)
+        ),
+        currentThreadId = "1",
         onEvent = {},
         navController = rememberNavController()
     )

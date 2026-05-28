@@ -243,3 +243,11 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
         connection.execSQL("ALTER TABLE diary_new RENAME TO diary")
     }
 }
+
+val MIGRATION_5_6 = object : Migration(5, 6) {
+    override suspend fun migrate(connection: SQLiteConnection) {
+        connection.execSQL("CREATE TABLE IF NOT EXISTS `assistant_threads` (`id` TEXT PRIMARY KEY NOT NULL, `title` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL)")
+        connection.execSQL("CREATE TABLE IF NOT EXISTS `assistant_messages` (`id` TEXT PRIMARY KEY NOT NULL, `thread_id` TEXT NOT NULL, `type` INTEGER NOT NULL, `content` TEXT NOT NULL, `metadata` TEXT, `created_at` INTEGER NOT NULL)")
+        connection.execSQL("CREATE INDEX IF NOT EXISTS `index_assistant_messages_thread_id` ON `assistant_messages` (`thread_id`)")
+    }
+}

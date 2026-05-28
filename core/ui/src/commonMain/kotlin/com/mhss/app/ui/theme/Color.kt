@@ -25,3 +25,5 @@ val LightBackgroundColor = Color(0xfffdfdfd)
 
 val SuccessColor = Color(0xFF1E9651)
 
+val ErrorColor = Color(0xFFB3261E)
+

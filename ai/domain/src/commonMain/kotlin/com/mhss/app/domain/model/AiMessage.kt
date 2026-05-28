@@ -38,3 +38,9 @@ sealed interface AiMessageAttachment {
     data class Task(val task: com.mhss.app.domain.model.Task) : AiMessageAttachment
     data object CalenderEvents : AiMessageAttachment
 }
+
+enum class AiMessageType(val key: Int) {
+    USER(0),
+    ASSISTANT(1),
+    TOOL_CALL(2);
+}

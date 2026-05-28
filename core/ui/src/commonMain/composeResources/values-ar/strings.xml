@@ -287,4 +287,16 @@
     <string name="gemini_nano_error_background_blocked">تشغيل الذكاء الاصطناعي في الخلفية محظور بواسطة النظام.</string>
     <string name="gemini_nano_error_battery_quota_exceeded">تم تجاوز حصة استهلاك البطارية للذكاء الاصطناعي على الجهاز.</string>
     <string name="download_model">تحميل النموذج</string>
+    <string name="new_chat">محادثة جديدة</string>
+    <string name="chat_history">سجل المحادثات</string>
+    <string name="delete_all">حذف الكل</string>
+    <string name="delete_all_threads_confirmation">هل أنت متأكد من حذف سجل المحادثات بالكامل؟ لا يمكن التراجع عن هذا الإجراء.</string>
+    <string name="delete_thread_confirmation">هل أنت متأكد من حذف هذه المحادثة؟</string>
+    <string name="no_chats">لا توجد محادثات بعد</string>
+    <string name="today">اليوم</string>
+    <string name="yesterday">أمس</string>
+    <string name="delete">حذف</string>
+    <string name="delete_chat_title">حذف المحادثة؟</string>
+    <string name="delete_all_history_title">حذف السجل بالكامل؟</string>
+    <string name="delete_chat">حذف المحادثة</string>
 </resources>

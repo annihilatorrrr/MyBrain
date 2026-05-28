@@ -9,6 +9,7 @@ import com.mhss.app.database.migrations.MIGRATION_1_2
 import com.mhss.app.database.migrations.MIGRATION_2_3
 import com.mhss.app.database.migrations.MIGRATION_3_4
 import com.mhss.app.database.migrations.MIGRATION_4_5
+import com.mhss.app.database.migrations.MIGRATION_5_6
 import kotlinx.coroutines.Dispatchers
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
@@ -22,7 +23,7 @@ val databaseModule = module {
             context = appContext,
             name = dbFile.absolutePath
         )
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
             .setDriver(BundledSQLiteDriver())
             .setQueryCoroutineContext(Dispatchers.IO)
             .build()
@@ -33,6 +34,7 @@ val databaseModule = module {
     single { get<MyBrainDatabase>().diaryDao() }
     single { get<MyBrainDatabase>().bookmarkDao() }
     single { get<MyBrainDatabase>().alarmDao() }
+    single { get<MyBrainDatabase>().assistantDao() }
 
     single<DatabaseTransactionProvider> { RoomDatabaseTransactionProvider(get()) }
 

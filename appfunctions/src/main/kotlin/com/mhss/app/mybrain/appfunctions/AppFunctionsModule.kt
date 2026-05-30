@@ -1,8 +1,8 @@
 package com.mhss.app.mybrain.appfunctions
 
-import org.koin.core.module.dsl.singleOf
-import org.koin.dsl.module
+import org.koin.core.annotation.ComponentScan
+import org.koin.core.annotation.Module
 
-val appFunctionsModule = module {
-    singleOf(::MyBrainAppFunctions)
-}
+@Module
+@ComponentScan("com.mhss.app.mybrain.appfunctions")
+class AppFunctionsModule

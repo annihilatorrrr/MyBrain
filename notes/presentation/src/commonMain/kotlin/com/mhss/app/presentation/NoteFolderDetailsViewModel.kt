@@ -4,6 +4,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mhss.app.domain.model.Note
+import com.mhss.app.domain.model.NoteException
 import com.mhss.app.domain.model.NoteFolder
 import com.mhss.app.domain.use_case.DeleteNoteFolderUseCase
 import com.mhss.app.domain.use_case.GetNoteFolderUseCase
@@ -17,12 +18,11 @@ import com.mhss.app.preferences.domain.model.toInt
 import com.mhss.app.preferences.domain.model.toOrder
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import com.mhss.app.ui.ItemView
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.error_empty_title
 import com.mhss.app.ui.errors.toMessageResId
 import com.mhss.app.ui.snackbar.showSnackbar
 import com.mhss.app.ui.toNotesView
-import com.mhss.app.domain.model.NoteException
-import com.mhss.app.ui.Res
-import com.mhss.app.ui.error_empty_title
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,7 +33,8 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.KoinViewModel
+import org.koin.core.annotation.Provided
 
 @KoinViewModel
 class NoteFolderDetailsViewModel(
@@ -42,7 +43,7 @@ class NoteFolderDetailsViewModel(
     private val updateFolder: UpdateNoteFolderUseCase,
     private val deleteFolder: DeleteNoteFolderUseCase,
     private val getPreference: GetPreferenceUseCase,
-    id: String,
+    @Provided id: String,
 ) : ViewModel() {
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->

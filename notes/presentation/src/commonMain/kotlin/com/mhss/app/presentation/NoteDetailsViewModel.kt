@@ -43,8 +43,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.KoinViewModel
 import org.koin.core.annotation.Named
+import org.koin.core.annotation.Provided
 
 @KoinViewModel
 class NoteDetailsViewModel(
@@ -56,8 +57,8 @@ class NoteDetailsViewModel(
     private val getNoteFolder: GetNoteFolderUseCase,
     private val sendAiPrompt: SendAiPromptUseCase,
     @Named("applicationScope") private val applicationScope: CoroutineScope,
-    id: String,
-    folderId: String,
+    @Provided id: String,
+    @Provided folderId: String,
 ) : ViewModel() {
 
     private val _noteUiState = MutableStateFlow(UiState())

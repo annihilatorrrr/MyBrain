@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.kotlin.compose.compiler)
-    alias(libs.plugins.ksp)
+    alias(libs.plugins.koin.compiler)
 }
 
 kotlin {
@@ -97,6 +97,9 @@ kotlin {
 }
 
 dependencies {
-    add("kspAndroid", libs.koin.ksp.compiler)
     androidRuntimeClasspath(libs.compose.ui.tooling)
+}
+
+koinCompiler {
+    compileSafety = true
 }

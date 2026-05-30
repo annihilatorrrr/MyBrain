@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.koin.compiler)
 }
 
 android {
@@ -49,9 +50,14 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
 
     implementation(platform(libs.koin.bom))
-    implementation(libs.koin.core)
+    implementation(libs.bundles.koin)
 }
 
 ksp {
     arg("appfunctions:aggregateAppFunctions", "true")
 }
+
+koinCompiler {
+    compileSafety = false
+}
+

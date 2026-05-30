@@ -19,7 +19,7 @@ import com.mhss.app.ui.error_invalid_event_time_range
 import com.mhss.app.ui.error_item_not_found
 import com.mhss.app.ui.snackbar.showSnackbar
 import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
 class CalendarEventDetailsViewModel(

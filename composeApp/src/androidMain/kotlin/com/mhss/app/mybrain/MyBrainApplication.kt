@@ -5,14 +5,10 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
 import androidx.appfunctions.service.AppFunctionConfiguration
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStore
 import com.mhss.app.alarm.di.AlarmModule
 import com.mhss.app.data.NoteDataModule
 import com.mhss.app.data.di.AiDataModule
@@ -23,9 +19,9 @@ import com.mhss.app.data.di.SettingsDataModule
 import com.mhss.app.data.di.TasksDataModule
 import com.mhss.app.data.noteMarkdownModule
 import com.mhss.app.data.noteRoomModule
-import com.mhss.app.database.di.databaseModule
+import com.mhss.app.database.di.DatabaseModule
 import com.mhss.app.datetime.DateTimeModule
-import com.mhss.app.di.coroutinesModule
+import com.mhss.app.di.CoroutinesModule
 import com.mhss.app.domain.di.AiDomainModule
 import com.mhss.app.domain.di.BookmarksDomainModule
 import com.mhss.app.domain.di.CalendarDomainModule
@@ -33,10 +29,10 @@ import com.mhss.app.domain.di.DiaryDomainModule
 import com.mhss.app.domain.di.NoteDomainModule
 import com.mhss.app.domain.di.SettingsDomainModule
 import com.mhss.app.domain.di.TasksDomainModule
+import com.mhss.app.mybrain.appfunctions.AppFunctionsModule
 import com.mhss.app.mybrain.appfunctions.MyBrainAppFunctions
-import com.mhss.app.mybrain.appfunctions.appFunctionsModule
 import com.mhss.app.mybrain.di.MainPresentationModule
-import com.mhss.app.mybrain.di.platformModule
+import com.mhss.app.mybrain.di.PlatformModule
 import com.mhss.app.mybrain.notification.NotificationConstants
 import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.di.PreferencesModule
@@ -59,13 +55,11 @@ import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.workmanager.koin.workManagerFactory
+import org.koin.core.annotation.KoinApplication
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.loadKoinModules
-import org.koin.core.context.startKoin
-import org.koin.ksp.generated.module
+import org.koin.plugin.module.dsl.startKoin
 import kotlin.system.exitProcess
-
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PrefsConstants.SETTINGS_PREFERENCES)
 
 class MyBrainApplication : Application(), AppFunctionConfiguration.Provider {
 
@@ -79,43 +73,10 @@ class MyBrainApplication : Application(), AppFunctionConfiguration.Provider {
 
     override fun onCreate() {
         super.onCreate()
-        startKoin {
+        startKoin<MyBrainKoinApp> {
             allowOverride(true)
             androidContext(this@MyBrainApplication)
             androidLogger()
-            modules(
-                appFunctionsModule,
-                platformModule,
-                DateTimeModule().module,
-                MainPresentationModule().module,
-                AlarmModule().module,
-                databaseModule,
-                coroutinesModule,
-                PreferencesModule().module,
-                StorageModule().module,
-                NotePresentationModule().module,
-                NoteDataModule().module,
-                NoteDomainModule().module,
-                DiaryPresentationModule().module,
-                DiaryDataModule().module,
-                DiaryDomainModule().module,
-                TasksPresentationModule().module,
-                TasksDataModule().module,
-                TasksDomainModule().module,
-                SettingsPresentationModule().module,
-                SettingsDataModule().module,
-                SettingsDomainModule().module,
-                CalendarPresentationModule().module,
-                CalendarDataModule().module,
-                CalendarDomainModule().module,
-                BookmarksPresentationModule().module,
-                BookmarksDataModule().module,
-                BookmarksDomainModule().module,
-                WidgetModule().module,
-                AiDataModule().module,
-                AiDomainModule().module,
-                AiPresentationModule().module
-            )
             workManagerFactory()
         }
         loadNotesModule()
@@ -166,3 +127,41 @@ class MyBrainApplication : Application(), AppFunctionConfiguration.Provider {
         clipboard.setPrimaryClip(clip)
     }
 }
+
+@KoinApplication(
+    modules = [
+        DateTimeModule::class,
+        MainPresentationModule::class,
+        AlarmModule::class,
+        PreferencesModule::class,
+        StorageModule::class,
+        NotePresentationModule::class,
+        NoteDataModule::class,
+        NoteDomainModule::class,
+        DiaryPresentationModule::class,
+        DiaryDataModule::class,
+        DiaryDomainModule::class,
+        TasksPresentationModule::class,
+        TasksDataModule::class,
+        TasksDomainModule::class,
+        SettingsPresentationModule::class,
+        SettingsDataModule::class,
+        SettingsDomainModule::class,
+        CalendarPresentationModule::class,
+        CalendarDataModule::class,
+        CalendarDomainModule::class,
+        BookmarksPresentationModule::class,
+        BookmarksDataModule::class,
+        BookmarksDomainModule::class,
+        WidgetModule::class,
+        AiDataModule::class,
+        AiDomainModule::class,
+        AiPresentationModule::class,
+        CoroutinesModule::class,
+        PlatformModule::class,
+        DatabaseModule::class,
+        AppFunctionsModule::class
+    ]
+)
+class MyBrainKoinApp
+

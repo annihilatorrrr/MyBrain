@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.ksp)
+    alias(libs.plugins.koin.compiler)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.kotlin.compose.compiler)
 }
@@ -67,9 +67,12 @@ dependencies {
 
     implementation(platform(libs.koin.bom))
     implementation(libs.bundles.koin)
-    ksp(libs.koin.ksp.compiler)
 
     implementation(libs.bundles.androidx.glance)
 
     implementation(libs.kotlinx.serialization.json)
+}
+
+koinCompiler {
+    compileSafety = false
 }

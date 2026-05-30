@@ -4,11 +4,22 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import org.koin.core.qualifier.named
-import org.koin.dsl.module
+import org.koin.core.annotation.Module
+import org.koin.core.annotation.Named
+import org.koin.core.annotation.Single
 
-val coroutinesModule = module {
-    single(named("defaultDispatcher")) { Dispatchers.Default }
-    single<CoroutineDispatcher>(named("ioDispatcher")) { Dispatchers.IO }
-    single(named("applicationScope")) { CoroutineScope(Dispatchers.IO + SupervisorJob()) }
+@Module
+class CoroutinesModule {
+    
+    @Single
+    @Named("defaultDispatcher")
+    fun defaultDispatcher(): CoroutineDispatcher = Dispatchers.Default
+    
+    @Single
+    @Named("ioDispatcher")
+    fun ioDispatcher(): CoroutineDispatcher = Dispatchers.IO
+    
+    @Single
+    @Named("applicationScope")
+    fun applicationScope(): CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 }

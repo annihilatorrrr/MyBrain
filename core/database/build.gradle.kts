@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.koin.compiler)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.room3)
 }
@@ -44,9 +45,12 @@ kotlin {
 
 dependencies {
     add("kspAndroid", libs.androidx.room3.compiler)
-    add("kspAndroid", libs.koin.ksp.compiler)
 }
 
 room3 {
     schemaDirectory("$projectDir/schemas")
+}
+
+koinCompiler {
+    compileSafety = false
 }

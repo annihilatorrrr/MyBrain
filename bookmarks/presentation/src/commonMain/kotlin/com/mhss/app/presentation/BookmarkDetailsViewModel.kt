@@ -6,19 +6,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mhss.app.datetime.now
 import com.mhss.app.domain.model.Bookmark
 import com.mhss.app.domain.use_case.AddBookmarkUseCase
 import com.mhss.app.domain.use_case.DeleteBookmarkUseCase
 import com.mhss.app.domain.use_case.GetBookmarkUseCase
 import com.mhss.app.domain.use_case.UpdateBookmarkUseCase
-import com.mhss.app.ui.snackbar.showSnackbar
-import com.mhss.app.datetime.now
 import com.mhss.app.ui.Res
 import com.mhss.app.ui.error_item_not_found
+import com.mhss.app.ui.snackbar.showSnackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.KoinViewModel
 import org.koin.core.annotation.Named
+import org.koin.core.annotation.Provided
 
 @KoinViewModel
 class BookmarkDetailsViewModel(
@@ -27,7 +28,7 @@ class BookmarkDetailsViewModel(
     private val addBookmark: AddBookmarkUseCase,
     private val deleteBookmark: DeleteBookmarkUseCase,
     @Named("applicationScope") private val applicationScope: CoroutineScope,
-    bookmarkId: String,
+    @Provided bookmarkId: String,
 ) : ViewModel() {
 
     var bookmarkDetailsUiState by mutableStateOf(BookmarkDetailsUiState())

@@ -3,22 +3,23 @@ package com.mhss.app.presentation
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mhss.app.datetime.now
 import com.mhss.app.domain.model.DiaryEntry
 import com.mhss.app.domain.use_case.AddDiaryEntryUseCase
 import com.mhss.app.domain.use_case.DeleteDiaryEntryUseCase
 import com.mhss.app.domain.use_case.GetDiaryEntryUseCase
 import com.mhss.app.domain.use_case.UpdateDiaryEntryUseCase
-import com.mhss.app.ui.snackbar.showSnackbar
-import com.mhss.app.datetime.now
 import com.mhss.app.ui.Res
 import com.mhss.app.ui.error_item_not_found
+import com.mhss.app.ui.snackbar.showSnackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.KoinViewModel
 import org.koin.core.annotation.Named
+import org.koin.core.annotation.Provided
 
 @KoinViewModel
 class DiaryDetailsViewModel(
@@ -27,7 +28,7 @@ class DiaryDetailsViewModel(
     private val updateEntry: UpdateDiaryEntryUseCase,
     private val deleteEntry: DeleteDiaryEntryUseCase,
     @Named("applicationScope") private val applicationScope: CoroutineScope,
-    entryId: String
+    @Provided entryId: String
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UiState())

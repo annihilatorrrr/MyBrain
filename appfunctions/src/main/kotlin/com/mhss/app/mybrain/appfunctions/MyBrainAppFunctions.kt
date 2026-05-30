@@ -24,10 +24,12 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
+import org.koin.core.annotation.Single
 
 /**
  * Exposes core application capabilities for notes, tasks, diary, and bookmarks to agents.
  */
+@Single
 class MyBrainAppFunctions(
     private val upsertNoteUseCase: UpsertNoteUseCase,
     private val searchNotesUseCase: SearchNotesUseCase,

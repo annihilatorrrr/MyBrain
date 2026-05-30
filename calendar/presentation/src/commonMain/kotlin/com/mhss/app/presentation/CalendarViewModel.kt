@@ -43,7 +43,7 @@ import kotlinx.datetime.number
 import kotlinx.datetime.plus
 import kotlinx.datetime.plusMonth
 import kotlinx.datetime.yearMonth
-import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.KoinViewModel
 
 
 const val CALENDAR_START_PAGE = 24000

@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import com.mhss.app.preferences.domain.model.PrefsKey
 import com.mhss.app.preferences.domain.repository.PreferenceRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -44,5 +45,6 @@ fun <T> PrefsKey<T>.toDatastoreKey(): Preferences.Key<T> {
         is PrefsKey.BooleanKey -> booleanPreferencesKey(name)
         is PrefsKey.StringSetKey -> stringSetPreferencesKey(name)
         is PrefsKey.StringKey -> stringPreferencesKey(name)
+        is PrefsKey.LongKey -> longPreferencesKey(name)
     } as Preferences.Key<T>
 }

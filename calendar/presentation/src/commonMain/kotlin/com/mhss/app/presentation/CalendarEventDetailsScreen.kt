@@ -135,7 +135,7 @@ fun CalendarEventDetailsScreen(
             )
         )
     }
-    LaunchedEffect(state.calendarsList, event) {
+    LaunchedEffect(state.calendarsList, event, state.defaultCalendarId) {
         if (event != null) {
             if (state.calendarsList.isNotEmpty()) {
                 state.calendarsList.firstOrNull { it.id == event.calendarId }?.let {
@@ -144,7 +144,10 @@ fun CalendarEventDetailsScreen(
             }
         } else {
             if (state.calendarsList.isNotEmpty()) {
-                calendar = state.calendarsList.first()
+                val preferredCal = state.defaultCalendarId?.let { defId ->
+                    state.calendarsList.firstOrNull { it.id == defId }
+                }
+                calendar = preferredCal ?: state.calendarsList.first()
             }
         }
     }

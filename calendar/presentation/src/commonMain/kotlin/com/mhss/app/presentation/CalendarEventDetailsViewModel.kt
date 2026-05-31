@@ -13,11 +13,16 @@ import com.mhss.app.domain.use_case.DeleteCalendarEventUseCase
 import com.mhss.app.domain.use_case.GetAllCalendarsUseCase
 import com.mhss.app.domain.use_case.GetCalendarEventByIdUseCase
 import com.mhss.app.domain.use_case.UpdateCalendarEventUseCase
+import com.mhss.app.preferences.PrefsConstants
+import com.mhss.app.preferences.domain.model.longPreferencesKey
+import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
+import com.mhss.app.preferences.domain.use_case.SavePreferenceUseCase
 import com.mhss.app.ui.Res
 import com.mhss.app.ui.error_empty_title
 import com.mhss.app.ui.error_invalid_event_time_range
 import com.mhss.app.ui.error_item_not_found
 import com.mhss.app.ui.snackbar.showSnackbar
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 
@@ -28,6 +33,8 @@ class CalendarEventDetailsViewModel(
     private val addEvent: AddCalendarEventUseCase,
     private val updateEvent: UpdateCalendarEventUseCase,
     private val deleteEvent: DeleteCalendarEventUseCase,
+    private val getPreference: GetPreferenceUseCase,
+    private val savePreference: SavePreferenceUseCase,
     eventId: Long?
 ) : ViewModel() {
 
@@ -41,9 +48,12 @@ class CalendarEventDetailsViewModel(
             if (eventId != null && event == null) {
                 uiState.snackbarHostState.showSnackbar(Res.string.error_item_not_found)
             }
+            val defaultIdPref = getPreference(longPreferencesKey(PrefsConstants.LATEST_CALENDAR_ID_KEY), -1L).first()
+            val defaultCalendarId = if (defaultIdPref != -1L) defaultIdPref else null
             uiState = uiState.copy(
                 event = event,
                 calendarsList = calendars,
+                defaultCalendarId = defaultCalendarId,
                 isLoading = false
             )
         }
@@ -57,6 +67,7 @@ class CalendarEventDetailsViewModel(
                         uiState.snackbarHostState.showSnackbar(Res.string.error_invalid_event_time_range)
                     } else {
                         addEvent(event.event)
+                        savePreference(longPreferencesKey(PrefsConstants.LATEST_CALENDAR_ID_KEY), event.event.calendarId)
                         uiState = uiState.copy(navigateUp = true)
                     }
                 } else {
@@ -88,6 +99,7 @@ class CalendarEventDetailsViewModel(
     data class UiState(
         val event: CalendarEvent? = null,
         val calendarsList: List<Calendar> = emptyList(),
+        val defaultCalendarId: Long? = null,
         val isLoading: Boolean = true,
         val navigateUp: Boolean = false,
         val snackbarHostState: SnackbarHostState = SnackbarHostState()

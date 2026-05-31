@@ -5,8 +5,10 @@ sealed class PrefsKey<T>(val name: String) {
     class BooleanKey(name: String): PrefsKey<Boolean>(name)
     class StringSetKey(name: String): PrefsKey<Set<String>>(name)
     class StringKey(name: String): PrefsKey<String>(name)
+    class LongKey(name: String): PrefsKey<Long>(name)
 }
 fun intPreferencesKey(name: String) = PrefsKey.IntKey(name)
 fun booleanPreferencesKey(name: String) = PrefsKey.BooleanKey(name)
 fun stringSetPreferencesKey(name: String) = PrefsKey.StringSetKey(name)
 fun stringPreferencesKey(name: String) = PrefsKey.StringKey(name)
+fun longPreferencesKey(name: String) = PrefsKey.LongKey(name)

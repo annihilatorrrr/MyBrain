@@ -170,7 +170,7 @@ fun TaskDetailScreen(
                                 isCompleted = completed,
                                 dueDate = if (dueDateExists) dueDate else 0L,
                                 priority = priority,
-                                subTasks = subTasks,
+                                subTasks = subTasks.toList(),
                                 recurring = recurring,
                                 frequency = frequency,
                                 frequencyAmount = frequencyAmount

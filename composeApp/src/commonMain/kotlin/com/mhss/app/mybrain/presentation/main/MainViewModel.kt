@@ -6,9 +6,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mhss.app.datetime.inTheLastWeek
-import com.mhss.app.domain.model.CalendarEvent
 import com.mhss.app.domain.model.DiaryEntry
 import com.mhss.app.domain.model.Task
+import com.mhss.app.domain.use_case.CalendarEventsDay
 import com.mhss.app.domain.use_case.GetAllEntriesUseCase
 import com.mhss.app.domain.use_case.GetAllEventsUseCase
 import com.mhss.app.domain.use_case.GetAllTasksUseCase
@@ -75,7 +75,7 @@ class MainViewModel(
 
     data class UiState(
         val dashBoardTasks: List<Task> = emptyList(),
-        val dashBoardEvents: Map<String, List<CalendarEvent>> = emptyMap(),
+        val dashBoardEvents: List<CalendarEventsDay> = emptyList(),
         val summaryTasks: List<Task> = emptyList(),
         val dashBoardEntries: List<DiaryEntry> = emptyList()
     )
@@ -87,7 +87,7 @@ class MainViewModel(
         ).first()
         val events = getAllEventsUseCase(excluded.toIntList())
         uiState = uiState.copy(
-            dashBoardEvents = events
+            dashBoardEvents = events.eventDays
         )
     }
 

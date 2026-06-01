@@ -53,6 +53,7 @@ import com.mhss.app.datetime.withTimeFrom
 import com.mhss.app.domain.model.Calendar
 import com.mhss.app.domain.model.CalendarDay
 import com.mhss.app.domain.model.CalendarEvent
+import com.mhss.app.domain.use_case.CalendarEventsDay
 import com.mhss.app.ui.Res
 import com.mhss.app.ui.add_event
 import com.mhss.app.ui.calendar
@@ -98,28 +99,28 @@ fun CalendarScreen(
     val loadedMonths = state.loadedMonths
     val currentMonth = state.currentMonth
     val selectedDate = state.selectedDate
-    
-    val selectedDay = remember(selectedDate, currentMonth, loadedMonths[selectedDate.month.number]) {
-        loadedMonths[selectedDate.month.number]?.days?.firstOrNull { it.date == selectedDate }
-            ?: CalendarDay(
-                date = selectedDate,
-                isCurrentMonth = selectedDate.year == currentMonth.year && selectedDate.month == currentMonth.month,
-                events = emptyList()
-            )
-    }
+
+    val selectedDay =
+        remember(selectedDate, currentMonth, loadedMonths[selectedDate.month.number]) {
+            loadedMonths[selectedDate.month.number]?.days?.firstOrNull { it.date == selectedDate }
+                ?: CalendarDay(
+                    date = selectedDate,
+                    isCurrentMonth = selectedDate.year == currentMonth.year && selectedDate.month == currentMonth.month,
+                    events = emptyList()
+                )
+        }
 
     val scope = rememberCoroutineScope()
     val liquidState = rememberLiquidState()
-
-    val formatter = LocalDateTimeFormatter.current
 
     val listMonthLabel by remember(state.events) {
         derivedStateOf {
             if (state.events.isEmpty()) ""
             else {
-                val values = state.events.values.toList()
-                val index = listViewState.firstVisibleItemIndex.coerceIn(0, values.lastIndex)
-                values.getOrNull(index)?.firstOrNull()?.start?.let { formatter.monthName(it) }.orEmpty()
+                val events = state.events
+                val index =
+                    listViewState.firstVisibleItemIndex.coerceIn(0, events.lastIndex)
+                events.getOrNull(index)?.monthName.orEmpty()
             }
         }
     }
@@ -146,9 +147,7 @@ fun CalendarScreen(
                             months = months,
                             onMonthSelected = { selected ->
                                 scope.launch {
-                                    val targetIndex = state.events.values.indexOfFirst {
-                                        it.firstOrNull()?.start?.let { formatter.monthName(it) } == selected
-                                    }
+                                    val targetIndex = state.events.indexOfFirst { it.monthName == selected }
                                     if (targetIndex >= 0) {
                                         listViewState.scrollToItem(targetIndex)
                                     }
@@ -328,7 +327,7 @@ fun NoReadCalendarPermissionMessage(
 private fun CalendarListView(
     modifier: Modifier = Modifier,
     state: LazyListState,
-    events: Map<String, List<CalendarEvent>>,
+    events: List<CalendarEventsDay>,
     onEventClick: (CalendarEvent) -> Unit
 ) {
     LazyColumn(
@@ -337,16 +336,16 @@ private fun CalendarListView(
         contentPadding = PaddingValues(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        events.forEach { (day, dayEvents) ->
-            item(key = day) {
+        events.forEach { eventDay ->
+            item(key = eventDay.formattedDate) {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Text(
-                        text = day.substring(0, day.indexOf(",")),
+                        text = eventDay.formattedDate.substringBefore(","),
                         style = MaterialTheme.typography.titleMedium
                     )
-                    dayEvents.forEach { event ->
+                    eventDay.events.forEach { event ->
                         CalendarEventItem(event = event, onClick = onEventClick)
                     }
                 }
@@ -441,7 +440,10 @@ fun CalendarSettingsSection(
                         text = calendar,
                         style = MaterialTheme.typography.bodyLarge
                     )
-                    Icon(painter = painterResource(Res.drawable.ic_drop_down), contentDescription = null)
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_drop_down),
+                        contentDescription = null
+                    )
                 }
                 DropdownMenu(
                     expanded = expanded,

@@ -15,9 +15,11 @@ import java.time.format.DateTimeFormatter as JavaDateTimeFormatter
 @Single(binds = [DateTimeFormatter::class])
 class AndroidDateTimeFormatter(private val context: Context) : DateTimeFormatter {
 
+
     override val is24HourFormat: Boolean
         get() = DateFormat.is24HourFormat(context)
 
+    private val calendarMappingFormatter = JavaDateTimeFormatter.ofPattern("EEEE d, MMM yyy", Locale.getDefault())
     private val calendarEventsDayFormatter: JavaDateTimeFormatter = JavaDateTimeFormatter.ofPattern("EEEE, MMM d", Locale.getDefault())
 
     override fun formatEventsDayName(date: LocalDate): String {
@@ -38,7 +40,11 @@ class AndroidDateTimeFormatter(private val context: Context) : DateTimeFormatter
     }
 
     override fun formatDateForMapping(timestamp: Long): String {
-        return JavaDateTimeFormatter.ofPattern("EEEE d, MMM yyy", Locale.getDefault()).format(timestamp.localDateTime.toJavaLocalDateTime())
+        return calendarMappingFormatter.format(timestamp.localDateTime.toJavaLocalDateTime())
+    }
+
+    override fun formatDateForMapping(date: LocalDate): String {
+        return calendarMappingFormatter.format(date.toJavaLocalDate())
     }
 
     override fun formatTime(timestamp: Long): String {

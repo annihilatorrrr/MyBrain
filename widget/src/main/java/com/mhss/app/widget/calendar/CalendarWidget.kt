@@ -79,7 +79,7 @@ class CalendarWidget : GlanceAppWidget(), KoinComponent {
                     else ColorProviders(widgetLightColorScheme)
                 ) {
                     CalendarHomeScreenWidget(
-                        events,
+                        events.eventDays,
                         hasPermission
                     )
                 }

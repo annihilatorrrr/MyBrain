@@ -27,6 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.unit.dp
 import com.mhss.app.domain.model.CalendarEvent
+import com.mhss.app.domain.use_case.CalendarEventsDay
 import com.mhss.app.ui.Res
 import com.mhss.app.ui.add_event
 import com.mhss.app.ui.calendar
@@ -40,7 +41,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun CalendarDashboardWidget(
     modifier: Modifier = Modifier,
-    events: Map<String, List<CalendarEvent>>,
+    events: List<CalendarEventsDay>,
     onPermission: (Boolean) -> Unit = {},
     onClick: () -> Unit = {},
     onAddEventClicked: () -> Unit = {},

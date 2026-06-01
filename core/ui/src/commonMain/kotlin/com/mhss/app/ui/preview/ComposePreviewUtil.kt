@@ -101,6 +101,12 @@ private val previewDateTimeFormatter = object : DateTimeFormatter {
         return "$dow ${localDT.day}, $mon ${localDT.year}"
     }
 
+    override fun formatDateForMapping(date: LocalDate): String {
+        val dow = dayFullNames[date.dayOfWeek.ordinal]
+        val mon = monthShortNames[date.month.number - 1]
+        return "$dow ${date.day}, $mon ${date.year}"
+    }
+
     override fun formatTime(timestamp: Long): String {
         val localDT = timestamp.localDateTime
         val minutes = timestamp % HOUR_MILLIS

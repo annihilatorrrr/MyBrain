@@ -36,6 +36,7 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.mhss.app.datetime.now
 import com.mhss.app.domain.model.CalendarEvent
+import com.mhss.app.domain.use_case.CalendarEventsDay
 import com.mhss.app.ui.R
 import com.mhss.app.widget.WidgetTheme
 import com.mhss.app.widget.largeBackgroundBasedOnVersion
@@ -45,7 +46,7 @@ import kotlin.time.Duration.Companion.hours
 
 @Composable
 fun CalendarHomeScreenWidget(
-    events: Map<String, List<CalendarEvent>>,
+    events: List<CalendarEventsDay>,
     hasPermission: Boolean
 ) {
     val context = LocalContext.current
@@ -126,10 +127,10 @@ fun CalendarHomeScreenWidget(
                         }
                     }
                     item { Spacer(GlanceModifier.height(6.dp)) }
-                    events.forEach { (day, dayEvents) ->
+                    events.forEach { eventDay ->
                         item {
                             Text(
-                                text = day,
+                                text = eventDay.formattedDate.substringBefore(","),
                                 style = TextStyle(
                                     color = GlanceTheme.colors.secondary,
                                     fontWeight = FontWeight.Bold,
@@ -138,7 +139,7 @@ fun CalendarHomeScreenWidget(
                                 modifier = GlanceModifier.padding(bottom = 2.dp)
                             )
                         }
-                        items(dayEvents) { event ->
+                        items(eventDay.events) { event ->
                             CalendarEventWidgetItem(event = event)
                         }
                     }
@@ -181,8 +182,8 @@ fun CalendarHomeScreenWidget(
 private fun CalendarHomeScreenWidgetPreview() {
     WidgetTheme(ColorProviders(widgetDarkColorScheme)) {
         CalendarHomeScreenWidget(
-            mapOf(
-                "Monday 7, 2024" to listOf(
+            listOf(
+                CalendarEventsDay("Monday 7, 2024", listOf(
                     CalendarEvent(
                         id = 1,
                         title = "Event 1",
@@ -192,8 +193,8 @@ private fun CalendarHomeScreenWidgetPreview() {
                         location = "Location 1",
                         color = Color.Red.toArgb()
                     )
-                ),
-                "Tuesday 8, 2024" to listOf(
+                ), "October"),
+                CalendarEventsDay("Tuesday 8, 2024",listOf(
                     CalendarEvent(
                         id = 3,
                         title = "Event 2",
@@ -212,8 +213,10 @@ private fun CalendarHomeScreenWidgetPreview() {
                         location = "Location 3",
                         color = Color.Gray.toArgb()
                     )
-                )
-            ),
+                ),
+                "October"
+            )
+        ),
             true
         )
     }

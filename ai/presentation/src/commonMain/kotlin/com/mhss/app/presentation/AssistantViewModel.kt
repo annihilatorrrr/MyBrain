@@ -11,9 +11,9 @@ import com.mhss.app.domain.model.AiMessageAttachment
 import com.mhss.app.domain.model.AiRepositoryException
 import com.mhss.app.domain.model.AssistantResult
 import com.mhss.app.domain.model.AssistantThread
-import com.mhss.app.domain.model.CalendarEvent
 import com.mhss.app.domain.model.Note
 import com.mhss.app.domain.model.Task
+import com.mhss.app.domain.use_case.CalendarEventsDay
 import com.mhss.app.domain.use_case.DeleteAllAssistantThreadsUseCase
 import com.mhss.app.domain.use_case.DeleteAssistantMessageUseCase
 import com.mhss.app.domain.use_case.DeleteAssistantThreadUseCase
@@ -322,12 +322,12 @@ class AssistantViewModel(
             return@withContext builder.toString()
         }
 
-    private suspend fun getEventsForNext7Days(): Map<String, List<CalendarEvent>> {
+    private suspend fun getEventsForNext7Days():  List<CalendarEventsDay> {
         val excluded = getPreference(
             stringSetPreferencesKey(PrefsConstants.EXCLUDED_CALENDARS_KEY),
             emptySet()
         ).first()
-        return getCalendarEvents(excluded.toIntList(), todayPlusDays(7))
+        return getCalendarEvents(excluded.toIntList(), todayPlusDays(7)).eventDays
     }
 
 

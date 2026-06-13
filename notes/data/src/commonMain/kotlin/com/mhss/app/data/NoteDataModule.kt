@@ -3,6 +3,9 @@ package com.mhss.app.data
 import com.mhss.app.data.impl.MarkdownNoteRepositoryImpl
 import com.mhss.app.data.impl.RoomNoteRepositoryImpl
 import com.mhss.app.database.dao.NoteDao
+import com.mhss.app.database.dao.SyncDao
+import com.mhss.app.database.sync.LocalChangeObserver
+import com.mhss.app.database.helpers.DatabaseTransactionProvider
 import com.mhss.app.domain.repository.NoteRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import org.koin.core.annotation.ComponentScan
@@ -19,15 +22,18 @@ class NoteDataModule {
     @Factory
     fun defaultNoteRepository(
         noteDao: NoteDao,
+        syncDao: SyncDao,
+        changeObserver: LocalChangeObserver,
+        transactionProvider: DatabaseTransactionProvider,
         @Named("ioDispatcher") ioDispatcher: CoroutineDispatcher
     ): NoteRepository {
-        return RoomNoteRepositoryImpl(noteDao, ioDispatcher)
+        return RoomNoteRepositoryImpl(noteDao, syncDao, changeObserver, transactionProvider, ioDispatcher)
     }
 }
 
 val noteRoomModule = module {
     factory<NoteRepository> {
-        RoomNoteRepositoryImpl(get(), get(named("ioDispatcher")))
+        RoomNoteRepositoryImpl(get(), get(), get(), get(), get(named("ioDispatcher")))
     }
 }
 

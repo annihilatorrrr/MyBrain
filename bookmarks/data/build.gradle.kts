@@ -18,6 +18,7 @@ kotlin {
             dependencies {
                 implementation(projects.core.database)
                 implementation(projects.bookmarks.domain)
+                implementation(projects.core.datetime)
 
                 implementation(libs.kotlinx.coroutines.core)
 

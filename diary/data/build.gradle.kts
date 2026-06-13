@@ -18,6 +18,7 @@ kotlin {
             dependencies {
                 implementation(projects.core.database)
                 implementation(projects.diary.domain)
+                implementation(projects.core.datetime)
 
                 implementation(libs.kotlinx.coroutines.core)
 

@@ -13,9 +13,9 @@ interface TaskRepository {
 
     fun searchTasks(title: String): Flow<List<Task>>
 
-    suspend fun upsertTask(task: Task)
+    suspend fun upsertTask(task: Task, notifyChange: Boolean = true)
 
-    suspend fun upsertTasks(tasks: List<Task>)
+    suspend fun upsertTasks(tasks: List<Task>, notifyChange: Boolean = true)
 
     suspend fun updateTask(task: Task)
 

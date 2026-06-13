@@ -20,7 +20,16 @@ interface BookmarkDao {
     suspend fun getAllFullBookmarks(): List<BookmarkEntity>
 
     @Query("SELECT * FROM bookmarks WHERE id = :id")
-    suspend fun getBookmark(id: String): BookmarkEntity
+    suspend fun getBookmark(id: String): BookmarkEntity?
+
+    @Query("SELECT * FROM bookmarks WHERE id IN (:ids)")
+    suspend fun getBookmarksByIds(ids: List<String>): List<BookmarkEntity>
+
+    @Query("SELECT * FROM bookmarks WHERE updated_date > :timestamp")
+    suspend fun getBookmarksUpdatedAfter(timestamp: Long): List<BookmarkEntity>
+
+    @Query("SELECT * FROM bookmarks WHERE sync_seq > :seq AND sync_seq <= :maxSeq")
+    suspend fun getBookmarksAfterSeq(seq: Long, maxSeq: Long): List<BookmarkEntity>
 
     @Query("SELECT * FROM bookmarks WHERE title LIKE '%' || :query || '%' OR description LIKE '%' || :query || '%' OR url LIKE '%' || :query || '%'")
     suspend fun searchBookmarks(query: String): List<BookmarkEntity>
@@ -33,6 +42,9 @@ interface BookmarkDao {
 
     @Delete
     suspend fun deleteBookmark(bookmark: BookmarkEntity)
+
+    @Query("DELETE FROM bookmarks WHERE id = :id")
+    suspend fun deleteBookmarkById(id: String)
 
     @Upsert
     suspend fun upsertBookmarks(bookmarks: List<BookmarkEntity>)

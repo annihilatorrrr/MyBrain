@@ -3,7 +3,14 @@ package com.mhss.app.data.repository
 import com.mhss.app.data.mappers.toAiMessage
 import com.mhss.app.data.mappers.toAssistantMessageEntity
 import com.mhss.app.database.dao.AssistantDao
+import com.mhss.app.database.dao.SyncDao
+import com.mhss.app.database.dao.incrementAndGet
 import com.mhss.app.database.entity.AssistantThreadEntity
+import com.mhss.app.database.entity.DeletedEntityEntity
+import com.mhss.app.database.entity.DeletedEntityType
+import com.mhss.app.database.helpers.DatabaseTransactionProvider
+import com.mhss.app.database.sync.LocalChangeObserver
+import com.mhss.app.datetime.now
 import com.mhss.app.domain.model.AiMessage
 import com.mhss.app.domain.model.AssistantThread
 import com.mhss.app.domain.repository.AssistantChatRepository
@@ -14,10 +21,16 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Named
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 @Factory
 class AssistantChatRepositoryImpl(
     private val assistantDao: AssistantDao,
+    private val syncDao: SyncDao,
+    private val changeObserver: LocalChangeObserver,
+    private val transactionProvider: DatabaseTransactionProvider,
     private val toolExecutor: AiToolExecutor,
     @Named("ioDispatcher") private val ioDispatcher: CoroutineDispatcher,
     @Named("defaultDispatcher") private val defaultDispatcher: CoroutineDispatcher,
@@ -30,15 +43,45 @@ class AssistantChatRepositoryImpl(
     }
 
     override suspend fun saveThread(thread: AssistantThread): Unit = withContext(ioDispatcher) {
-        assistantDao.upsertThread(thread.toEntity())
+        transactionProvider.runInTransaction {
+            assistantDao.upsertThread(thread.toEntity(syncSeq = syncDao.incrementAndGet()))
+        }
+        changeObserver.notifyChange()
     }
 
     override suspend fun deleteThread(threadId: String): Unit = withContext(ioDispatcher) {
-        assistantDao.deleteThreadAndMessages(threadId)
+        transactionProvider.runInTransaction {
+            assistantDao.deleteThreadAndMessages(threadId)
+            syncDao.insertDeletedEntity(
+                DeletedEntityEntity(
+                    id = Uuid.generateV7().toString(),
+                    entityId = threadId,
+                    entityType = DeletedEntityType.THREAD.key,
+                    deletedAt = now(),
+                    syncSeq = syncDao.incrementAndGet()
+                )
+            )
+        }
+        changeObserver.notifyChange()
     }
 
     override suspend fun deleteAllThreads(): Unit = withContext(ioDispatcher) {
-        assistantDao.deleteAllThreadsAndMessages()
+        transactionProvider.runInTransaction {
+            val threadIds = assistantDao.getAllThreadIds()
+            assistantDao.deleteAllThreadsAndMessages()
+            threadIds.forEach { thId ->
+                syncDao.insertDeletedEntity(
+                    DeletedEntityEntity(
+                        id = Uuid.generateV7().toString(),
+                        entityId = thId,
+                        entityType = DeletedEntityType.THREAD.key,
+                        deletedAt = now(),
+                        syncSeq = syncDao.incrementAndGet()
+                    )
+                )
+            }
+        }
+        changeObserver.notifyChange()
     }
 
     override fun getMessages(threadId: String): Flow<List<AiMessage>> {
@@ -51,11 +94,37 @@ class AssistantChatRepositoryImpl(
 
     override suspend fun saveMessage(threadId: String, message: AiMessage): Unit =
         withContext(ioDispatcher) {
-            assistantDao.insertMessageAndUpdateThread(message.toAssistantMessageEntity(threadId))
+            transactionProvider.runInTransaction {
+                val entity = message.toAssistantMessageEntity(threadId, syncDao.incrementAndGet())
+                assistantDao.upsertMessage(entity)
+
+                val threadEntity = assistantDao.getThreadsByIds(listOf(threadId)).firstOrNull()
+                if (threadEntity != null) {
+                    assistantDao.upsertThread(
+                        threadEntity.copy(
+                            updatedAt = entity.createdAt,
+                            syncSeq = syncDao.incrementAndGet()
+                        )
+                    )
+                }
+            }
+            changeObserver.notifyChange()
         }
 
     override suspend fun deleteMessage(messageId: String): Unit = withContext(ioDispatcher) {
-        assistantDao.deleteMessage(messageId)
+        transactionProvider.runInTransaction {
+            assistantDao.deleteMessage(messageId)
+            syncDao.insertDeletedEntity(
+                DeletedEntityEntity(
+                    id = Uuid.generateV7().toString(),
+                    entityId = messageId,
+                    entityType = DeletedEntityType.MESSAGE.key,
+                    deletedAt = now(),
+                    syncSeq = syncDao.incrementAndGet()
+                )
+            )
+        }
+        changeObserver.notifyChange()
     }
 
     private fun AssistantThreadEntity.toAssistantThread(): AssistantThread {
@@ -67,12 +136,13 @@ class AssistantChatRepositoryImpl(
         )
     }
 
-    private fun AssistantThread.toEntity(): AssistantThreadEntity {
+    private fun AssistantThread.toEntity(syncSeq: Long = 0L): AssistantThreadEntity {
         return AssistantThreadEntity(
             id = id,
             title = title,
             createdAt = createdAt,
-            updatedAt = updatedAt
+            updatedAt = updatedAt,
+            syncSeq = syncSeq
         )
     }
 

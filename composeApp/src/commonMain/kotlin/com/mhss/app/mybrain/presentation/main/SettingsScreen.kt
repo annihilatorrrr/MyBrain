@@ -37,6 +37,7 @@ import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.domain.model.booleanPreferencesKey
 import com.mhss.app.preferences.domain.model.intPreferencesKey
 import com.mhss.app.presentation.SettingsViewModel
+import com.mhss.app.presentation.components.ExperimentalBadge
 import com.mhss.app.presentation.components.SettingsBasicLinkItem
 import com.mhss.app.presentation.components.SettingsItemCard
 import com.mhss.app.presentation.components.SettingsSwitchCard
@@ -76,15 +77,17 @@ import com.mhss.app.ui.ic_font_size
 import com.mhss.app.ui.ic_github
 import com.mhss.app.ui.ic_home
 import com.mhss.app.ui.ic_import_export
-import com.mhss.app.ui.ic_integrations
 import com.mhss.app.ui.ic_lock
+import com.mhss.app.ui.ic_network_nodes
 import com.mhss.app.ui.ic_paint_roller
 import com.mhss.app.ui.ic_palette
+import com.mhss.app.ui.ic_plug
 import com.mhss.app.ui.ic_privacy
 import com.mhss.app.ui.ic_roadmap
 import com.mhss.app.ui.ic_sun
 import com.mhss.app.ui.integrations
 import com.mhss.app.ui.light_theme
+import com.mhss.app.ui.local_sync
 import com.mhss.app.ui.lock_app
 import com.mhss.app.ui.material_you
 import com.mhss.app.ui.navigation.Screen
@@ -284,9 +287,19 @@ fun SettingsScreen(
             item {
                 SettingsBasicLinkItem(
                     title = Res.string.integrations,
-                    icon = Res.drawable.ic_integrations,
+                    icon = Res.drawable.ic_plug,
                     onClick = {
                         navController.navigate(Screen.IntegrationsScreen)
+                    }
+                )
+            }
+            item {
+                SettingsBasicLinkItem(
+                    title = Res.string.local_sync,
+                    icon = Res.drawable.ic_network_nodes,
+                    badge = { ExperimentalBadge() },
+                    onClick = {
+                        navController.navigate(Screen.LocalSyncScreen())
                     }
                 )
             }

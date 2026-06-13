@@ -20,13 +20,13 @@ interface NoteRepository {
 
     suspend fun upsertNote(note: Note, currentFolderId: String? = null): String
 
-    suspend fun upsertNotes(notes: List<Note>): List<String>
+    suspend fun upsertNotes(notes: List<Note>, notifyChange: Boolean = true): List<String>
 
     suspend fun deleteNote(note: Note)
 
     suspend fun insertNoteFolder(folderName: String): String
 
-    suspend fun upsertNoteFolders(folders: List<NoteFolder>)
+    suspend fun upsertNoteFolders(folders: List<NoteFolder>, notifyChange: Boolean = true)
 
     suspend fun updateNoteFolder(folder: NoteFolder)
 

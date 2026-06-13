@@ -75,7 +75,7 @@ private fun SnackbarContent(snackbarMessage: LocalisedSnackbarMessage) {
             tint = snackbarMessage.contentColor()
         )
         Text(
-            text = stringResource(snackbarMessage.stringRes),
+            text = stringResource(snackbarMessage.stringRes, *snackbarMessage.formatArgs.toTypedArray()),
             style = MaterialTheme.typography.bodyMedium,
             color = snackbarMessage.contentColor()
         )

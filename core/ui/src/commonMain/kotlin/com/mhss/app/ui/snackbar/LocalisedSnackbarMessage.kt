@@ -8,6 +8,7 @@ import androidx.compose.material3.SnackbarVisuals
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.mhss.app.ui.Res
+import com.mhss.app.ui.ic_check
 import com.mhss.app.ui.ic_info
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
@@ -20,6 +21,7 @@ sealed class LocalisedSnackbarMessage(
     val contentColor: @Composable () -> Color,
     override val duration: SnackbarDuration = if (actionLabelRes != null) SnackbarDuration.Long else SnackbarDuration.Short,
     override val withDismissAction: Boolean = false,
+    val formatArgs: List<Any> = emptyList()
 ) : SnackbarVisuals {
 
     override val message: String = ""
@@ -28,12 +30,27 @@ sealed class LocalisedSnackbarMessage(
     class Error(
         stringResource: StringResource,
         actionLabelRes: StringResource? = null,
+        formatArgs: List<Any> = emptyList()
     ) : LocalisedSnackbarMessage(
         stringRes = stringResource,
         iconRes = Res.drawable.ic_info,
         actionLabelRes = actionLabelRes,
         color = { MaterialTheme.colorScheme.errorContainer },
-        contentColor = { MaterialTheme.colorScheme.onErrorContainer }
+        contentColor = { MaterialTheme.colorScheme.onErrorContainer },
+        formatArgs = formatArgs
+    )
+
+    class Success(
+        stringResource: StringResource,
+        actionLabelRes: StringResource? = null,
+        formatArgs: List<Any> = emptyList()
+    ) : LocalisedSnackbarMessage(
+        stringRes = stringResource,
+        iconRes = Res.drawable.ic_check,
+        actionLabelRes = actionLabelRes,
+        color = { com.mhss.app.ui.theme.Green },
+        contentColor = { Color.White },
+        formatArgs = formatArgs
     )
 
 }
@@ -46,6 +63,34 @@ suspend fun SnackbarHostState.showSnackbar(
         LocalisedSnackbarMessage.Error(
             stringResource = stringRes,
             actionLabelRes = actionLabelRes
+        )
+    )
+}
+
+suspend fun SnackbarHostState.showErrorSnackbar(
+    stringRes: StringResource,
+    actionLabelRes: StringResource? = null,
+    formatArgs: List<Any> = emptyList()
+): SnackbarResult {
+    return showSnackbar(
+        LocalisedSnackbarMessage.Error(
+            stringResource = stringRes,
+            actionLabelRes = actionLabelRes,
+            formatArgs = formatArgs
+        )
+    )
+}
+
+suspend fun SnackbarHostState.showSuccessSnackbar(
+    stringRes: StringResource,
+    actionLabelRes: StringResource? = null,
+    formatArgs: List<Any> = emptyList()
+): SnackbarResult {
+    return showSnackbar(
+        LocalisedSnackbarMessage.Success(
+            stringResource = stringRes,
+            actionLabelRes = actionLabelRes,
+            formatArgs = formatArgs
         )
     )
 }

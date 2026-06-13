@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface DiaryDao {
 
-    @Query("SELECT title, SUBSTR(content, 1, 150) AS content, created_date, updated_date, mood, id FROM diary")
+    @Query("SELECT title, SUBSTR(content, 1, 150) AS content, created_date, updated_date, mood, id, sync_seq FROM diary")
     fun getAllEntries(): Flow<List<DiaryEntryEntity>>
 
     @Query("SELECT * FROM diary")
@@ -22,7 +22,16 @@ interface DiaryDao {
     @Query("SELECT * FROM diary WHERE id = :id")
     suspend fun getEntry(id: String): DiaryEntryEntity?
 
-    @Query("SELECT title, SUBSTR(content, 1, 100) AS content, created_date, updated_date, mood, id FROM diary WHERE title LIKE '%' || :query || '%' OR content LIKE '%' || :query || '%'")
+    @Query("SELECT * FROM diary WHERE id IN (:ids)")
+    suspend fun getEntriesByIds(ids: List<String>): List<DiaryEntryEntity>
+
+    @Query("SELECT * FROM diary WHERE updated_date > :timestamp")
+    suspend fun getDiaryEntriesUpdatedAfter(timestamp: Long): List<DiaryEntryEntity>
+
+    @Query("SELECT * FROM diary WHERE sync_seq > :seq AND sync_seq <= :maxSeq")
+    suspend fun getDiaryEntriesAfterSeq(seq: Long, maxSeq: Long): List<DiaryEntryEntity>
+
+    @Query("SELECT title, SUBSTR(content, 1, 100) AS content, created_date, updated_date, mood, id, sync_seq FROM diary WHERE title LIKE '%' || :query || '%' OR content LIKE '%' || :query || '%'")
     suspend fun getEntriesByTitle(query: String): List<DiaryEntryEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -36,5 +45,8 @@ interface DiaryDao {
 
     @Delete
     suspend fun deleteEntry(diary: DiaryEntryEntity)
+
+    @Query("DELETE FROM diary WHERE id = :id")
+    suspend fun deleteEntryById(id: String)
 
 }

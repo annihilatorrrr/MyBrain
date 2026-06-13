@@ -2,10 +2,14 @@ package com.mhss.app.database.entity
 
 import androidx.room3.ColumnInfo
 import androidx.room3.Entity
+import androidx.room3.Index
 import androidx.room3.PrimaryKey
 import com.mhss.app.domain.model.Note
 
-@Entity(tableName = "notes")
+@Entity(
+    tableName = "notes",
+    indices = [Index(value = ["sync_seq"])]
+)
 data class NoteEntity(
     val title: String = "",
     val content: String = "",
@@ -18,6 +22,8 @@ data class NoteEntity(
     val folderId: String? = null,
     @PrimaryKey
     val id: String,
+    @ColumnInfo(name = "sync_seq", defaultValue = "1")
+    val syncSeq: Long = 1L,
 )
 
 fun NoteEntity.toNote(): Note {
@@ -32,7 +38,7 @@ fun NoteEntity.toNote(): Note {
     )
 }
 
-fun Note.toNoteEntity(): NoteEntity {
+fun Note.toNoteEntity(id: String = this.id, syncSeq: Long = 0L): NoteEntity {
     return NoteEntity(
         title = title,
         content = content,
@@ -40,6 +46,7 @@ fun Note.toNoteEntity(): NoteEntity {
         updatedDate = updatedDate,
         pinned = pinned,
         folderId = folderId,
-        id = id
+        id = id,
+        syncSeq = syncSeq
     )
 }

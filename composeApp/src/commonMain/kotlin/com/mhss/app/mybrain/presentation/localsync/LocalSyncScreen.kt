@@ -1,0 +1,530 @@
+package com.mhss.app.mybrain.presentation.localsync
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
+import com.mhss.app.mybrain.presentation.localsync.components.CustomIpDialog
+import com.mhss.app.mybrain.presentation.localsync.components.DeleteDeviceDialog
+import com.mhss.app.mybrain.presentation.localsync.components.DeviceItemCard
+import com.mhss.app.mybrain.presentation.localsync.components.PairDeviceDialog
+import com.mhss.app.mybrain.presentation.localsync.components.PairingQrDialog
+import com.mhss.app.mybrain.presentation.localsync.components.RenameDeviceDialog
+import com.mhss.app.mybrain.sync.model.PairedDevice
+import com.mhss.app.mybrain.sync.util.DEFAULT_SYNC_PORT
+import com.mhss.app.ui.Res
+import com.mhss.app.ui.active_pairings
+import com.mhss.app.ui.back
+import com.mhss.app.ui.copy_pairing_link
+import com.mhss.app.ui.default_device_name
+import com.mhss.app.ui.device_name_label
+import com.mhss.app.ui.failed_to_load_camera_image
+import com.mhss.app.ui.ic_edit
+import com.mhss.app.ui.ic_key
+import com.mhss.app.ui.ic_paste
+import com.mhss.app.ui.ic_qr_code
+import com.mhss.app.ui.ic_qr_scan
+import com.mhss.app.ui.ic_small_arrow_down
+import com.mhss.app.ui.local_ip_label
+import com.mhss.app.ui.local_sync
+import com.mhss.app.ui.local_sync_description
+import com.mhss.app.ui.navigation.Screen
+import com.mhss.app.ui.no_devices_paired
+import com.mhss.app.ui.pairing_link_copied
+import com.mhss.app.ui.paste_pairing_link
+import com.mhss.app.ui.rename_device
+import com.mhss.app.ui.scan_qr_code
+import com.mhss.app.ui.security_warning
+import com.mhss.app.ui.show_pairing_qr
+import com.mhss.app.ui.snackbar.LocalisedSnackbarHost
+import com.mhss.app.ui.snackbar.showErrorSnackbar
+import com.mhss.app.ui.snackbar.showSuccessSnackbar
+import com.mhss.app.ui.sync_conflict_handling
+import com.mhss.app.ui.sync_conflict_handling_description
+import com.mhss.app.util.clipboard.copyText
+import com.mhss.app.util.clipboard.pasteText
+import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LocalSyncScreen(
+    navController: NavHostController,
+    pairArgs: Screen.LocalSyncScreen = Screen.LocalSyncScreen(),
+    viewModel: LocalSyncViewModel = koinViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val pairedDevices = uiState.pairedDevices
+    val isLoading = uiState.isLoading
+    val clipboardManager = LocalClipboard.current
+    val scope = rememberCoroutineScope()
+
+    var showQrDialog by remember { mutableStateOf(false) }
+    var showRenameDialog by remember { mutableStateOf(false) }
+    var showCustomIpDialogForDevice by remember { mutableStateOf<PairedDevice?>(null) }
+    var showDeleteConfirmDialogForDevice by remember { mutableStateOf<PairedDevice?>(null) }
+    var pendingPairArgs by remember(pairArgs) {
+        mutableStateOf(
+            pairArgs.takeIf {
+                !it.deviceId.isNullOrBlank() &&
+                        !it.ips.isNullOrBlank() &&
+                        it.port != null &&
+                        !it.encKey.isNullOrBlank()
+            }
+        )
+    }
+    val qrScanLauncher = rememberQrScanLauncher { kmpBitmap ->
+        if (kmpBitmap != null) {
+            viewModel.onEvent(PairedDevicesEvent.DecodeAndPair(kmpBitmap))
+        } else {
+            scope.launch {
+                uiState.snackbarHostState.showErrorSnackbar(Res.string.failed_to_load_camera_image)
+            }
+        }
+    }
+
+    var previousDeviceCount by remember { mutableIntStateOf(pairedDevices.size) }
+    LaunchedEffect(pairedDevices.size) {
+        if (pairedDevices.size > previousDeviceCount && showQrDialog) {
+            showQrDialog = false
+        }
+        previousDeviceCount = pairedDevices.size
+    }
+
+    Scaffold(
+        snackbarHost = { LocalisedSnackbarHost(uiState.snackbarHostState) },
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        stringResource(Res.string.local_sync),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_small_arrow_down),
+                            contentDescription = stringResource(Res.string.back),
+                            modifier = Modifier.rotate(90f)
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
+            )
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                item {
+                    Text(
+                        text = stringResource(Res.string.local_sync_description),
+                        modifier = Modifier.padding(horizontal = 4.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+                        ),
+                        border = CardDefaults.outlinedCardBorder()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(
+                                            text = stringResource(Res.string.device_name_label),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text(
+                                            text = uiState.ownDeviceName.ifBlank {
+                                                stringResource(
+                                                    Res.string.default_device_name
+                                                )
+                                            },
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                    IconButton(
+                                        onClick = { showRenameDialog = true },
+                                        modifier = Modifier.size(36.dp)
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(Res.drawable.ic_edit),
+                                            contentDescription = stringResource(Res.string.rename_device),
+                                            modifier = Modifier.size(18.dp),
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                }
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = stringResource(Res.string.local_ip_label),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "${uiState.ownIpAddress}:$DEFAULT_SYNC_PORT",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+
+                            HorizontalDivider(
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f)
+                            )
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Button(
+                                    onClick = { showQrDialog = true },
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(12.dp),
+                                    contentPadding = PaddingValues.Zero
+                                ) {
+                                    Icon(
+                                        painter = painterResource(Res.drawable.ic_qr_code),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = stringResource(Res.string.show_pairing_qr),
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
+
+
+                                Button(
+                                    onClick = {
+                                        val pairingLink = uiState.ownQrContent
+                                        scope.launch {
+                                            clipboardManager.copyText("pairing_link", pairingLink)
+                                            uiState.snackbarHostState.showSuccessSnackbar(Res.string.pairing_link_copied)
+                                        }
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(12.dp),
+                                    contentPadding = PaddingValues.Zero
+                                ) {
+                                    Icon(
+                                        painter = painterResource(Res.drawable.ic_key),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = stringResource(Res.string.copy_pairing_link),
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Medium,
+                                    )
+                                }
+                            }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Button(
+                                    onClick = {
+                                        qrScanLauncher()
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(12.dp),
+                                    contentPadding = PaddingValues.Zero
+                                ) {
+                                    Icon(
+                                        painter = painterResource(Res.drawable.ic_qr_scan),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = stringResource(Res.string.scan_qr_code),
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Medium,
+                                    )
+                                }
+
+                                Button(
+                                    onClick = {
+                                        scope.launch {
+                                            val pairingLink = clipboardManager.pasteText()
+                                            viewModel.onEvent(
+                                                PairedDevicesEvent.PairFromClipboard(
+                                                    pairingLink
+                                                )
+                                            )
+                                        }
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(12.dp),
+                                    contentPadding = PaddingValues.Zero
+                                ) {
+                                    Icon(
+                                        painter = painterResource(Res.drawable.ic_paste),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = stringResource(Res.string.paste_pairing_link),
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Medium,
+                                    )
+                                }
+                            }
+
+                            Text(
+                                text = stringResource(Res.string.security_warning),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                    alpha = 0.8f,
+                                ),
+                            )
+                        }
+                    }
+                }
+
+                item {
+                    Text(
+                        text = stringResource(Res.string.active_pairings),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+
+                if (pairedDevices.isEmpty()) {
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.background
+                            )
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxWidth().padding(32.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = stringResource(Res.string.no_devices_paired),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    items(pairedDevices) { device ->
+                        DeviceItemCard(
+                            device = device,
+                            onPing = { viewModel.onEvent(PairedDevicesEvent.PingDevice(device)) },
+                            onDelete = { showDeleteConfirmDialogForDevice = device },
+                            onRemoveCustomIp = {
+                                viewModel.onEvent(
+                                    PairedDevicesEvent.SetCustomIp(
+                                        device.deviceId,
+                                        null
+                                    )
+                                )
+                            },
+                            onEditCustomIp = { showCustomIpDialogForDevice = device }
+                        )
+                    }
+                }
+
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+                        ),
+                        border = CardDefaults.outlinedCardBorder()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.sync_conflict_handling),
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = stringResource(Res.string.sync_conflict_handling_description),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (isLoading) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+            }
+        }
+    }
+
+    if (showQrDialog) {
+        PairingQrDialog(
+            qrBitmap = uiState.ownQrBitmap,
+            onDismiss = { showQrDialog = false }
+        )
+    }
+
+    if (showRenameDialog) {
+        RenameDeviceDialog(
+            currentName = uiState.ownDeviceName,
+            onDismiss = { showRenameDialog = false },
+            onConfirm = { name ->
+                viewModel.onEvent(PairedDevicesEvent.UpdateDeviceName(name))
+                showRenameDialog = false
+            }
+        )
+    }
+
+    if (showCustomIpDialogForDevice != null) {
+        CustomIpDialog(
+            device = showCustomIpDialogForDevice!!,
+            onDismiss = { showCustomIpDialogForDevice = null },
+            onConfirm = { ip ->
+                viewModel.onEvent(
+                    PairedDevicesEvent.SetCustomIp(
+                        showCustomIpDialogForDevice!!.deviceId,
+                        ip
+                    )
+                )
+                showCustomIpDialogForDevice = null
+            }
+        )
+    }
+
+    if (showDeleteConfirmDialogForDevice != null) {
+        val targetDevice = showDeleteConfirmDialogForDevice!!
+        DeleteDeviceDialog(
+            device = targetDevice,
+            onDismiss = { showDeleteConfirmDialogForDevice = null },
+            onConfirm = {
+                viewModel.onEvent(PairedDevicesEvent.DeleteDevice(targetDevice.deviceId))
+                showDeleteConfirmDialogForDevice = null
+            }
+        )
+    }
+
+    pendingPairArgs?.let { request ->
+        val deviceId = request.deviceId
+        val rawIps = request.ips
+        val port = request.port
+        val encKey = request.encKey
+
+        if (deviceId != null && rawIps != null && port != null && encKey != null) {
+            val ips = rawIps.split(",").filter { it.isNotBlank() }
+            PairDeviceDialog(
+                remoteAddress = "${ips.firstOrNull().orEmpty()}:$port",
+                enabled = ips.isNotEmpty(),
+                onDismiss = { pendingPairArgs = null },
+                onConfirm = {
+                    pendingPairArgs = null
+                    viewModel.onEvent(
+                        PairedDevicesEvent.PairDirectly(
+                            deviceId = deviceId,
+                            ips = ips,
+                            port = port,
+                            encKey = encKey
+                        )
+                    )
+                }
+            )
+        }
+    }
+}

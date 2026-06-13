@@ -13,6 +13,22 @@ class DBConverters {
     }
 
     @TypeConverter
+    fun fromStringList(value: List<String>): String {
+        return json.encodeToString(value)
+    }
+
+    @TypeConverter
+    fun toStringList(value: String): List<String> {
+        if (value.isBlank()) return emptyList()
+        return try {
+            json.decodeFromString(value)
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
+
+
+    @TypeConverter
     fun fromSubTasksList(value: List<SubTask>): String {
         return json.encodeToString(value)
     }

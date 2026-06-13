@@ -98,4 +98,9 @@ class MainActivity : AppCompatActivity() {
             Manifest.permission.POST_NOTIFICATIONS
         ) == PackageManager.PERMISSION_GRANTED
     }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.syncAll()
+    }
 }

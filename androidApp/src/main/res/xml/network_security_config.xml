@@ -2,24 +2,4 @@
 <network-security-config>
     <!-- Allow cleartext for local/self-hosted AI servers such as Ollama and LM Studio. -->
     <base-config cleartextTrafficPermitted="true" />
-
-    <!-- Require HTTPS for known hosted AI providers; we cannot enumerate every non-local URL. -->
-    <domain-config cleartextTrafficPermitted="false">
-        <domain includeSubdomains="true">anthropic.com</domain>
-        <domain includeSubdomains="true">cerebras.ai</domain>
-        <domain includeSubdomains="true">cohere.com</domain>
-        <domain includeSubdomains="true">deepseek.com</domain>
-        <domain includeSubdomains="true">fireworks.ai</domain>
-        <domain includeSubdomains="true">googleapis.com</domain>
-        <domain includeSubdomains="true">groq.com</domain>
-        <domain includeSubdomains="true">huggingface.co</domain>
-        <domain includeSubdomains="true">mistral.ai</domain>
-        <domain includeSubdomains="true">openai.com</domain>
-        <domain includeSubdomains="true">openai.azure.com</domain>
-        <domain includeSubdomains="true">openrouter.ai</domain>
-        <domain includeSubdomains="true">perplexity.ai</domain>
-        <domain includeSubdomains="true">replicate.com</domain>
-        <domain includeSubdomains="true">together.xyz</domain>
-        <domain includeSubdomains="true">x.ai</domain>
-    </domain-config>
 </network-security-config>

@@ -20,6 +20,15 @@ interface TaskDao {
     @Query("SELECT * FROM tasks WHERE id = :id")
     suspend fun getTask(id: String): TaskEntity?
 
+    @Query("SELECT * FROM tasks WHERE id IN (:ids)")
+    suspend fun getTasksByIds(ids: List<String>): List<TaskEntity>
+
+    @Query("SELECT * FROM tasks WHERE updated_date > :timestamp")
+    suspend fun getTasksUpdatedAfter(timestamp: Long): List<TaskEntity>
+
+    @Query("SELECT * FROM tasks WHERE sync_seq > :seq AND sync_seq <= :maxSeq")
+    suspend fun getTasksAfterSeq(seq: Long, maxSeq: Long): List<TaskEntity>
+
     @Query("SELECT * FROM tasks WHERE alarmId = :alarmId")
     suspend fun getTaskByAlarm(alarmId: Int): TaskEntity?
 
@@ -38,7 +47,10 @@ interface TaskDao {
     @Delete
     suspend fun deleteTask(task: TaskEntity)
 
-    @Query("UPDATE tasks SET is_completed = :completed WHERE id = :id")
-    suspend fun updateCompleted(id: String, completed: Boolean)
+    @Query("DELETE FROM tasks WHERE id = :id")
+    suspend fun deleteTaskById(id: String)
+
+    @Query("UPDATE tasks SET is_completed = :completed, sync_seq = :syncSeq, updated_date = :updatedDate WHERE id = :id")
+    suspend fun updateCompleted(id: String, completed: Boolean, syncSeq: Long, updatedDate: Long)
 
 }

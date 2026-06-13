@@ -35,6 +35,8 @@ import com.mhss.app.mybrain.presentation.app_lock.AuthResult
 import com.mhss.app.mybrain.presentation.app_lock.AuthScreen
 import com.mhss.app.mybrain.presentation.main.MainScreen
 import com.mhss.app.mybrain.presentation.main.MainViewModel
+import com.mhss.app.mybrain.presentation.localsync.LocalSyncScreen
+import com.mhss.app.mybrain.sync.util.SYNC_DEEP_LINK_PATTERN
 import com.mhss.app.presentation.AssistantScreen
 import com.mhss.app.presentation.BookmarkDetailsScreen
 import com.mhss.app.presentation.BookmarkSearchScreen
@@ -322,6 +324,18 @@ fun MyBrainApp(
                     exitTransition = { slideOutTransition() },
                 ) {
                     IntegrationsScreen()
+                }
+                composable<Screen.LocalSyncScreen>(
+                    deepLinks = listOf(
+                        navDeepLink {
+                            uriPattern = SYNC_DEEP_LINK_PATTERN
+                        }
+                    ),
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    val args = it.toRoute<Screen.LocalSyncScreen>()
+                    LocalSyncScreen(navController = navController, pairArgs = args)
                 }
                 composable<Screen.AssistantScreen>(
                     enterTransition = { slideInTransition() },

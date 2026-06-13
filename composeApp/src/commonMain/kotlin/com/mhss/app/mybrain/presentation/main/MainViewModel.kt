@@ -28,6 +28,7 @@ import com.mhss.app.ui.FontSizeSettings
 import com.mhss.app.ui.StartUpScreenSettings
 import com.mhss.app.ui.ThemeSettings
 import com.mhss.app.ui.toIntList
+import com.mhss.app.mybrain.sync.SyncOrchestrator
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
@@ -44,11 +45,16 @@ class MainViewModel(
     private val getAllTasks: GetAllTasksUseCase,
     private val getAllEntriesUseCase: GetAllEntriesUseCase,
     private val completeTask: UpdateTaskCompletedUseCase,
-    private val getAllEventsUseCase: GetAllEventsUseCase
+    private val getAllEventsUseCase: GetAllEventsUseCase,
+    private val syncOrchestrator: SyncOrchestrator
 ) : ViewModel() {
 
     var uiState by mutableStateOf(UiState())
-    private set
+        private set
+
+    fun syncAll() {
+        syncOrchestrator.syncAllAsync()
+    }
 
     private var refreshTasksJob : Job? = null
 

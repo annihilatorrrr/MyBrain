@@ -55,6 +55,7 @@ kotlin {
                 implementation(projects.core.di)
                 implementation(projects.core.alarm)
                 implementation(projects.core.database)
+                implementation(projects.localSync)
                 implementation(projects.core.preferences)
                 implementation(projects.core.storage)
                 implementation(projects.core.datetime)
@@ -88,9 +89,7 @@ kotlin {
                 implementation(libs.koin.android.workmanager)
 
                 implementation(libs.androidx.datastore.preferences)
-
-                implementation(libs.ktor.okhttp)
-                implementation(libs.ktor.logging)
+                implementation(libs.zxing.core)
             }
         }
     }

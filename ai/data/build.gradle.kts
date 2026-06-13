@@ -20,6 +20,7 @@ kotlin {
                 implementation(projects.ai.domain)
                 implementation(projects.core.preferences)
                 implementation(projects.core.database)
+                implementation(projects.core.datetime)
                 implementation(projects.notes.domain)
                 implementation(projects.tasks.domain)
                 implementation(projects.calendar.domain)

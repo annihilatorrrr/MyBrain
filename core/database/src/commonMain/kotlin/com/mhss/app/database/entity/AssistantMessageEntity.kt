@@ -8,9 +8,13 @@ import androidx.room3.PrimaryKey
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Serializable
 @Entity(
     tableName = "assistant_messages",
-    indices = [Index(value = ["thread_id"])]
+    indices = [
+        Index(value = ["thread_id"]),
+        Index(value = ["sync_seq"])
+    ]
 )
 data class AssistantMessageEntity(
     @PrimaryKey
@@ -21,7 +25,9 @@ data class AssistantMessageEntity(
     val content: String,
     @ColumnInfo(name = "created_at")
     val createdAt: Long,
-    val metadata: AssistantMessageMetadata? = null
+    val metadata: AssistantMessageMetadata? = null,
+    @ColumnInfo(name = "sync_seq", defaultValue = "1")
+    val syncSeq: Long = 1L
 )
 
 @Serializable

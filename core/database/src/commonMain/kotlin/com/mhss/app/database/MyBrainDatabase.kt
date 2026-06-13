@@ -11,7 +11,9 @@ import com.mhss.app.database.dao.AssistantDao
 import com.mhss.app.database.dao.BookmarkDao
 import com.mhss.app.database.dao.DiaryDao
 import com.mhss.app.database.dao.NoteDao
+import com.mhss.app.database.dao.PairedDeviceDao
 import com.mhss.app.database.dao.TaskDao
+import com.mhss.app.database.dao.SyncDao
 import com.mhss.app.database.entity.AlarmEntity
 import com.mhss.app.database.entity.AssistantMessageEntity
 import com.mhss.app.database.entity.AssistantThreadEntity
@@ -19,7 +21,10 @@ import com.mhss.app.database.entity.BookmarkEntity
 import com.mhss.app.database.entity.DiaryEntryEntity
 import com.mhss.app.database.entity.NoteEntity
 import com.mhss.app.database.entity.NoteFolderEntity
+import com.mhss.app.database.entity.PairedDeviceEntity
 import com.mhss.app.database.entity.TaskEntity
+import com.mhss.app.database.entity.DeletedEntityEntity
+import com.mhss.app.database.entity.SyncStateEntity
 
 @Database(
     entities = [
@@ -30,10 +35,15 @@ import com.mhss.app.database.entity.TaskEntity
         AlarmEntity::class,
         NoteFolderEntity::class,
         AssistantThreadEntity::class,
-        AssistantMessageEntity::class
+        AssistantMessageEntity::class,
+        PairedDeviceEntity::class,
+        DeletedEntityEntity::class,
+        SyncStateEntity::class
     ],
     version = 6
 )
+
+
 @TypeConverters(DBConverters::class)
 @ConstructedBy(MyBrainDatabaseConstructor::class)
 abstract class MyBrainDatabase: RoomDatabase() {
@@ -44,6 +54,8 @@ abstract class MyBrainDatabase: RoomDatabase() {
     abstract fun bookmarkDao(): BookmarkDao
     abstract fun alarmDao(): AlarmDao
     abstract fun assistantDao(): AssistantDao
+    abstract fun pairedDeviceDao(): PairedDeviceDao
+    abstract fun syncDao(): SyncDao
 
     companion object {
         const val DATABASE_NAME = "by_brain_db"

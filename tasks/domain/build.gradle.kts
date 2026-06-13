@@ -20,6 +20,7 @@ kotlin {
                 implementation(projects.core.preferences)
                 implementation(projects.core.alarm)
                 implementation(projects.core.widget)
+                implementation(projects.core.datetime)
 
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)

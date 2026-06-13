@@ -246,8 +246,60 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
 
 val MIGRATION_5_6 = object : Migration(5, 6) {
     override suspend fun migrate(connection: SQLiteConnection) {
-        connection.execSQL("CREATE TABLE IF NOT EXISTS `assistant_threads` (`id` TEXT PRIMARY KEY NOT NULL, `title` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL)")
-        connection.execSQL("CREATE TABLE IF NOT EXISTS `assistant_messages` (`id` TEXT PRIMARY KEY NOT NULL, `thread_id` TEXT NOT NULL, `type` INTEGER NOT NULL, `content` TEXT NOT NULL, `metadata` TEXT, `created_at` INTEGER NOT NULL)")
+        connection.execSQL("CREATE TABLE IF NOT EXISTS `assistant_threads` (`id` TEXT PRIMARY KEY NOT NULL, `title` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `sync_seq` INTEGER NOT NULL DEFAULT 1)")
+        connection.execSQL("CREATE TABLE IF NOT EXISTS `assistant_messages` (`id` TEXT PRIMARY KEY NOT NULL, `thread_id` TEXT NOT NULL, `type` INTEGER NOT NULL, `content` TEXT NOT NULL, `metadata` TEXT, `created_at` INTEGER NOT NULL, `sync_seq` INTEGER NOT NULL DEFAULT 1)")
         connection.execSQL("CREATE INDEX IF NOT EXISTS `index_assistant_messages_thread_id` ON `assistant_messages` (`thread_id`)")
+        connection.execSQL("CREATE TABLE IF NOT EXISTS `paired_devices` (`id` TEXT PRIMARY KEY NOT NULL, `name` TEXT NOT NULL, `ip_address` TEXT NOT NULL, `port` INTEGER NOT NULL, `last_synced_at` INTEGER NOT NULL, `encryption_key` TEXT NOT NULL, `device_version` INTEGER NOT NULL DEFAULT 1, `is_connected` INTEGER NOT NULL DEFAULT 0, `candidate_ip_addresses` TEXT NOT NULL DEFAULT '[]', `custom_ip_address` TEXT)")
+        connection.execSQL("CREATE TABLE IF NOT EXISTS `deleted_entities` (`id` TEXT PRIMARY KEY NOT NULL, `entity_id` TEXT NOT NULL, `entity_type` TEXT NOT NULL, `deleted_at` INTEGER NOT NULL, `sync_seq` INTEGER NOT NULL DEFAULT 1)")
+        connection.execSQL("CREATE TABLE IF NOT EXISTS `sync_state` (`id` INTEGER PRIMARY KEY NOT NULL, `last_seq` INTEGER NOT NULL)")
+
+        connection.execSQL("ALTER TABLE notes ADD COLUMN sync_seq INTEGER NOT NULL DEFAULT 1")
+        connection.execSQL("ALTER TABLE note_folders ADD COLUMN sync_seq INTEGER NOT NULL DEFAULT 1")
+        connection.execSQL("ALTER TABLE note_folders ADD COLUMN updated_date INTEGER NOT NULL DEFAULT 0")
+        connection.execSQL("ALTER TABLE tasks ADD COLUMN sync_seq INTEGER NOT NULL DEFAULT 1")
+        connection.execSQL("ALTER TABLE diary ADD COLUMN sync_seq INTEGER NOT NULL DEFAULT 1")
+        connection.execSQL("ALTER TABLE bookmarks ADD COLUMN sync_seq INTEGER NOT NULL DEFAULT 1")
+
+        var sequence = 0L
+        val syncableTables = listOf(
+            "notes",
+            "note_folders",
+            "tasks",
+            "diary",
+            "bookmarks",
+            "assistant_threads",
+            "assistant_messages",
+            "deleted_entities"
+        )
+        for (table in syncableTables) {
+            val rowIds = mutableListOf<Long>()
+            connection.prepare("SELECT rowid FROM $table ORDER BY rowid").use { query ->
+                while (query.step()) {
+                    rowIds += query.getLong(0)
+                }
+            }
+            connection.prepare("UPDATE $table SET sync_seq = ? WHERE rowid = ?").use { update ->
+                for (rowId in rowIds) {
+                    update.reset()
+                    update.bindLong(1, ++sequence)
+                    update.bindLong(2, rowId)
+                    update.step()
+                }
+            }
+        }
+        connection.prepare("INSERT OR REPLACE INTO sync_state (id, last_seq) VALUES (1, ?)").use { statement ->
+            statement.bindLong(1, sequence)
+            statement.step()
+        }
+
+        connection.execSQL("CREATE INDEX IF NOT EXISTS `index_notes_sync_seq` ON `notes` (`sync_seq`)")
+        connection.execSQL("CREATE INDEX IF NOT EXISTS `index_note_folders_sync_seq` ON `note_folders` (`sync_seq`)")
+        connection.execSQL("CREATE INDEX IF NOT EXISTS `index_tasks_sync_seq` ON `tasks` (`sync_seq`)")
+        connection.execSQL("CREATE INDEX IF NOT EXISTS `index_diary_sync_seq` ON `diary` (`sync_seq`)")
+        connection.execSQL("CREATE INDEX IF NOT EXISTS `index_bookmarks_sync_seq` ON `bookmarks` (`sync_seq`)")
+        connection.execSQL("CREATE INDEX IF NOT EXISTS `index_assistant_threads_sync_seq` ON `assistant_threads` (`sync_seq`)")
+        connection.execSQL("CREATE INDEX IF NOT EXISTS `index_assistant_messages_sync_seq` ON `assistant_messages` (`sync_seq`)")
+        connection.execSQL("CREATE INDEX IF NOT EXISTS `index_deleted_entities_sync_seq` ON `deleted_entities` (`sync_seq`)")
+        connection.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_deleted_entities_entity_type_entity_id` ON `deleted_entities` (`entity_type`, `entity_id`)")
     }
 }

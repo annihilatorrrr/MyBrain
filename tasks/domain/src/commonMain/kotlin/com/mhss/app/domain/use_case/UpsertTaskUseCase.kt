@@ -24,7 +24,8 @@ class UpsertTaskUseCase(
     suspend operator fun invoke(
         task: Task,
         previousTask: Task? = null,
-        updateWidget: Boolean = true
+        updateWidget: Boolean = true,
+        notifySyncChanges: Boolean = true
     ): Boolean {
         val nowMillis = now().toEpochMilliseconds()
 
@@ -47,7 +48,7 @@ class UpsertTaskUseCase(
             else -> taskWithResolvedRecurrence
         }
 
-        tasksRepository.upsertTask(updatedTask)
+        tasksRepository.upsertTask(updatedTask, notifyChange = notifySyncChanges)
         if (updateWidget) widgetUpdater.updateAll(WidgetUpdater.WidgetType.Tasks)
 
         return isAlarmSchedulingValid(updatedTask)

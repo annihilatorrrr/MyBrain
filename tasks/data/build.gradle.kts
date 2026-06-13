@@ -19,6 +19,7 @@ kotlin {
                 implementation(projects.core.database)
                 implementation(projects.core.alarm)
                 implementation(projects.tasks.domain)
+                implementation(projects.core.datetime)
 
                 implementation(libs.kotlinx.coroutines.core)
 

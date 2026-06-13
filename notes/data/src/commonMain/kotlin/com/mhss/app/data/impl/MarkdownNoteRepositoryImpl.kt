@@ -40,7 +40,7 @@ class MarkdownNoteRepositoryImpl(
         return markdownFileManager.upsertNote(note, currentFolderId, rootId)
     }
 
-    override suspend fun upsertNotes(notes: List<Note>): List<String> {
+    override suspend fun upsertNotes(notes: List<Note>, notifyChange: Boolean): List<String> {
         return notes.map {
             upsertNote(it, null)
         }
@@ -50,7 +50,7 @@ class MarkdownNoteRepositoryImpl(
         markdownFileManager.deleteNote(note, rootId)
     }
 
-    override suspend fun upsertNoteFolders(folders: List<NoteFolder>) {
+    override suspend fun upsertNoteFolders(folders: List<NoteFolder>, notifyChange: Boolean) {
         folders.forEach {
             markdownFileManager.createFolder(it.name, rootId)
         }

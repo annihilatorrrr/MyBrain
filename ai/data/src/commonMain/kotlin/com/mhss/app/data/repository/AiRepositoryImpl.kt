@@ -215,6 +215,7 @@ class AiRepositoryImpl(
         } catch (e: AiRepositoryException) {
             throw e
         } catch (e: LLMClientException) {
+            e.printStackTrace()
             throw AiRepositoryException(AssistantResult.OtherError(e.message))
         } catch (e: IOException) {
             e.printStackTrace()

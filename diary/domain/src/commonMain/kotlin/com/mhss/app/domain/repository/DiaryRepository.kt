@@ -15,7 +15,7 @@ interface DiaryRepository {
 
     suspend fun addEntry(diary: DiaryEntry)
 
-    suspend fun upsertEntries(entries: List<DiaryEntry>)
+    suspend fun upsertEntries(entries: List<DiaryEntry>, notifyChange: Boolean = true)
 
     suspend fun updateEntry(diary: DiaryEntry)
 

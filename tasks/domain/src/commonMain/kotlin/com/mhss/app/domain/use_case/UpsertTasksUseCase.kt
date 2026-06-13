@@ -15,7 +15,8 @@ class UpsertTasksUseCase(
 ) {
     suspend operator fun invoke(
         tasks: List<Task>,
-        updateWidget: Boolean = true
+        updateWidget: Boolean = true,
+        notifySyncChanges: Boolean = true
     ) {
         val nowMillis = now().toEpochMilliseconds()
         val finalTasks = tasks.map { task ->
@@ -27,7 +28,7 @@ class UpsertTasksUseCase(
             }
         }
 
-        tasksRepository.upsertTasks(finalTasks)
+        tasksRepository.upsertTasks(finalTasks, notifyChange = notifySyncChanges)
         if (updateWidget) widgetUpdater.updateAll(WidgetUpdater.WidgetType.Tasks)
     }
 }

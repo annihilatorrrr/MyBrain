@@ -58,4 +58,31 @@ interface AssistantDao {
 
     @Query("DELETE FROM assistant_messages WHERE id = :messageId")
     suspend fun deleteMessage(messageId: String)
+
+    @Query("SELECT id FROM assistant_threads")
+    suspend fun getAllThreadIds(): List<String>
+
+    @Query("SELECT * FROM assistant_threads WHERE id IN (:ids)")
+    suspend fun getThreadsByIds(ids: List<String>): List<AssistantThreadEntity>
+
+    @Query("SELECT * FROM assistant_threads WHERE updated_at > :timestamp")
+    suspend fun getThreadsUpdatedAfter(timestamp: Long): List<AssistantThreadEntity>
+
+    @Query("SELECT * FROM assistant_threads WHERE sync_seq > :seq AND sync_seq <= :maxSeq")
+    suspend fun getThreadsAfterSeq(seq: Long, maxSeq: Long): List<AssistantThreadEntity>
+
+    @Query("SELECT * FROM assistant_messages WHERE id IN (:ids)")
+    suspend fun getMessagesByIds(ids: List<String>): List<AssistantMessageEntity>
+
+    @Query("SELECT * FROM assistant_messages WHERE created_at > :timestamp")
+    suspend fun getMessagesCreatedAfter(timestamp: Long): List<AssistantMessageEntity>
+
+    @Query("SELECT * FROM assistant_messages WHERE sync_seq > :seq AND sync_seq <= :maxSeq")
+    suspend fun getMessagesAfterSeq(seq: Long, maxSeq: Long): List<AssistantMessageEntity>
+
+    @Upsert
+    suspend fun upsertThreads(threads: List<AssistantThreadEntity>)
+
+    @Upsert
+    suspend fun upsertMessages(messages: List<AssistantMessageEntity>)
 }

@@ -88,7 +88,7 @@ fun CalendarDashboardWidget(
                     .fillMaxSize()
                     .clip(RoundedCornerShape(20.dp))
                     .background(
-                        MaterialTheme.colorScheme.onSurfaceVariant.copy(0.1f).compositeOver(
+                        MaterialTheme.colorScheme.onSurfaceVariant.copy(0.07f).compositeOver(
                             MaterialTheme.colorScheme.surfaceVariant
                         )
                     ),

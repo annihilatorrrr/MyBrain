@@ -9,7 +9,7 @@ import com.mhss.app.domain.model.AiMessage
 import com.mhss.app.domain.model.AiMessageAttachment
 import com.mhss.app.domain.model.AiMessageType
 
-fun AiMessage.toAssistantMessageEntity(threadId: String): AssistantMessageEntity {
+fun AiMessage.toAssistantMessageEntity(threadId: String, syncSeq: Long = 0L): AssistantMessageEntity {
         return when (this) {
             is AiMessage.UserMessage -> {
                 AssistantMessageEntity(
@@ -21,7 +21,8 @@ fun AiMessage.toAssistantMessageEntity(threadId: String): AssistantMessageEntity
                     metadata = if (attachments.isNotEmpty()) AssistantMessageMetadata(
                         attachmentsText = attachmentsText,
                         attachments = attachments.map { it.toDto() }
-                    ) else null
+                    ) else null,
+                    syncSeq = syncSeq
                 )
             }
 
@@ -31,7 +32,8 @@ fun AiMessage.toAssistantMessageEntity(threadId: String): AssistantMessageEntity
                     threadId = threadId,
                     type = AiMessageType.ASSISTANT.key,
                     content = content,
-                    createdAt = time
+                    createdAt = time,
+                    syncSeq = syncSeq
                 )
             }
 
@@ -51,7 +53,8 @@ fun AiMessage.toAssistantMessageEntity(threadId: String): AssistantMessageEntity
                             isFailed = isFailed,
                             thoughtSignature = thoughtSignature
                         )
-                    )
+                    ),
+                    syncSeq = syncSeq
                 )
             }
         }

@@ -50,3 +50,5 @@ include ':bookmarks:data'
 include ':ai:presentation'
 include ':ai:domain'
 include ':ai:data'
+include ':local-sync'
+

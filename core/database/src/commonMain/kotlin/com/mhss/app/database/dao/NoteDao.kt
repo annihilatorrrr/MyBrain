@@ -15,10 +15,10 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface NoteDao {
 
-    @Query("SELECT title, SUBSTR(content, 1, 150) AS content, created_date, updated_date, pinned, folder_id, id FROM notes WHERE folder_id IS NULL")
+    @Query("SELECT title, SUBSTR(content, 1, 150) AS content, created_date, updated_date, pinned, folder_id, id, sync_seq FROM notes WHERE folder_id IS NULL")
     fun getAllFolderlessNotes(): Flow<List<NoteEntity>>
 
-    @Query("SELECT title, SUBSTR(content, 1, 150) AS content, created_date, updated_date, pinned, folder_id, id FROM notes")
+    @Query("SELECT title, SUBSTR(content, 1, 150) AS content, created_date, updated_date, pinned, folder_id, id, sync_seq FROM notes")
     fun getAllNotes(): Flow<List<NoteEntity>>
 
     @Query("SELECT * FROM notes")
@@ -27,14 +27,29 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE id = :id")
     suspend fun getNote(id: String): NoteEntity?
 
-    @Query("SELECT title, SUBSTR(content, 1, 100) AS content, created_date, updated_date, pinned, folder_id, id FROM notes WHERE title LIKE '%' || :query || '%' OR content LIKE '%' || :query || '%'")
+    @Query("SELECT * FROM notes WHERE id IN (:ids)")
+    suspend fun getNotesByIds(ids: List<String>): List<NoteEntity>
+
+    @Query("SELECT * FROM notes WHERE updated_date > :timestamp")
+    suspend fun getNotesUpdatedAfter(timestamp: Long): List<NoteEntity>
+
+    @Query("SELECT * FROM notes WHERE sync_seq > :seq AND sync_seq <= :maxSeq")
+    suspend fun getNotesAfterSeq(seq: Long, maxSeq: Long): List<NoteEntity>
+
+    @Query("SELECT id FROM notes WHERE folder_id = :folderId")
+    suspend fun getNoteIdsByFolder(folderId: String): List<String>
+
+    @Query("SELECT title, SUBSTR(content, 1, 100) AS content, created_date, updated_date, pinned, folder_id, id, sync_seq FROM notes WHERE title LIKE '%' || :query || '%' OR content LIKE '%' || :query || '%'")
     suspend fun getNotesByTitle(query: String): List<NoteEntity>
 
-    @Query("SELECT title, SUBSTR(content, 1, 150) AS content, created_date, updated_date, pinned, folder_id, id FROM notes WHERE folder_id = :folderId")
+    @Query("SELECT title, SUBSTR(content, 1, 150) AS content, created_date, updated_date, pinned, folder_id, id, sync_seq FROM notes WHERE folder_id = :folderId")
     fun getNotesByFolder(folderId: String): Flow<List<NoteEntity>>
 
     @Query("DELETE FROM notes WHERE folder_id = :folderId")
     suspend fun deleteNotesByFolderId(folderId: String)
+
+    @Query("DELETE FROM notes WHERE id = :id")
+    suspend fun deleteNoteById(id: String)
 
     @Upsert
     suspend fun upsertNote(note: NoteEntity)
@@ -69,8 +84,14 @@ interface NoteDao {
     @Query("SELECT * FROM note_folders")
     fun getAllNoteFolders(): Flow<List<NoteFolderEntity>>
 
+    @Query("SELECT * FROM note_folders WHERE sync_seq > :seq AND sync_seq <= :maxSeq")
+    suspend fun getNoteFoldersAfterSeq(seq: Long, maxSeq: Long): List<NoteFolderEntity>
+
     @Query("SELECT * FROM note_folders WHERE id = :folderId")
     suspend fun getNoteFolder(folderId: String): NoteFolderEntity?
+
+    @Query("SELECT * FROM note_folders WHERE id IN (:ids)")
+    suspend fun getNoteFoldersByIds(ids: List<String>): List<NoteFolderEntity>
 
     @Query("SELECT * FROM note_folders WHERE name = :name")
     suspend fun getNoteFolderByName(name: String): NoteFolderEntity?

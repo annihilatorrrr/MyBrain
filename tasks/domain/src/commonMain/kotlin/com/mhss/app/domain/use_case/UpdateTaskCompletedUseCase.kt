@@ -1,5 +1,6 @@
 package com.mhss.app.domain.use_case
 
+import com.mhss.app.datetime.now
 import com.mhss.app.domain.model.Task
 import org.koin.core.annotation.Single
 
@@ -9,7 +10,10 @@ class UpdateTaskCompletedUseCase(
 ) {
     suspend operator fun invoke(task: Task, completed: Boolean) {
         upsertTask(
-            task = task.copy(isCompleted = completed),
+            task = task.copy(
+                isCompleted = completed,
+                updatedDate = now()
+            ),
             previousTask = task,
             updateWidget = true
         )

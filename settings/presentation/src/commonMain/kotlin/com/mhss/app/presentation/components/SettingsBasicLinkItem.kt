@@ -23,6 +23,7 @@ fun SettingsBasicLinkItem(
     subtitle: String = "",
     icon: DrawableResource,
     link: String = "",
+    badge: (@Composable () -> Unit)? = null,
     onClick: () -> Unit = {}
 ) {
     val uriHandler = LocalUriHandler.current
@@ -45,6 +46,10 @@ fun SettingsBasicLinkItem(
                 text = stringResource(title),
                 style = MaterialTheme.typography.bodyLarge,
             )
+            if (badge != null) {
+                Spacer(Modifier.width(8.dp))
+                badge()
+            }
         }
         Text(
             text = subtitle,

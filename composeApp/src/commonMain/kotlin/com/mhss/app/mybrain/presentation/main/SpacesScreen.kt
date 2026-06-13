@@ -12,13 +12,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.mhss.app.ui.preview.BasePreview
 import com.mhss.app.mybrain.presentation.main.components.SpaceCard
+import com.mhss.app.mybrain.presentation.main.components.SyncStatusIndicator
+import com.mhss.app.mybrain.sync.model.PairedDevice
 import com.mhss.app.presentation.components.drawAiGradientRadials
 import com.mhss.app.ui.Res
 import com.mhss.app.ui.ai_chat_img
@@ -34,6 +34,7 @@ import com.mhss.app.ui.diary_img
 import com.mhss.app.ui.navigation.Screen
 import com.mhss.app.ui.notes
 import com.mhss.app.ui.notes_img
+import com.mhss.app.ui.preview.BasePreview
 import com.mhss.app.ui.spaces
 import com.mhss.app.ui.tasks
 import com.mhss.app.ui.tasks_img
@@ -44,14 +45,27 @@ import com.mhss.app.ui.theme.Purple
 import com.mhss.app.ui.theme.Red
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun SpacesScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    pairedDevices: List<PairedDevice> = emptyList(),
 ) {
+
     Scaffold(
         topBar = {
-            MyBrainAppBar(stringResource(Res.string.spaces))
+            MyBrainAppBar(
+                title = stringResource(Res.string.spaces),
+                actions = {
+                    SyncStatusIndicator(
+                        pairedDevices = pairedDevices,
+                        onNavigateToSettings = {
+                            navController.navigate(Screen.LocalSyncScreen())
+                        }
+                    )
+                }
+            )
         }
     ) { paddingValues ->
         val surfaceVariant = MaterialTheme.colorScheme.surfaceVariant
@@ -103,7 +117,6 @@ fun SpacesScreen(
     }
 }
 
-
 private val spaces = listOf(
     Space(Res.string.notes, Res.drawable.notes_img, Blue, Screen.NotesScreen),
     Space(Res.string.tasks, Res.drawable.tasks_img, Red, Screen.TasksScreen()),
@@ -123,7 +136,31 @@ private data class Space(
 @Composable
 fun SpacesScreenPreview() {
     BasePreview {
-        SpacesScreen(navController = rememberNavController())
+        SpacesScreen(
+            navController = rememberNavController(),
+            pairedDevices = listOf(
+                PairedDevice(
+                    deviceId = "1234567890",
+                    deviceName = "My Device",
+                    ipAddress = "192.168.1.100",
+                    port = 8080,
+                    lastSyncedSeq = 1234567890L,
+                    encryptionKey = "abc123",
+                    deviceVersion = 1,
+                    isConnected = true
+                ),
+                PairedDevice(
+                    deviceId = "0987654321",
+                    deviceName = "Another Device",
+                    ipAddress = "192.168.1.101",
+                    port = 8081,
+                    lastSyncedSeq = 987654321L,
+                    encryptionKey = "def456",
+                    deviceVersion = 1,
+                    isConnected = false
+                ),
+            )
+        )
     }
 }
 
@@ -131,6 +168,24 @@ fun SpacesScreenPreview() {
 @Composable
 fun SpacesScreenPreviewDark() {
     BasePreview(darkTheme = true) {
-        SpacesScreen(navController = rememberNavController())
+        SpacesScreen(
+            navController = rememberNavController(),
+            pairedDevices = listOf(
+                PairedDevice(
+                    deviceId = "1234567890",
+                    deviceName = "My Device",
+                    ipAddress = "192.168.1.100",
+                    port = 8080,
+                    isConnected = true
+                ),
+                PairedDevice(
+                    deviceId = "0987654321",
+                    deviceName = "Another Device with very very long namedddddddddddddd",
+                    ipAddress = "192.168.1.101",
+                    port = 8081,
+                    isConnected = false
+                ),
+            )
+        )
     }
 }

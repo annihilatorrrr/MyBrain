@@ -6,3 +6,5 @@ import org.koin.core.annotation.Module
 @Module
 @ComponentScan("com.mhss.app.preferences")
 class PreferencesModule
+
+expect class PreferencesPlatformModule

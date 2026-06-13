@@ -84,5 +84,13 @@ sealed class Screen {
     data object IntegrationsScreen : Screen()
 
     @Serializable
+    data class LocalSyncScreen(
+        val deviceId: String? = null,
+        val ips: String? = null,
+        val port: Int? = null,
+        val encKey: String? = null
+    ) : Screen()
+
+    @Serializable
     data object AssistantScreen : Screen()
 }

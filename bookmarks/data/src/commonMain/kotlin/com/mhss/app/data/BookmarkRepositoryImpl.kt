@@ -1,8 +1,17 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.mhss.app.data
 
 import com.mhss.app.database.dao.BookmarkDao
+import com.mhss.app.database.dao.SyncDao
+import com.mhss.app.database.dao.incrementAndGet
+import com.mhss.app.database.entity.DeletedEntityEntity
+import com.mhss.app.database.entity.DeletedEntityType
 import com.mhss.app.database.entity.toBookmark
 import com.mhss.app.database.entity.toBookmarkEntity
+import com.mhss.app.database.helpers.DatabaseTransactionProvider
+import com.mhss.app.database.sync.LocalChangeObserver
+import com.mhss.app.datetime.now
 import com.mhss.app.domain.model.Bookmark
 import com.mhss.app.domain.repository.BookmarkRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -12,10 +21,15 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Named
 import org.koin.core.annotation.Single
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 @Single
 class BookmarkRepositoryImpl(
     private val bookmarkDao: BookmarkDao,
+    private val syncDao: SyncDao,
+    private val changeObserver: LocalChangeObserver,
+    private val transactionProvider: DatabaseTransactionProvider,
     @Named("ioDispatcher") private val ioDispatcher: CoroutineDispatcher
 ) : BookmarkRepository {
 
@@ -31,7 +45,7 @@ class BookmarkRepositoryImpl(
 
     override suspend fun getBookmark(id: String): Bookmark {
         return withContext(ioDispatcher) {
-            bookmarkDao.getBookmark(id).toBookmark()
+            bookmarkDao.getBookmark(id)?.toBookmark() ?: throw IllegalArgumentException("Bookmark with id $id not found")
         }
     }
 
@@ -41,27 +55,52 @@ class BookmarkRepositoryImpl(
         }
     }
 
-    override suspend fun upsertBookmarks(bookmarks: List<Bookmark>) {
+    override suspend fun upsertBookmarks(bookmarks: List<Bookmark>, notifyChange: Boolean) {
         withContext(ioDispatcher) {
-            bookmarkDao.upsertBookmarks(bookmarks.map { it.toBookmarkEntity() })
+            transactionProvider.runInTransaction {
+                val stamped = bookmarks.map { it.toBookmarkEntity(syncSeq = syncDao.incrementAndGet()) }
+                bookmarkDao.upsertBookmarks(stamped)
+            }
+            if (notifyChange) changeObserver.notifyChange()
         }
     }
 
     override suspend fun addBookmark(bookmark: Bookmark): Long {
         return withContext(ioDispatcher) {
-            bookmarkDao.insertBookmark(bookmark.toBookmarkEntity())
+            val result = transactionProvider.runInTransaction {
+                bookmarkDao.insertBookmark(bookmark.toBookmarkEntity(syncSeq = syncDao.incrementAndGet()))
+            }
+            changeObserver.notifyChange()
+            result
         }
     }
 
     override suspend fun deleteBookmark(bookmark: Bookmark) {
         withContext(ioDispatcher) {
-            bookmarkDao.deleteBookmark(bookmark.toBookmarkEntity())
+            transactionProvider.runInTransaction {
+                bookmarkDao.deleteBookmark(bookmark.toBookmarkEntity())
+                syncDao.insertDeletedEntity(
+                    DeletedEntityEntity(
+                        id = Uuid.generateV7().toString(),
+                        entityId = bookmark.id,
+                        entityType = DeletedEntityType.BOOKMARK.key,
+                        deletedAt = now(),
+                        syncSeq = syncDao.incrementAndGet()
+                    )
+                )
+            }
+            changeObserver.notifyChange()
         }
     }
 
     override suspend fun updateBookmark(bookmark: Bookmark) {
         withContext(ioDispatcher) {
-            bookmarkDao.updateBookmark(bookmark.toBookmarkEntity())
+            transactionProvider.runInTransaction {
+                bookmarkDao.updateBookmark(
+                    bookmark.toBookmarkEntity(syncSeq = syncDao.incrementAndGet())
+                )
+            }
+            changeObserver.notifyChange()
         }
     }
 }

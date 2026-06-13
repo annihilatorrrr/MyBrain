@@ -2,13 +2,17 @@ package com.mhss.app.database.entity
 
 import androidx.room3.ColumnInfo
 import androidx.room3.Entity
+import androidx.room3.Index
 import androidx.room3.PrimaryKey
 import com.mhss.app.domain.model.Priority
 import com.mhss.app.domain.model.SubTask
 import com.mhss.app.domain.model.Task
 import com.mhss.app.domain.model.TaskFrequency
 
-@Entity(tableName = "tasks")
+@Entity(
+    tableName = "tasks",
+    indices = [Index(value = ["sync_seq"])]
+)
 data class TaskEntity(
     val title: String,
     val description: String = "",
@@ -28,7 +32,9 @@ data class TaskEntity(
     val frequencyAmount: Int = 1,
     val alarmId: Int? = null,
     @PrimaryKey
-    val id: String
+    val id: String,
+    @ColumnInfo(name = "sync_seq", defaultValue = "1")
+    val syncSeq: Long = 1L,
 )
 
 fun TaskEntity.toTask() = Task(
@@ -47,7 +53,7 @@ fun TaskEntity.toTask() = Task(
     id = id
 )
 
-fun Task.toTaskEntity() = TaskEntity(
+fun Task.toTaskEntity(id: String = this.id, syncSeq: Long = 0L) = TaskEntity(
     title = title,
     description = description,
     isCompleted = isCompleted,
@@ -60,5 +66,6 @@ fun Task.toTaskEntity() = TaskEntity(
     frequency = frequency.value,
     frequencyAmount = frequencyAmount,
     alarmId = alarmId,
-    id = id
+    id = id,
+    syncSeq = syncSeq
 )

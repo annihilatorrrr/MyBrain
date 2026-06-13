@@ -1,11 +1,18 @@
 package com.mhss.app.data.impl
 
 import com.mhss.app.database.dao.NoteDao
+import com.mhss.app.database.dao.SyncDao
+import com.mhss.app.database.dao.incrementAndGet
+import com.mhss.app.database.entity.DeletedEntityEntity
+import com.mhss.app.database.entity.DeletedEntityType
 import com.mhss.app.database.entity.NoteFolderEntity
 import com.mhss.app.database.entity.toNote
 import com.mhss.app.database.entity.toNoteEntity
 import com.mhss.app.database.entity.toNoteFolder
 import com.mhss.app.database.entity.toNoteFolderEntity
+import com.mhss.app.database.helpers.DatabaseTransactionProvider
+import com.mhss.app.database.sync.LocalChangeObserver
+import com.mhss.app.datetime.now
 import com.mhss.app.domain.model.Note
 import com.mhss.app.domain.model.NoteException
 import com.mhss.app.domain.model.NoteFolder
@@ -16,10 +23,15 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Named
+import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class RoomNoteRepositoryImpl(
     private val noteDao: NoteDao,
+    private val syncDao: SyncDao,
+    private val changeObserver: LocalChangeObserver,
+    private val transactionProvider: DatabaseTransactionProvider,
     @Named("ioDispatcher") private val ioDispatcher: CoroutineDispatcher
 ) : NoteRepository {
 
@@ -74,30 +86,56 @@ class RoomNoteRepositoryImpl(
     override suspend fun upsertNote(note: Note, currentFolderId: String?): String {
         return withContext(ioDispatcher) {
             val id = note.id.ifBlank { Uuid.generateV7().toString() }
-            noteDao.upsertNote(note.copy(id = id).toNoteEntity())
+            transactionProvider.runInTransaction {
+                noteDao.upsertNote(note.toNoteEntity(id = id, syncSeq = syncDao.incrementAndGet()))
+            }
+            changeObserver.notifyChange()
             id
         }
     }
 
-    override suspend fun upsertNotes(notes: List<Note>): List<String> {
+    override suspend fun upsertNotes(notes: List<Note>, notifyChange: Boolean): List<String> {
         return withContext(ioDispatcher) {
-            val notesWithIds = notes.map {
-                it.copy(id = it.id.ifBlank { Uuid.generateV7().toString() })
+            val notesWithIdsAndSeq = transactionProvider.runInTransaction {
+                val stamped = notes.map {
+                    val id = it.id.ifBlank { Uuid.generateV7().toString() }
+                    it.toNoteEntity(id = id, syncSeq = syncDao.incrementAndGet())
+                }
+                noteDao.upsertNotes(stamped)
+                stamped
             }
-            noteDao.upsertNotes(notesWithIds.map { it.toNoteEntity() })
-            notesWithIds.map { it.id }
+            if (notifyChange) changeObserver.notifyChange()
+            notesWithIdsAndSeq.map { it.id }
         }
     }
 
     override suspend fun deleteNote(note: Note) {
         withContext(ioDispatcher) {
-            noteDao.deleteNote(note.toNoteEntity())
+            transactionProvider.runInTransaction {
+                noteDao.deleteNote(note.toNoteEntity())
+                syncDao.insertDeletedEntity(
+                    DeletedEntityEntity(
+                        id = Uuid.generateV7().toString(),
+                        entityId = note.id,
+                        entityType = DeletedEntityType.NOTE.key,
+                        deletedAt = now(),
+                        syncSeq = syncDao.incrementAndGet()
+                    )
+                )
+            }
+            changeObserver.notifyChange()
         }
     }
 
-    override suspend fun upsertNoteFolders(folders: List<NoteFolder>) {
+    override suspend fun upsertNoteFolders(folders: List<NoteFolder>, notifyChange: Boolean) {
         withContext(ioDispatcher) {
-            noteDao.upsertNoteFolders(folders.map { it.toNoteFolderEntity() })
+            transactionProvider.runInTransaction {
+                val stamped = folders.map {
+                    it.toNoteFolderEntity(syncSeq = syncDao.incrementAndGet())
+                }
+                noteDao.upsertNoteFolders(stamped)
+            }
+            if (notifyChange) changeObserver.notifyChange()
         }
     }
 
@@ -106,8 +144,15 @@ class RoomNoteRepositoryImpl(
             if (noteDao.getNoteFolderByName(folderName) != null) {
                 throw NoteException.FolderWithSameNameExists
             }
-            val folderEntity = NoteFolderEntity(id = Uuid.generateV7().toString(), name = folderName)
-            noteDao.insertNoteFolder(folderEntity)
+            val folderEntity = transactionProvider.runInTransaction {
+                NoteFolderEntity(
+                    id = Uuid.generateV7().toString(),
+                    name = folderName,
+                    syncSeq = syncDao.incrementAndGet(),
+                    updatedDate = now()
+                ).also { noteDao.insertNoteFolder(it) }
+            }
+            changeObserver.notifyChange()
             folderEntity.id
         }
     }
@@ -118,13 +163,42 @@ class RoomNoteRepositoryImpl(
             if (existingFolder != null && existingFolder.id != folder.id) {
                 throw NoteException.FolderWithSameNameExists
             }
-            noteDao.updateNoteFolder(folder.toNoteFolderEntity())
+            transactionProvider.runInTransaction {
+                noteDao.updateNoteFolder(
+                    folder.toNoteFolderEntity(syncSeq = syncDao.incrementAndGet())
+                )
+            }
+            changeObserver.notifyChange()
         }
     }
 
     override suspend fun deleteNoteFolder(folder: NoteFolder) {
         withContext(ioDispatcher) {
-            noteDao.deleteFolderAndNotes(folder.id)
+            transactionProvider.runInTransaction {
+                val noteIds = noteDao.getNoteIdsByFolder(folder.id)
+                noteDao.deleteFolderAndNotes(folder.id)
+                noteIds.forEach { noteId ->
+                    syncDao.insertDeletedEntity(
+                        DeletedEntityEntity(
+                            id = Uuid.generateV7().toString(),
+                            entityId = noteId,
+                            entityType = DeletedEntityType.NOTE.key,
+                            deletedAt = now(),
+                            syncSeq = syncDao.incrementAndGet()
+                        )
+                    )
+                }
+                syncDao.insertDeletedEntity(
+                    DeletedEntityEntity(
+                        id = Uuid.generateV7().toString(),
+                        entityId = folder.id,
+                        entityType = DeletedEntityType.NOTE_FOLDER.key,
+                        deletedAt = now(),
+                        syncSeq = syncDao.incrementAndGet()
+                    )
+                )
+            }
+            changeObserver.notifyChange()
         }
     }
 

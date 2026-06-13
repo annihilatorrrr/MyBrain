@@ -1,25 +1,29 @@
 package com.mhss.app.mybrain.presentation.localsync
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -38,9 +42,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -72,6 +81,7 @@ import com.mhss.app.ui.navigation.Screen
 import com.mhss.app.ui.no_devices_paired
 import com.mhss.app.ui.pairing_link_copied
 import com.mhss.app.ui.paste_pairing_link
+import com.mhss.app.ui.preview.BasePreview
 import com.mhss.app.ui.rename_device
 import com.mhss.app.ui.scan_qr_code
 import com.mhss.app.ui.security_warning
@@ -81,6 +91,10 @@ import com.mhss.app.ui.snackbar.showErrorSnackbar
 import com.mhss.app.ui.snackbar.showSuccessSnackbar
 import com.mhss.app.ui.sync_conflict_handling
 import com.mhss.app.ui.sync_conflict_handling_description
+import com.mhss.app.ui.theme.Blue
+import com.mhss.app.ui.theme.Green
+import com.mhss.app.ui.theme.Orange
+import com.mhss.app.ui.theme.Purple
 import com.mhss.app.util.clipboard.copyText
 import com.mhss.app.util.clipboard.pasteText
 import kotlinx.coroutines.launch
@@ -189,9 +203,9 @@ fun LocalSyncScreen(
                     ) {
                         Column(
                             modifier = Modifier.padding(12.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            Column {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -247,86 +261,54 @@ fun LocalSyncScreen(
                                 }
                             }
 
-                            HorizontalDivider(
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f)
-                            )
-
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(IntrinsicSize.Min),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Button(
-                                    onClick = { showQrDialog = true },
+                                SyncActionTile(
+                                    icon = painterResource(Res.drawable.ic_qr_code),
+                                    label = stringResource(Res.string.show_pairing_qr),
+                                    accent = Blue,
                                     modifier = Modifier.weight(1f),
-                                    shape = RoundedCornerShape(12.dp),
-                                    contentPadding = PaddingValues.Zero
-                                ) {
-                                    Icon(
-                                        painter = painterResource(Res.drawable.ic_qr_code),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text(
-                                        text = stringResource(Res.string.show_pairing_qr),
-                                        style = MaterialTheme.typography.labelLarge,
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                }
+                                    onClick = { showQrDialog = true }
+                                )
 
-
-                                Button(
+                                SyncActionTile(
+                                    icon = painterResource(Res.drawable.ic_key),
+                                    label = stringResource(Res.string.copy_pairing_link),
+                                    accent = Purple,
+                                    modifier = Modifier.weight(1f),
                                     onClick = {
                                         val pairingLink = uiState.ownQrContent
                                         scope.launch {
                                             clipboardManager.copyText("pairing_link", pairingLink)
                                             uiState.snackbarHostState.showSuccessSnackbar(Res.string.pairing_link_copied)
                                         }
-                                    },
-                                    modifier = Modifier.weight(1f),
-                                    shape = RoundedCornerShape(12.dp),
-                                    contentPadding = PaddingValues.Zero
-                                ) {
-                                    Icon(
-                                        painter = painterResource(Res.drawable.ic_key),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text(
-                                        text = stringResource(Res.string.copy_pairing_link),
-                                        style = MaterialTheme.typography.labelLarge,
-                                        fontWeight = FontWeight.Medium,
-                                    )
-                                }
+                                    }
+                                )
                             }
 
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(IntrinsicSize.Min),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Button(
-                                    onClick = {
-                                        qrScanLauncher()
-                                    },
+                                SyncActionTile(
+                                    icon = painterResource(Res.drawable.ic_qr_scan),
+                                    label = stringResource(Res.string.scan_qr_code),
+                                    accent = Green,
                                     modifier = Modifier.weight(1f),
-                                    shape = RoundedCornerShape(12.dp),
-                                    contentPadding = PaddingValues.Zero
-                                ) {
-                                    Icon(
-                                        painter = painterResource(Res.drawable.ic_qr_scan),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text(
-                                        text = stringResource(Res.string.scan_qr_code),
-                                        style = MaterialTheme.typography.labelLarge,
-                                        fontWeight = FontWeight.Medium,
-                                    )
-                                }
+                                    onClick = { qrScanLauncher() }
+                                )
 
-                                Button(
+                                SyncActionTile(
+                                    icon = painterResource(Res.drawable.ic_paste),
+                                    label = stringResource(Res.string.paste_pairing_link),
+                                    accent = Orange,
+                                    modifier = Modifier.weight(1f),
                                     onClick = {
                                         scope.launch {
                                             val pairingLink = clipboardManager.pasteText()
@@ -336,23 +318,8 @@ fun LocalSyncScreen(
                                                 )
                                             )
                                         }
-                                    },
-                                    modifier = Modifier.weight(1f),
-                                    shape = RoundedCornerShape(12.dp),
-                                    contentPadding = PaddingValues.Zero
-                                ) {
-                                    Icon(
-                                        painter = painterResource(Res.drawable.ic_paste),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text(
-                                        text = stringResource(Res.string.paste_pairing_link),
-                                        style = MaterialTheme.typography.labelLarge,
-                                        fontWeight = FontWeight.Medium,
-                                    )
-                                }
+                                    }
+                                )
                             }
 
                             Text(
@@ -524,6 +491,111 @@ fun LocalSyncScreen(
                         )
                     )
                 }
+            )
+        }
+    }
+}
+
+@Composable
+private fun SyncActionTile(
+    icon: Painter,
+    label: String,
+    accent: Color,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = modifier
+            .fillMaxHeight()
+            .clip(RoundedCornerShape(18.dp))
+            .background(accent.copy(alpha = 0.10f))
+            .border(
+                width = 1.dp,
+                color = accent.copy(alpha = 0.22f),
+                shape = RoundedCornerShape(18.dp)
+            )
+            .clickable(onClick = onClick)
+            .padding(vertical = 10.dp, horizontal = 6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterVertically)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .clip(CircleShape)
+                .background(accent.copy(alpha = 0.18f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = icon,
+                contentDescription = null,
+                tint = accent,
+                modifier = Modifier.size(18.dp)
+            )
+        }
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Preview
+@Composable
+fun SyncActionTilePreview() {
+    BasePreview {
+        Row(
+            modifier = Modifier
+                .width(280.dp)
+                .padding(16.dp)
+                .height(IntrinsicSize.Min),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            SyncActionTile(
+                icon = painterResource(Res.drawable.ic_qr_code),
+                label = stringResource(Res.string.show_pairing_qr),
+                accent = Blue,
+                modifier = Modifier.weight(1f),
+                onClick = {}
+            )
+            SyncActionTile(
+                icon = painterResource(Res.drawable.ic_paste),
+                label = stringResource(Res.string.paste_pairing_link),
+                accent = Orange,
+                modifier = Modifier.weight(1f),
+                onClick = {}
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun SyncActionTilePreviewDark() {
+    BasePreview(darkTheme = true) {
+        Row(
+            modifier = Modifier
+                .width(280.dp)
+                .padding(16.dp)
+                .height(IntrinsicSize.Min),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            SyncActionTile(
+                icon = painterResource(Res.drawable.ic_qr_scan),
+                label = stringResource(Res.string.scan_qr_code),
+                accent = Green,
+                modifier = Modifier.weight(1f),
+                onClick = {}
+            )
+            SyncActionTile(
+                icon = painterResource(Res.drawable.ic_key),
+                label = stringResource(Res.string.copy_pairing_link),
+                accent = Purple,
+                modifier = Modifier.weight(1f),
+                onClick = {}
             )
         }
     }

@@ -23,6 +23,7 @@ import org.koin.core.annotation.Single
 
 interface SyncRepository {
     suspend fun getMaxSyncSequence(): Long
+    suspend fun getNextSyncSequences(seq: Long, maxSeq: Long, limit: Int): List<Long>
     
     suspend fun getNotesAfterSeq(seq: Long, maxSeq: Long): List<Note>
     suspend fun getNoteFoldersAfterSeq(seq: Long, maxSeq: Long): List<NoteFolder>
@@ -69,6 +70,14 @@ class SyncRepositoryImpl(
 
     override suspend fun getMaxSyncSequence(): Long {
         return syncDao.getLastSyncSequence()
+    }
+
+    override suspend fun getNextSyncSequences(
+        seq: Long,
+        maxSeq: Long,
+        limit: Int
+    ): List<Long> {
+        return syncDao.getNextSyncSequences(seq, maxSeq, limit)
     }
 
     override suspend fun getNotesAfterSeq(seq: Long, maxSeq: Long): List<Note> {

@@ -37,7 +37,8 @@ data class SyncPayload(
     @SerialName("assistantThreads") val assistantThreads: List<AssistantThreadEntity> = emptyList(),
     @SerialName("assistantMessages") val assistantMessages: List<AssistantMessageEntity> = emptyList(),
     @SerialName("deletedEntities") val deletedEntities: List<DeletedEntityEntity> = emptyList(),
-    @SerialName("maxSequence") val maxSequence: Long = 0L
+    @SerialName("maxSequence") val maxSequence: Long = 0L,
+    @SerialName("hasMore") val hasMore: Boolean = false
 )
 
 @Serializable

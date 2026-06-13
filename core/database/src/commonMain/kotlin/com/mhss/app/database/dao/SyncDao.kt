@@ -14,6 +14,32 @@ interface SyncDao {
     @Query("SELECT last_seq FROM sync_state WHERE id = 1")
     suspend fun getLastSyncSequence(): Long
 
+    @Query(
+        """
+        SELECT sync_seq FROM (
+            SELECT sync_seq FROM notes
+            UNION ALL
+            SELECT sync_seq FROM note_folders
+            UNION ALL
+            SELECT sync_seq FROM tasks
+            UNION ALL
+            SELECT sync_seq FROM diary
+            UNION ALL
+            SELECT sync_seq FROM bookmarks
+            UNION ALL
+            SELECT sync_seq FROM assistant_threads
+            UNION ALL
+            SELECT sync_seq FROM assistant_messages
+            UNION ALL
+            SELECT sync_seq FROM deleted_entities
+        )
+        WHERE sync_seq > :seq AND sync_seq <= :maxSeq
+        ORDER BY sync_seq ASC
+        LIMIT :limit
+        """
+    )
+    suspend fun getNextSyncSequences(seq: Long, maxSeq: Long, limit: Int): List<Long>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDeletedEntity(entity: DeletedEntityEntity)
 

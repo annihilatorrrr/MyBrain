@@ -22,6 +22,7 @@ import com.mhss.app.mybrain.sync.server.SyncWebSocketHandler
 import com.mhss.app.mybrain.sync.util.CompressionManager
 import com.mhss.app.mybrain.sync.util.DEFAULT_SYNC_PORT
 import com.mhss.app.mybrain.sync.util.EncryptionManager
+import com.mhss.app.mybrain.sync.util.SYNC_PAGE_SIZE
 import com.mhss.app.mybrain.sync.util.SYNC_TRIGGER_MESSAGE
 import com.mhss.app.mybrain.sync.util.concurrentMutableMap
 import com.mhss.app.mybrain.sync.util.receiveEncrypted
@@ -426,7 +427,10 @@ class SyncOrchestrator(
                     if (!canApplyChanges(peerDeviceId, message.lastSyncedSeq)) {
                         requestChanges(peerDeviceId, session)
                     } else {
-                        applyChanges(peerDeviceId, message.payload)
+                        val applied = applyChanges(peerDeviceId, message.payload)
+                        if (applied && message.payload.hasMore) {
+                            requestChanges(peerDeviceId, session)
+                        }
                     }
                 }
 
@@ -478,26 +482,38 @@ class SyncOrchestrator(
 
     private suspend fun buildSyncPayload(lastSyncedSeq: Long): SyncPayload {
         val currentDbMaxSeq = syncRepository.getMaxSyncSequence()
+        val nextSequences = syncRepository.getNextSyncSequences(
+            seq = lastSyncedSeq,
+            maxSeq = currentDbMaxSeq,
+            limit = SYNC_PAGE_SIZE + 1
+        )
+        val hasMore = nextSequences.size > SYNC_PAGE_SIZE
+        val pageEndSeq = if (hasMore) {
+            nextSequences[SYNC_PAGE_SIZE - 1]
+        } else {
+            currentDbMaxSeq
+        }
         return SyncPayload(
-            notes = syncRepository.getNotesAfterSeq(lastSyncedSeq, currentDbMaxSeq),
-            folders = syncRepository.getNoteFoldersAfterSeq(lastSyncedSeq, currentDbMaxSeq),
-            tasks = syncRepository.getTasksAfterSeq(lastSyncedSeq, currentDbMaxSeq),
-            diaryEntries = syncRepository.getDiaryEntriesAfterSeq(lastSyncedSeq, currentDbMaxSeq),
-            bookmarks = syncRepository.getBookmarksAfterSeq(lastSyncedSeq, currentDbMaxSeq),
-            assistantThreads = syncRepository.getThreadsAfterSeq(lastSyncedSeq, currentDbMaxSeq),
-            assistantMessages = syncRepository.getMessagesAfterSeq(lastSyncedSeq, currentDbMaxSeq),
+            notes = syncRepository.getNotesAfterSeq(lastSyncedSeq, pageEndSeq),
+            folders = syncRepository.getNoteFoldersAfterSeq(lastSyncedSeq, pageEndSeq),
+            tasks = syncRepository.getTasksAfterSeq(lastSyncedSeq, pageEndSeq),
+            diaryEntries = syncRepository.getDiaryEntriesAfterSeq(lastSyncedSeq, pageEndSeq),
+            bookmarks = syncRepository.getBookmarksAfterSeq(lastSyncedSeq, pageEndSeq),
+            assistantThreads = syncRepository.getThreadsAfterSeq(lastSyncedSeq, pageEndSeq),
+            assistantMessages = syncRepository.getMessagesAfterSeq(lastSyncedSeq, pageEndSeq),
             deletedEntities = syncRepository.getDeletedEntitiesAfterSeq(
                 lastSyncedSeq,
-                currentDbMaxSeq
+                pageEndSeq
             ),
-            maxSequence = maxOf(lastSyncedSeq, currentDbMaxSeq)
+            maxSequence = maxOf(lastSyncedSeq, pageEndSeq),
+            hasMore = hasMore
         )
     }
 
     private suspend fun applyChanges(
         peerDeviceId: String,
         payload: SyncPayload
-    ) {
+    ): Boolean {
         val applied = transactionProvider.runInTransaction {
             val peer = pairedDevicesRepository.getPairedDevice(peerDeviceId)
                 ?: return@runInTransaction false
@@ -511,6 +527,7 @@ class SyncOrchestrator(
         if (applied) {
             broadcastSyncTrigger(excludeDeviceId = peerDeviceId)
         }
+        return applied
     }
 
     private suspend fun canApplyChanges(

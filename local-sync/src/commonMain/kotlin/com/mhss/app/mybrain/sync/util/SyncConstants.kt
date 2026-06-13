@@ -3,6 +3,7 @@ package com.mhss.app.mybrain.sync.util
 import com.mhss.app.mybrain.sync.model.SyncTriggerMessage
 
 const val DEFAULT_SYNC_PORT = 38300
+const val SYNC_PAGE_SIZE = 150
 
 const val ROUTE_PING = "/ping"
 const val ROUTE_SYNC = "/sync"

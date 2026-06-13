@@ -1,5 +1,6 @@
 package com.mhss.app.mybrain.presentation.localsync
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,10 +21,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -59,10 +63,12 @@ import com.mhss.app.mybrain.presentation.localsync.components.DeviceItemCard
 import com.mhss.app.mybrain.presentation.localsync.components.PairDeviceDialog
 import com.mhss.app.mybrain.presentation.localsync.components.PairingQrDialog
 import com.mhss.app.mybrain.presentation.localsync.components.RenameDeviceDialog
+import com.mhss.app.mybrain.presentation.localsync.components.ResetEncryptionKeyDialog
 import com.mhss.app.mybrain.sync.model.PairedDevice
 import com.mhss.app.mybrain.sync.util.DEFAULT_SYNC_PORT
 import com.mhss.app.ui.Res
 import com.mhss.app.ui.active_pairings
+import com.mhss.app.ui.advanced_settings
 import com.mhss.app.ui.back
 import com.mhss.app.ui.copy_pairing_link
 import com.mhss.app.ui.default_device_name
@@ -74,6 +80,7 @@ import com.mhss.app.ui.ic_paste
 import com.mhss.app.ui.ic_qr_code
 import com.mhss.app.ui.ic_qr_scan
 import com.mhss.app.ui.ic_small_arrow_down
+import com.mhss.app.ui.ic_small_arrow_up
 import com.mhss.app.ui.local_ip_label
 import com.mhss.app.ui.local_sync
 import com.mhss.app.ui.local_sync_description
@@ -83,6 +90,7 @@ import com.mhss.app.ui.pairing_link_copied
 import com.mhss.app.ui.paste_pairing_link
 import com.mhss.app.ui.preview.BasePreview
 import com.mhss.app.ui.rename_device
+import com.mhss.app.ui.reset_encryption_key
 import com.mhss.app.ui.scan_qr_code
 import com.mhss.app.ui.security_warning
 import com.mhss.app.ui.show_pairing_qr
@@ -117,6 +125,8 @@ fun LocalSyncScreen(
 
     var showQrDialog by remember { mutableStateOf(false) }
     var showRenameDialog by remember { mutableStateOf(false) }
+    var showResetEncryptionKeyDialog by remember { mutableStateOf(false) }
+    var advancedSettingsExpanded by remember { mutableStateOf(false) }
     var showCustomIpDialogForDevice by remember { mutableStateOf<PairedDevice?>(null) }
     var showDeleteConfirmDialogForDevice by remember { mutableStateOf<PairedDevice?>(null) }
     var pendingPairArgs by remember(pairArgs) {
@@ -202,7 +212,9 @@ fun LocalSyncScreen(
                         border = CardDefaults.outlinedCardBorder()
                     ) {
                         Column(
-                            modifier = Modifier.padding(12.dp),
+                            modifier = Modifier
+                                .padding(12.dp)
+                                .animateContentSize(),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Column {
@@ -329,6 +341,50 @@ fun LocalSyncScreen(
                                     alpha = 0.8f,
                                 ),
                             )
+
+                            HorizontalDivider(
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f)
+                            )
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        advancedSettingsExpanded = !advancedSettingsExpanded
+                                    },
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = stringResource(Res.string.advanced_settings),
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Icon(
+                                    painter = painterResource(
+                                        if (advancedSettingsExpanded) {
+                                            Res.drawable.ic_small_arrow_up
+                                        } else {
+                                            Res.drawable.ic_small_arrow_down
+                                        }
+                                    ),
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+
+                            if (advancedSettingsExpanded) {
+                                Button(
+                                    onClick = { showResetEncryptionKeyDialog = true },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.error,
+                                        contentColor = MaterialTheme.colorScheme.onError
+                                    )
+                                ) {
+                                    Text(stringResource(Res.string.reset_encryption_key))
+                                }
+                            }
                         }
                     }
                 }
@@ -464,6 +520,16 @@ fun LocalSyncScreen(
             onConfirm = {
                 viewModel.onEvent(PairedDevicesEvent.DeleteDevice(targetDevice.deviceId))
                 showDeleteConfirmDialogForDevice = null
+            }
+        )
+    }
+
+    if (showResetEncryptionKeyDialog) {
+        ResetEncryptionKeyDialog(
+            onDismiss = { showResetEncryptionKeyDialog = false },
+            onConfirm = {
+                viewModel.onEvent(PairedDevicesEvent.ResetEncryptionKey)
+                showResetEncryptionKeyDialog = false
             }
         )
     }

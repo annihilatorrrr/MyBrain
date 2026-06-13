@@ -18,6 +18,7 @@ import com.mhss.app.mybrain.sync.repository.PairedDevicesRepository
 import com.mhss.app.mybrain.sync.util.SYNC_DEEP_LINK_BASE_URI
 import com.mhss.app.ui.Res
 import com.mhss.app.ui.clipboard_empty_or_invalid
+import com.mhss.app.ui.encryption_key_reset_success
 import com.mhss.app.ui.error_with_message
 import com.mhss.app.ui.invalid_pairing_format
 import com.mhss.app.ui.invalid_pairing_link_format
@@ -250,6 +251,37 @@ class LocalSyncViewModel(
                         }
                     }
                     _uiState.update { it.copy(isLoading = false) }
+                }
+            }
+
+            PairedDevicesEvent.ResetEncryptionKey -> {
+                viewModelScope.launch {
+                    _uiState.update { it.copy(isLoading = true) }
+                    try {
+                        _uiState.value.pairedDevices.forEach { device ->
+                            orchestrator.disconnectDevice(device.deviceId)
+                            deletePairedDeviceUseCase(device.deviceId)
+                        }
+                        val encKey = deviceKeyStore.resetCurrentDeviceEncKey()
+                        val qrContent = getOwnQrContentUseCase()
+                        val qrBitmap = qrCodeUtils.generateQrCode(qrContent)
+                        _uiState.update {
+                            it.copy(
+                                ownDeviceEncKey = encKey,
+                                ownQrContent = qrContent,
+                                ownQrBitmap = qrBitmap
+                            )
+                        }
+                        showSuccessSnackbar(Res.string.encryption_key_reset_success)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        showErrorSnackbar(
+                            Res.string.error_with_message,
+                            formatArgs = listOf(e.message ?: "")
+                        )
+                    } finally {
+                        _uiState.update { it.copy(isLoading = false) }
+                    }
                 }
             }
         }

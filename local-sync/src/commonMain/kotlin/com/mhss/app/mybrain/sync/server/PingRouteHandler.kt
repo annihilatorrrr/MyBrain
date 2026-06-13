@@ -28,10 +28,10 @@ class PingRouteHandler(
     var onPingReceived: (suspend (peerDeviceId: String) -> Unit)? = null
     suspend fun handle(
         call: ApplicationCall,
-        currentDeviceId: String,
-        currentDeviceEncKey: String
+        currentDeviceId: String
     ) {
         try {
+            val currentDeviceEncKey = deviceKeyStore.getCurrentDeviceEncKey()
             val payload = call.receiveEncrypted<PingPayload>(
                 encryptionManager,
                 currentDeviceEncKey,

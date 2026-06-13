@@ -340,6 +340,12 @@
     <string name="clipboard_empty_or_invalid">Clipboard is empty or does not contain text</string>
     <string name="invalid_pairing_link_format">Invalid pairing link format</string>
     <string name="security_warning">Caution: This link and QR code contain your sync encryption key. Only share them with trusted devices.</string>
+    <string name="advanced_settings">Advanced Settings</string>
+    <string name="reset_encryption_key">Reset encryption key</string>
+    <string name="reset">Reset</string>
+    <string name="reset_encryption_key_confirmation_title">Reset encryption key?</string>
+    <string name="reset_encryption_key_confirmation_message">Your encryption key will be reset and all paired devices will be deleted. You will need to pair them again.</string>
+    <string name="encryption_key_reset_success">Encryption key reset</string>
     <string name="candidate_ips_label">Auto-discovered IPs:</string>
     <string name="custom_ip_label">Fallback IP Address:</string>
     <string name="add_custom_ip">Add Fallback IP</string>

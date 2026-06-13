@@ -336,6 +336,12 @@
     <string name="clipboard_empty_or_invalid">الحافظة فارغة أو لا تحتوي على نص</string>
     <string name="invalid_pairing_link_format">صيغة رابط الاقتران غير صالحة</string>
     <string name="security_warning">تنبيه: يحتوي هذا الرابط ورمز QR على مفتاح تشفير المزامنة الخاص بك. شاركهما فقط مع الأجهزة الموثوقة.</string>
+    <string name="advanced_settings">الإعدادات المتقدمة</string>
+    <string name="reset_encryption_key">إعادة تعيين مفتاح التشفير</string>
+    <string name="reset">إعادة تعيين</string>
+    <string name="reset_encryption_key_confirmation_title">إعادة تعيين مفتاح التشفير؟</string>
+    <string name="reset_encryption_key_confirmation_message">سيتم إعادة تعيين مفتاح التشفير وحذف جميع الأجهزة المقترنة. ستحتاج إلى إقرانها مرة أخرى.</string>
+    <string name="encryption_key_reset_success">تمت إعادة تعيين مفتاح التشفير</string>
     <string name="candidate_ips_label">عناوين IP المكتشفة تلقائياً:</string>
     <string name="custom_ip_label">عنوان IP الاحتياطي:</string>
     <string name="add_custom_ip">إضافة IP احتياطي</string>

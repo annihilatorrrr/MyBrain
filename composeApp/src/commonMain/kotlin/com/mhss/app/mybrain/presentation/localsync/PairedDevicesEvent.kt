@@ -21,4 +21,6 @@ sealed interface PairedDevicesEvent {
     data class SetCustomIp(val deviceId: String, val ipAddress: String?) : PairedDevicesEvent
 
     data class PairFromClipboard(val pairingLink: String?) : PairedDevicesEvent
+
+    data object ResetEncryptionKey : PairedDevicesEvent
 }

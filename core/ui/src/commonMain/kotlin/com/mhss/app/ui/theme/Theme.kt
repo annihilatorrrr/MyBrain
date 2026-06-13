@@ -29,7 +29,8 @@ private val DarkColorPalette = darkColorScheme(
     surfaceContainerHigh = DarkGray,
     surfaceDim = DarkGray,
     surfaceBright = DarkGray,
-    error = ErrorColor
+    error = ErrorColor,
+    onError = Color.White,
 )
 
 private val LightColorPalette = lightColorScheme(
@@ -50,7 +51,8 @@ private val LightColorPalette = lightColorScheme(
     surfaceContainerHigh = LightCardColor,
     surfaceDim = LightCardColor,
     surfaceBright = LightCardColor,
-    error = ErrorColor
+    error = ErrorColor,
+    onError = Color.White,
 )
 
 @Composable

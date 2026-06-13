@@ -85,6 +85,15 @@ class AndroidDeviceKeyStore(
         }
     }
 
+    override suspend fun resetCurrentDeviceEncKey(): String {
+        return deviceEncKeyMutex.withLock {
+            val bytes = ByteArray(32).apply { SecureRandom().nextBytes(this) }
+            Base64.encodeToString(bytes, Base64.NO_WRAP).also {
+                savePreference(deviceEncKey, it)
+            }
+        }
+    }
+
     override suspend fun getDeviceKey(deviceId: String): String? {
         return pairedDevicesRepository.getPairedDevice(deviceId)?.encryptionKey
     }

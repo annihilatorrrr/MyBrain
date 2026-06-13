@@ -30,7 +30,6 @@ class LocalSyncServer(
         if (server != null) return@withContext
 
         val currentDeviceId = deviceKeyStore.getCurrentDeviceId()
-        val currentDeviceEncKey = deviceKeyStore.getCurrentDeviceEncKey()
 
         server = embeddedServer(CIO, configure = {
             reuseAddress = true
@@ -45,7 +44,7 @@ class LocalSyncServer(
             }
             routing {
                 post(ROUTE_PING) {
-                    pingRouteHandler.handle(call, currentDeviceId, currentDeviceEncKey)
+                    pingRouteHandler.handle(call, currentDeviceId)
                 }
                 webSocket(ROUTE_SYNC) {
                     syncWebSocketHandler.handle(this)

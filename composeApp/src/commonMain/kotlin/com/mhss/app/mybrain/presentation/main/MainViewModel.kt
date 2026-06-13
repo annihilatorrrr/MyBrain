@@ -56,6 +56,10 @@ class MainViewModel(
         syncOrchestrator.syncAllAsync()
     }
 
+    fun startNetworkDiscovery() {
+        syncOrchestrator.startNetworkDiscovery()
+    }
+
     private var refreshTasksJob : Job? = null
 
     val lockApp = getPreference(booleanPreferencesKey(PrefsConstants.LOCK_APP_KEY), false)

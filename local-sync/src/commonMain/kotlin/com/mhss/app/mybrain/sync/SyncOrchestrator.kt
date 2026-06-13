@@ -3,7 +3,9 @@ package com.mhss.app.mybrain.sync
 import com.mhss.app.database.helpers.DatabaseTransactionProvider
 import com.mhss.app.database.sync.LocalChangeObserver
 import com.mhss.app.mybrain.sync.client.LocalSyncClient
+import com.mhss.app.mybrain.sync.domain.DiscoveredDevice
 import com.mhss.app.mybrain.sync.domain.MergePayloadUseCase
+import com.mhss.app.mybrain.sync.domain.NetworkDiscoveryManager
 import com.mhss.app.mybrain.sync.domain.NetworkHelper
 import com.mhss.app.mybrain.sync.domain.findReachableIp
 import com.mhss.app.mybrain.sync.model.ChangesMessage
@@ -65,6 +67,7 @@ class SyncOrchestrator(
     private val syncWebSocketHandler: SyncWebSocketHandler,
     private val mergePayload: MergePayloadUseCase,
     private val networkHelper: NetworkHelper,
+    private val networkDiscoveryManager: NetworkDiscoveryManager,
     private val compressor: CompressionManager,
     private val json: Json,
     private val encryptionManager: EncryptionManager,
@@ -88,6 +91,19 @@ class SyncOrchestrator(
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+
+            initializeNetworkDiscovery()
+
+            @OptIn(FlowPreview::class)
+            networkHelper.observeNetworkChanges()
+                .distinctUntilChanged()
+                .drop(1)
+                .debounce(1000L.milliseconds)
+                .collect { currentIps ->
+                    if (currentIps.isNotEmpty()) {
+                        broadcastNewIpsToPeers()
+                    }
+                }
         }
         pingRouteHandler.onPingReceived = { peerDeviceId ->
             scope.launch {
@@ -118,18 +134,6 @@ class SyncOrchestrator(
                 updateConnectionStatus(peerDeviceId, false)
             }
         }
-        scope.launch {
-            @OptIn(FlowPreview::class)
-            networkHelper.observeNetworkChanges()
-                .distinctUntilChanged()
-                .drop(1)
-                .debounce(1000L.milliseconds)
-                .collect { currentIps ->
-                    if (currentIps.isNotEmpty()) {
-                        broadcastNewIpsToPeers()
-                    }
-                }
-        }
     }
 
     private val activeClientConnections =
@@ -138,6 +142,39 @@ class SyncOrchestrator(
     private val activePeerJobs = concurrentMutableMap<String, Job>()
     private var serverJob: Job? = null
     private var dbObservationJob: Job? = null
+
+    fun startNetworkDiscovery() {
+        scope.launch {
+            initializeNetworkDiscovery()
+        }
+    }
+
+    private suspend fun initializeNetworkDiscovery() {
+        val deviceId = deviceKeyStore.getCurrentDeviceId()
+        networkDiscoveryManager.registerService(deviceId, DEFAULT_SYNC_PORT)
+        networkDiscoveryManager.startDiscovery { device ->
+            scope.launch {
+                handleDiscoveredDevice(device)
+            }
+        }
+    }
+
+    private suspend fun handleDiscoveredDevice(device: DiscoveredDevice) {
+        val pairedDevice = pairedDevicesRepository.getPairedDevice(device.deviceId) ?: return
+        if (pairedDevice.ipAddress == device.ipAddress) return
+
+        val deviceKey = deviceKeyStore.getDeviceKey(pairedDevice.deviceId) ?: return
+        val pingSuccess = client.ping(
+            device.ipAddress,
+            pairedDevice.port,
+            pairedDevice.deviceId,
+            deviceKey,
+            isPairing = false
+        )
+        if (pingSuccess) {
+            connectWebSocket(pairedDevice.deviceId)
+        }
+    }
 
     fun startServer(port: Int = DEFAULT_SYNC_PORT) {
         if (serverJob?.isActive != true) {

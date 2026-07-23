@@ -26,6 +26,8 @@ import androidx.compose.ui.window.Dialog
 import com.mhss.app.datetime.at
 import com.mhss.app.datetime.hour
 import com.mhss.app.datetime.minute
+import com.mhss.app.datetime.toUtcMidnight
+import com.mhss.app.datetime.utcDateAt
 import com.mhss.app.ui.Res
 import com.mhss.app.ui.ok
 import org.jetbrains.compose.resources.stringResource
@@ -38,7 +40,7 @@ fun DateTimeDialog(
     onDatePicked: (Long) -> Unit,
 ) {
     val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = initialDate
+        initialSelectedDateMillis = initialDate.toUtcMidnight()
     )
     val timePickerState = rememberTimePickerState(
         initialHour = initialDate.hour,
@@ -55,7 +57,7 @@ fun DateTimeDialog(
                 onClick = {
                     if (showTime) {
                         onDatePicked(
-                            datePickerState.selectedDateMillis?.at(
+                            datePickerState.selectedDateMillis?.utcDateAt(
                                 timePickerState.hour,
                                 timePickerState.minute
                             ) ?: initialDate
@@ -100,7 +102,7 @@ fun DateDialog(
     onDatePicked: (Long) -> Unit,
 ) {
     val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = initialDate
+        initialSelectedDateMillis = initialDate.toUtcMidnight()
     )
     DatePickerDialog(
         onDismissRequest = onDismissRequest,
@@ -109,7 +111,7 @@ fun DateDialog(
             TextButton(
                 onClick = {
                     onDatePicked(
-                        datePickerState.selectedDateMillis?.at(
+                        datePickerState.selectedDateMillis?.utcDateAt(
                             initialDate.hour,
                             initialDate.minute
                         ) ?: initialDate

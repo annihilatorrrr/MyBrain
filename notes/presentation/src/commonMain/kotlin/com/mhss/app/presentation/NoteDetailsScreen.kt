@@ -29,6 +29,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -99,6 +100,7 @@ import com.mhss.app.ui.title
 import com.mhss.app.util.clipboard.copyText
 import com.mikepenz.markdown.coil2.Coil2ImageTransformerImpl
 import com.mikepenz.markdown.m3.Markdown
+import com.mikepenz.markdown.model.markdownDimens
 import io.github.fletchmckee.liquid.liquefiable
 import io.github.fletchmckee.liquid.rememberLiquidState
 import kotlinx.coroutines.delay
@@ -107,7 +109,6 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import androidx.compose.foundation.text.selection.SelectionContainer
 
 @Composable
 fun NoteDetailsScreen(
@@ -313,6 +314,9 @@ fun NoteDetailsScreen(
                             .padding(8.dp)
                             .liquefiable(liquidState),
                         imageTransformer = Coil2ImageTransformerImpl,
+                        dimens = markdownDimens(
+                            tableCellPadding = 8.dp
+                        ),
                         typography = defaultMarkdownTypography()
                     )
                 }

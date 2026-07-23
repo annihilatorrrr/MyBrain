@@ -1,7 +1,9 @@
 package com.mhss.app.mybrain.appfunctions
 
+import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunction
-import androidx.appfunctions.AppFunctionContext
+import androidx.appfunctions.AppFunctionService
+import androidx.appfunctions.AppFunctionServiceEntryPoint
 import com.mhss.app.domain.model.Bookmark
 import com.mhss.app.domain.model.DiaryEntry
 import com.mhss.app.domain.model.Mood
@@ -22,39 +24,40 @@ import com.mhss.app.domain.use_case.UpsertTaskUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import org.koin.core.annotation.Single
+import org.koin.core.context.GlobalContext
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 /**
  * Exposes core application capabilities for notes, tasks, diary, and bookmarks to agents.
  */
-@Single
-class MyBrainAppFunctions(
-    private val upsertNoteUseCase: UpsertNoteUseCase,
-    private val searchNotesUseCase: SearchNotesUseCase,
-    private val getNoteUseCase: GetNoteUseCase,
-    private val upsertTaskUseCase: UpsertTaskUseCase,
-    private val searchTasksUseCase: SearchTasksUseCase,
-    private val getTaskUseCase: GetTaskByIdUseCase,
-    private val updateTaskCompletedUseCase: UpdateTaskCompletedUseCase,
-    private val addDiaryEntryUseCase: AddDiaryEntryUseCase,
-    private val searchEntriesUseCase: SearchEntriesUseCase,
-    private val addBookmarkUseCase: AddBookmarkUseCase,
-    private val searchBookmarksUseCase: SearchBookmarksUseCase
-) {
+@RequiresApi(36)
+@AppFunctionServiceEntryPoint(
+    serviceName = "MyBrainAppFunctionService",
+    appFunctionXmlFileName = "my_brain_app_function_service"
+)
+abstract class MyBrainAppFunctions : AppFunctionService() {
+    private val upsertNoteUseCase: UpsertNoteUseCase by lazy { GlobalContext.get().get() }
+    private val searchNotesUseCase: SearchNotesUseCase by lazy { GlobalContext.get().get() }
+    private val getNoteUseCase: GetNoteUseCase by lazy { GlobalContext.get().get() }
+    private val upsertTaskUseCase: UpsertTaskUseCase by lazy { GlobalContext.get().get() }
+    private val searchTasksUseCase: SearchTasksUseCase by lazy { GlobalContext.get().get() }
+    private val getTaskUseCase: GetTaskByIdUseCase by lazy { GlobalContext.get().get() }
+    private val updateTaskCompletedUseCase: UpdateTaskCompletedUseCase by lazy { GlobalContext.get().get() }
+    private val addDiaryEntryUseCase: AddDiaryEntryUseCase by lazy { GlobalContext.get().get() }
+    private val searchEntriesUseCase: SearchEntriesUseCase by lazy { GlobalContext.get().get() }
+    private val addBookmarkUseCase: AddBookmarkUseCase by lazy { GlobalContext.get().get() }
+    private val searchBookmarksUseCase: SearchBookmarksUseCase by lazy { GlobalContext.get().get() }
 
     /**
      * Create a new note with a title and body content.
      *
-     * @param appFunctionContext The execution context.
      * @param title The title of the note.
      * @param content The body content of the note.
      * @return The created [AppNote] object including its generated ID.
      */
     @AppFunction(isDescribedByKDoc = true)
     suspend fun createNote(
-        appFunctionContext: AppFunctionContext,
         title: String,
         content: String
     ): AppNote = withContext(Dispatchers.IO) {
@@ -80,13 +83,11 @@ class MyBrainAppFunctions(
      * The content in the returned [AppNote]s may be truncated for maximum length.
      * If the full note content is required, use [getNoteById].
      *
-     * @param appFunctionContext The execution context.
      * @param query The search query string for matching note titles or content. If empty, all notes are returned.
      * @return A list of matching [AppNote]s.
      */
     @AppFunction(isDescribedByKDoc = true)
     suspend fun searchNotes(
-        appFunctionContext: AppFunctionContext,
         query: String
     ): List<AppNote> = withContext(Dispatchers.IO) {
         searchNotesUseCase(query).map { note ->
@@ -104,13 +105,11 @@ class MyBrainAppFunctions(
      * Retrieve a full note by its unique identifier.
      * Required workflow: Call [searchNotes] first to obtain valid note IDs.
      *
-     * @param appFunctionContext The execution context.
      * @param noteId The unique identifier of the note.
      * @return The [AppNote] matching the ID, or null if not found.
      */
     @AppFunction(isDescribedByKDoc = true)
     suspend fun getNoteById(
-        appFunctionContext: AppFunctionContext,
         noteId: String
     ): AppNote? = withContext(Dispatchers.IO) {
         getNoteUseCase(noteId)?.let { note ->
@@ -127,7 +126,6 @@ class MyBrainAppFunctions(
     /**
      * Create a new task.
      *
-     * @param appFunctionContext The execution context.
      * @param title The title of the task.
      * @param description The optional detailed description of the task.
      * @param priority The priority of the task. Allowed values: "LOW", "MEDIUM", "HIGH". Defaults to "LOW".
@@ -137,7 +135,6 @@ class MyBrainAppFunctions(
     @OptIn(ExperimentalUuidApi::class)
     @AppFunction(isDescribedByKDoc = true)
     suspend fun createTask(
-        appFunctionContext: AppFunctionContext,
         title: String,
         description: String? = null,
         priority: String? = null,
@@ -175,13 +172,11 @@ class MyBrainAppFunctions(
     /**
      * Search tasks by title matching a query string.
      *
-     * @param appFunctionContext The execution context.
      * @param query The search query string for matching task titles. If empty, all tasks are returned.
      * @return A list of matching [AppTask]s.
      */
     @AppFunction(isDescribedByKDoc = true)
     suspend fun searchTasks(
-        appFunctionContext: AppFunctionContext,
         query: String
     ): List<AppTask> = withContext(Dispatchers.IO) {
         searchTasksUseCase(query).first().map { task ->
@@ -200,13 +195,11 @@ class MyBrainAppFunctions(
      * Mark a task as completed or incomplete.
      * Required workflow: Call [searchTasks] first to obtain valid task IDs.
      *
-     * @param appFunctionContext The execution context.
      * @param taskId The unique identifier of the task.
      * @param completed True to mark the task as completed, false to mark it incomplete.
      */
     @AppFunction(isDescribedByKDoc = true)
     suspend fun updateTaskCompleted(
-        appFunctionContext: AppFunctionContext,
         taskId: String,
         completed: Boolean
     ): Unit = withContext(Dispatchers.IO) {
@@ -218,7 +211,6 @@ class MyBrainAppFunctions(
     /**
      * Create a new diary entry documenting the user's thoughts and mood.
      *
-     * @param appFunctionContext The execution context.
      * @param title The title of the diary entry.
      * @param content The text content of the diary entry.
      * @param mood The user's mood for the entry. Allowed values: "AWESOME", "GOOD", "OKAY", "BAD", "TERRIBLE". Defaults to "OKAY".
@@ -227,7 +219,6 @@ class MyBrainAppFunctions(
     @OptIn(ExperimentalUuidApi::class)
     @AppFunction(isDescribedByKDoc = true)
     suspend fun createDiaryEntry(
-        appFunctionContext: AppFunctionContext,
         title: String,
         content: String,
         mood: String? = null
@@ -262,13 +253,11 @@ class MyBrainAppFunctions(
     /**
      * Search diary entries by title matching a query string.
      *
-     * @param appFunctionContext The execution context.
      * @param query The search query string for matching diary entry titles. If empty, all entries are returned.
      * @return A list of matching [AppDiaryEntry]s.
      */
     @AppFunction(isDescribedByKDoc = true)
     suspend fun searchDiaryEntries(
-        appFunctionContext: AppFunctionContext,
         query: String
     ): List<AppDiaryEntry> = withContext(Dispatchers.IO) {
         searchEntriesUseCase(query).map { entry ->
@@ -285,7 +274,6 @@ class MyBrainAppFunctions(
     /**
      * Create a new bookmark for a URL link.
      *
-     * @param appFunctionContext The execution context.
      * @param url The URL link to save.
      * @param title The title of the bookmark.
      * @param description The description of the bookmarked link.
@@ -294,7 +282,6 @@ class MyBrainAppFunctions(
     @OptIn(ExperimentalUuidApi::class)
     @AppFunction(isDescribedByKDoc = true)
     suspend fun createBookmark(
-        appFunctionContext: AppFunctionContext,
         url: String,
         title: String? = null,
         description: String? = null
@@ -324,13 +311,11 @@ class MyBrainAppFunctions(
     /**
      * Search bookmarks by title, description or URL matching a query string.
      *
-     * @param appFunctionContext The execution context.
      * @param query The search query string for matching bookmarks. If empty, all bookmarks are returned.
      * @return A list of matching [AppBookmark]s.
      */
     @AppFunction(isDescribedByKDoc = true)
     suspend fun searchBookmarks(
-        appFunctionContext: AppFunctionContext,
         query: String
     ): List<AppBookmark> = withContext(Dispatchers.IO) {
         searchBookmarksUseCase(query).map { bookmark ->

@@ -8,7 +8,6 @@ import android.content.ClipboardManager
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
-import androidx.appfunctions.AppFunctionConfiguration
 import com.mhss.app.alarm.di.AlarmModule
 import com.mhss.app.data.NoteDataModule
 import com.mhss.app.data.di.AiDataModule
@@ -29,7 +28,6 @@ import com.mhss.app.domain.di.NoteDomainModule
 import com.mhss.app.domain.di.SettingsDomainModule
 import com.mhss.app.domain.di.TasksDomainModule
 import com.mhss.app.mybrain.appfunctions.AppFunctionsModule
-import com.mhss.app.mybrain.appfunctions.MyBrainAppFunctions
 import com.mhss.app.mybrain.di.MainPresentationModule
 import com.mhss.app.mybrain.notification.NotificationConstants
 import com.mhss.app.mybrain.sync.SyncOrchestrator
@@ -63,18 +61,11 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.annotation.KoinApplication
-import org.koin.core.context.GlobalContext
 import org.koin.core.context.loadKoinModules
 import org.koin.plugin.module.dsl.startKoin
 import kotlin.system.exitProcess
 
-class MyBrainApplication : Application(), AppFunctionConfiguration.Provider {
-
-    override val appFunctionConfiguration: AppFunctionConfiguration by lazy {
-        AppFunctionConfiguration.Builder()
-            .addEnclosingClassFactory(MyBrainAppFunctions::class.java) { GlobalContext.get().get<MyBrainAppFunctions>() }
-            .build()
-    }
+class MyBrainApplication : Application() {
 
     private val getPreference: GetPreferenceUseCase by inject()
     private val syncOrchestrator: SyncOrchestrator by inject()

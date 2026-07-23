@@ -2,7 +2,7 @@ package com.mhss.app.data.repository
 
 import ai.koog.agents.core.tools.ToolRegistry
 import ai.koog.agents.core.tools.annotations.InternalAgentToolsApi
-import ai.koog.agents.core.tools.reflect.tools
+import ai.koog.http.client.ktor.KtorKoogHttpClient
 import ai.koog.prompt.dsl.prompt
 import ai.koog.prompt.executor.clients.LLMClientException
 import ai.koog.prompt.executor.clients.anthropic.AnthropicClientSettings
@@ -15,7 +15,7 @@ import ai.koog.prompt.executor.llms.MultiLLMPromptExecutor
 import ai.koog.prompt.executor.model.PromptExecutor
 import ai.koog.prompt.executor.ollama.client.OllamaClient
 import ai.koog.prompt.llm.LLModel
-import ai.koog.prompt.message.Message
+import ai.koog.prompt.message.MessagePart
 import ai.koog.prompt.params.LLMParams
 import ai.koog.prompt.streaming.StreamFrame
 import com.mhss.app.data.EmptyAiClient
@@ -48,6 +48,8 @@ import com.mhss.app.preferences.domain.model.intPreferencesKey
 import com.mhss.app.preferences.domain.model.stringPreferencesKey
 import com.mhss.app.preferences.domain.model.toAiProvider
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -184,10 +186,10 @@ class AiRepositoryImpl(
                     tools = if (toolsEnabled) toolDescriptors else emptyList()
                 )
 
-                val toolCalls = result.filterIsInstance<Message.Tool.Call>()
-                val assistantMessage =
-                    result.filterIsInstance<Message.Assistant>().firstOrNull()
-                        ?.toNewAssistantMessage()
+                val toolCalls = result.parts.filterIsInstance<MessagePart.Tool.Call>()
+                val assistantMessage = result
+                    .takeIf { it.textContent().isNotBlank() }
+                    ?.toNewAssistantMessage()
 
                 if (toolCalls.isEmpty()) {
                     assistantMessage?.let { emit(it) }
@@ -196,7 +198,7 @@ class AiRepositoryImpl(
 
                 consecutiveToolCalls++
 
-                val thoughtSignatures = toolExecutor.extractThoughtSignatures(result)
+                val thoughtSignatures = toolExecutor.extractThoughtSignatures(result.parts)
                 val toolCallMessages = toolCalls.map { toolCall ->
                     val toolCallMessageResult = toolExecutor.executeToolCall(toolCall, toolRegistry)
                     toolCall.toAiMessage(toolCallMessageResult, thoughtSignatures[toolCall]).also {
@@ -292,24 +294,44 @@ class AiRepositoryImpl(
 
 }
 
+private val koogHttpClientFactory by lazy {
+    KtorKoogHttpClient.Factory(baseClient = HttpClient(CIO))
+}
+
 private fun AiProvider.getExecutor(key: String, customUrl: String, llModel: LLModel): PromptExecutor {
     val client = when (this) {
         AiProvider.OpenAI -> OpenAILLMClient(
             apiKey = key,
-            settings = if (customUrl.isBlank()) OpenAIClientSettings() else OpenAIClientSettings(baseUrl = customUrl)
+            settings = if (customUrl.isBlank()) OpenAIClientSettings() else OpenAIClientSettings(baseUrl = customUrl),
+            httpClientFactory = koogHttpClientFactory
         )
-        AiProvider.Gemini -> GoogleLLMClient(apiKey = key)
+        AiProvider.Gemini -> GoogleLLMClient(
+            apiKey = key,
+            httpClientFactory = koogHttpClientFactory
+        )
         AiProvider.Anthropic -> AnthropicLLMClient(
             apiKey = key,
             settings = AnthropicClientSettings(
                 modelVersionsMap = mapOf(llModel to llModel.id)
-            )
+            ),
+            httpClientFactory = koogHttpClientFactory
         )
-        AiProvider.OpenRouter -> OpenRouterLLMClient(apiKey = key)
-        AiProvider.Ollama -> if (customUrl.isBlank()) OllamaClient() else OllamaClient(customUrl)
+        AiProvider.OpenRouter -> OpenRouterLLMClient(
+            apiKey = key,
+            httpClientFactory = koogHttpClientFactory
+        )
+        AiProvider.Ollama -> if (customUrl.isBlank()) {
+            OllamaClient(httpClientFactory = koogHttpClientFactory)
+        } else {
+            OllamaClient(
+                httpClientFactory = koogHttpClientFactory,
+                baseUrl = customUrl
+            )
+        }
         AiProvider.LmStudio -> OpenAILLMClient(
             apiKey = "",
-            settings = OpenAIClientSettings(baseUrl = customUrl)
+            settings = OpenAIClientSettings(baseUrl = customUrl),
+            httpClientFactory = koogHttpClientFactory
         )
         AiProvider.GeminiNano -> EmptyAiClient
         AiProvider.None -> EmptyAiClient

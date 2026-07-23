@@ -32,6 +32,9 @@ kotlin {
                 implementation(libs.ktor.cio)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.koog.agents)
+                implementation(libs.koog.google.client)
+                implementation(libs.koog.http.client.ktor)
+                implementation(libs.koog.openrouter.client)
 
                 implementation(project.dependencies.platform(libs.koin.bom))
                 implementation(libs.bundles.koin)

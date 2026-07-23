@@ -5,7 +5,7 @@ import ai.koog.prompt.llm.LLMCapability
 import ai.koog.prompt.llm.LLMProvider
 import ai.koog.prompt.llm.LLModel
 import ai.koog.prompt.message.Message
-import ai.koog.prompt.message.ResponseMetaInfo
+import ai.koog.prompt.message.MessagePart
 import ai.koog.prompt.params.LLMParams
 import com.mhss.app.domain.baseChatSystemMessage
 import com.mhss.app.domain.model.AiMessage
@@ -32,27 +32,31 @@ fun List<AiMessage>.buildChatPrompt(systemMessage: String) = prompt("chat_prompt
             is AiMessage.UserMessage -> user(message.content + message.attachmentsText)
             is AiMessage.AssistantMessage -> assistant(message.content)
             is AiMessage.ToolCall -> {
-                if (message.thoughtSignature != null) {
-                    message(
-                        Message.Reasoning(
-                            encrypted = message.thoughtSignature,
-                            content = "",
-                            metaInfo = ResponseMetaInfo.Empty
+                assistant {
+                    if (message.thoughtSignature != null) {
+                        reasoning(
+                            MessagePart.Reasoning(
+                                content = emptyList(),
+                                encrypted = message.thoughtSignature
+                            )
+                        )
+                    }
+                    toolCall(
+                        MessagePart.Tool.Call(
+                            id = message.id,
+                            tool = message.name,
+                            args = message.rawContent
                         )
                     )
                 }
-                tool {
-                    call(
+                toolResult(
+                    MessagePart.Tool.Result(
                         id = message.id,
                         tool = message.name,
-                        content = message.rawContent
+                        output = message.resultRawContent,
+                        isError = message.isFailed
                     )
-                    result(
-                        id = message.id,
-                        tool = message.name,
-                        content = message.resultRawContent
-                    )
-                }
+                )
             }
         }
     }
@@ -60,7 +64,7 @@ fun List<AiMessage>.buildChatPrompt(systemMessage: String) = prompt("chat_prompt
 
 
 @OptIn(ExperimentalUuidApi::class)
-fun Message.Tool.Call.toAiMessage(
+fun MessagePart.Tool.Call.toAiMessage(
     toolCallResult: Result<AiMessage.ToolCall>,
     thoughtSignature: String? = null
 ): AiMessage {
@@ -69,7 +73,7 @@ fun Message.Tool.Call.toAiMessage(
             uuid = Uuid.generateV7().toString(),
             id = id,
             name = tool,
-            rawContent = content,
+            rawContent = args,
             resultRawContent = toolCallResult.exceptionOrNull()
                 ?.getRootCause()
                 ?.toString()
@@ -90,6 +94,9 @@ fun String.toLLModel(provider: AiProvider, withTools: Boolean): LLModel {
             if (withTools || provider == AiProvider.Anthropic) {
                 add(LLMCapability.Tools)
                 add(LLMCapability.ToolChoice)
+            }
+            if (provider == AiProvider.Gemini) {
+                add(LLMCapability.Thinking)
             }
             add(LLMCapability.Completion)
             if (llmProvider == LLMProvider.OpenAI){
@@ -116,7 +123,7 @@ fun AiProvider.toLLMProvider() = when (this) {
 @OptIn(ExperimentalUuidApi::class)
 fun Message.Assistant.toNewAssistantMessage() = AiMessage.AssistantMessage(
     uuid = Uuid.generateV7().toString(),
-    content = content,
+    content = textContent(),
     time = nowMillis()
 )
 

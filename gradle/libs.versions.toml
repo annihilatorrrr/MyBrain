@@ -32,7 +32,8 @@ material = "1.14.0"
 ktor = "3.5.0"
 squircleShape = "4.0.0"
 markdownRenderer = "0.41.0"
-koog = "0.7.2"
+koog = "1.1.1"
+koogGoogle = "1.1.1-beta"
 liquid = "1.1.1"
 composeMultiplatform = "1.11.1"
 appFunctions = "1.0.0-alpha09"
@@ -96,6 +97,9 @@ squircle-shape = { group = "io.github.stoyan-vuchev", name = "squircle-shape", v
 markdown-renderer = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "markdownRenderer" }
 markdown-coil2 = { module = "com.mikepenz:multiplatform-markdown-renderer-coil2", version.ref = "markdownRenderer" }
 koog-agents = { module = "ai.koog:koog-agents", version.ref = "koog"}
+koog-google-client = { module = "ai.koog:prompt-executor-google-client", version.ref = "koogGoogle"}
+koog-http-client-ktor = { module = "ai.koog:http-client-ktor", version.ref = "koog"}
+koog-openrouter-client = { module = "ai.koog:prompt-executor-openrouter-client", version.ref = "koog"}
 liquid = { module = "io.github.fletchmckee.liquid:liquid", version.ref = "liquid"}
 compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatform" }
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatform" }
@@ -125,5 +129,3 @@ koin = ["koin-core", "koin-annotations"]
 compose = ["compose-resources", "compose-foundation", "compose-runtime", "compose-ui", "compose-material3", "androidx-navigation-compose", "compose-ui-tooling", "androidx-lifecycle-runtime-compose", "compose-ui-tooling-preview", "koin-compose", "koin-compose-viewmodel",  "markdown-renderer", "markdown-coil2"]
 androidx-glance = ["androidx-glance", "androidx-glance-appwidget", "androidx-glance-material", "androidx-glance-preview", "androidx-glance-appwidget-preview"]
 ktor-core = ["ktor-core", "ktor-serialization", "ktor-content-negotiation", "ktor-logging"]
-
-

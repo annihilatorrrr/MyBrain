@@ -2,7 +2,7 @@ package com.mhss.app.data.repository
 
 import ai.koog.agents.core.tools.Tool
 import ai.koog.agents.core.tools.ToolRegistry
-import ai.koog.prompt.message.Message
+import ai.koog.prompt.message.MessagePart
 import ai.koog.serialization.kotlinx.KotlinxSerializer
 import ai.koog.serialization.kotlinx.toKoogJSONObject
 import com.mhss.app.data.json
@@ -45,12 +45,12 @@ class AiToolExecutor(
 
     @OptIn(ExperimentalUuidApi::class)
     suspend fun executeToolCall(
-        toolCall: Message.Tool.Call,
+        toolCall: MessagePart.Tool.Call,
         toolRegistry: ToolRegistry,
     ): Result<AiMessage.ToolCall> = runCatching {
         val tool = toolRegistry.getTool(toolCall.tool)
         val args = tool.decodeArgs(
-            toolCall.contentJson.toKoogJSONObject(),
+            toolCall.argsJson.toKoogJSONObject(),
             koogSerializer
         )
         val toolResult = (tool as Tool<Any?, Any?>).execute(args)
@@ -60,7 +60,7 @@ class AiToolExecutor(
             uuid = Uuid.generateV7().toString(),
             id = toolCall.id,
             name = tool.name,
-            rawContent = toolCall.content,
+            rawContent = toolCall.args,
             resultRawContent = resultJson,
             time = nowMillis(),
             resultObject = resultObject
@@ -136,17 +136,17 @@ class AiToolExecutor(
         }
     }.getOrNull()
 
-    fun extractThoughtSignatures(messages: List<Message.Response>): Map<Message.Tool.Call, String?> {
-        val signatures = HashMap<Message.Tool.Call, String?>()
+    fun extractThoughtSignatures(messageParts: List<MessagePart.ResponsePart>): Map<MessagePart.Tool.Call, String?> {
+        val signatures = HashMap<MessagePart.Tool.Call, String?>()
         var lastSignature: String? = null
-        for (msg in messages) {
-            when (msg) {
-                is Message.Reasoning -> lastSignature = msg.encrypted
-                is Message.Tool.Call -> {
-                    signatures[msg] = lastSignature
+        for (part in messageParts) {
+            when (part) {
+                is MessagePart.Reasoning -> lastSignature = part.encrypted
+                is MessagePart.Tool.Call -> {
+                    signatures[part] = lastSignature
                     lastSignature = null
                 }
-                is Message.Assistant -> lastSignature = null
+                else -> Unit
             }
         }
         return signatures

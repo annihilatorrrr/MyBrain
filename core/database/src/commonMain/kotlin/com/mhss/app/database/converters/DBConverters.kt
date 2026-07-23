@@ -1,6 +1,6 @@
 package com.mhss.app.database.converters
 
-import androidx.room3.TypeConverter
+import androidx.room3.ColumnTypeConverter
 import com.mhss.app.database.entity.AssistantMessageMetadata
 import com.mhss.app.domain.model.Mood
 import com.mhss.app.domain.model.SubTask
@@ -12,12 +12,12 @@ class DBConverters {
         ignoreUnknownKeys = true
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromStringList(value: List<String>): String {
         return json.encodeToString(value)
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun toStringList(value: String): List<String> {
         if (value.isBlank()) return emptyList()
         return try {
@@ -28,26 +28,26 @@ class DBConverters {
     }
 
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromSubTasksList(value: List<SubTask>): String {
         return json.encodeToString(value)
     }
-    @TypeConverter
+    @ColumnTypeConverter
     fun toSubTasksList(value: String): List<SubTask> {
         return json.decodeFromString(value)
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun toMood(value: Int) = enumValues<Mood>()[value]
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromMood(value: Mood) = value.ordinal
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromMetadata(value: AssistantMessageMetadata?): String? {
         return value?.let { json.encodeToString(it) }
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun toMetadata(value: String?): AssistantMessageMetadata? {
         if (value.isNullOrBlank()) return null
         return json.decodeFromString(value)

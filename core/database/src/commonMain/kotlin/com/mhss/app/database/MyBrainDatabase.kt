@@ -1,10 +1,10 @@
 package com.mhss.app.database
 
+import androidx.room3.ColumnTypeConverters
 import androidx.room3.ConstructedBy
 import androidx.room3.Database
 import androidx.room3.RoomDatabase
 import androidx.room3.RoomDatabaseConstructor
-import androidx.room3.TypeConverters
 import com.mhss.app.database.converters.DBConverters
 import com.mhss.app.database.dao.AlarmDao
 import com.mhss.app.database.dao.AssistantDao
@@ -12,19 +12,19 @@ import com.mhss.app.database.dao.BookmarkDao
 import com.mhss.app.database.dao.DiaryDao
 import com.mhss.app.database.dao.NoteDao
 import com.mhss.app.database.dao.PairedDeviceDao
-import com.mhss.app.database.dao.TaskDao
 import com.mhss.app.database.dao.SyncDao
+import com.mhss.app.database.dao.TaskDao
 import com.mhss.app.database.entity.AlarmEntity
 import com.mhss.app.database.entity.AssistantMessageEntity
 import com.mhss.app.database.entity.AssistantThreadEntity
 import com.mhss.app.database.entity.BookmarkEntity
+import com.mhss.app.database.entity.DeletedEntityEntity
 import com.mhss.app.database.entity.DiaryEntryEntity
 import com.mhss.app.database.entity.NoteEntity
 import com.mhss.app.database.entity.NoteFolderEntity
 import com.mhss.app.database.entity.PairedDeviceEntity
-import com.mhss.app.database.entity.TaskEntity
-import com.mhss.app.database.entity.DeletedEntityEntity
 import com.mhss.app.database.entity.SyncStateEntity
+import com.mhss.app.database.entity.TaskEntity
 
 @Database(
     entities = [
@@ -44,7 +44,7 @@ import com.mhss.app.database.entity.SyncStateEntity
 )
 
 
-@TypeConverters(DBConverters::class)
+@ColumnTypeConverters(DBConverters::class)
 @ConstructedBy(MyBrainDatabaseConstructor::class)
 abstract class MyBrainDatabase: RoomDatabase() {
 

@@ -45,9 +45,6 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
             }
         }
-        all {
-            languageSettings.enableLanguageFeature("ContextParameters")
-        }
     }
 
 

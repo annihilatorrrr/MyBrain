@@ -1,7 +1,7 @@
 package com.mhss.app.mybrain.appfunctions
 
+import androidx.appfunctions.AppFunction
 import androidx.appfunctions.AppFunctionContext
-import androidx.appfunctions.service.AppFunction
 import com.mhss.app.domain.model.Bookmark
 import com.mhss.app.domain.model.DiaryEntry
 import com.mhss.app.domain.model.Mood
@@ -22,9 +22,9 @@ import com.mhss.app.domain.use_case.UpsertTaskUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import org.koin.core.annotation.Single
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
-import org.koin.core.annotation.Single
 
 /**
  * Exposes core application capabilities for notes, tasks, diary, and bookmarks to agents.

@@ -8,7 +8,7 @@ import android.content.ClipboardManager
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
-import androidx.appfunctions.service.AppFunctionConfiguration
+import androidx.appfunctions.AppFunctionConfiguration
 import com.mhss.app.alarm.di.AlarmModule
 import com.mhss.app.data.NoteDataModule
 import com.mhss.app.data.di.AiDataModule

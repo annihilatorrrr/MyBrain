@@ -43,8 +43,7 @@ dependencies {
     implementation(projects.diary.domain)
     implementation(projects.bookmarks.domain)
 
-    implementation(libs.androidx.appfunctions)
-    api(libs.androidx.appfunctions.service)
+    api(libs.androidx.appfunctions)
     ksp(libs.androidx.appfunctions.compiler)
 
     implementation(libs.kotlinx.coroutines.core)
@@ -60,4 +59,3 @@ ksp {
 koinCompiler {
     compileSafety = false
 }
-

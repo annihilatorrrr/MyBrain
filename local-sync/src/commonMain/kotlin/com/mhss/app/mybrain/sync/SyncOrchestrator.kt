@@ -39,6 +39,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -187,6 +188,17 @@ class SyncOrchestrator(
             }
         }
         startObservingChanges()
+    }
+
+    fun stopServerIfNoPairedDevices() {
+        scope.launch {
+            if (pairedDevicesRepository.getPairedDevices().isNotEmpty()) return@launch
+            serverJob?.cancelAndJoin()
+            serverJob = null
+            dbObservationJob?.cancelAndJoin()
+            dbObservationJob = null
+            server.stop()
+        }
     }
 
     fun syncAllAsync() {

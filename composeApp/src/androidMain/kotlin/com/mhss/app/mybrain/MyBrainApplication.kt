@@ -35,6 +35,7 @@ import com.mhss.app.mybrain.notification.NotificationConstants
 import com.mhss.app.mybrain.sync.SyncOrchestrator
 import com.mhss.app.mybrain.sync.di.LocalSyncModule
 import com.mhss.app.mybrain.sync.repository.DeviceKeyStore
+import com.mhss.app.mybrain.sync.repository.PairedDevicesRepository
 import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.di.PreferencesModule
 import com.mhss.app.preferences.di.PreferencesPlatformModule
@@ -78,6 +79,7 @@ class MyBrainApplication : Application(), AppFunctionConfiguration.Provider {
     private val getPreference: GetPreferenceUseCase by inject()
     private val syncOrchestrator: SyncOrchestrator by inject()
     private val deviceKeyStore: DeviceKeyStore by inject()
+    private val pairedDevicesRepository: PairedDevicesRepository by inject()
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onCreate() {
@@ -93,7 +95,9 @@ class MyBrainApplication : Application(), AppFunctionConfiguration.Provider {
         appScope.launch {
             deviceKeyStore.getCurrentDeviceId()
             deviceKeyStore.getCurrentDeviceEncKey()
-            syncOrchestrator.startServer()
+            if (pairedDevicesRepository.getPairedDevices().isNotEmpty()) {
+                syncOrchestrator.startServer()
+            }
         }
 
         createRemindersNotificationChannel()

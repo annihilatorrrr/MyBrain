@@ -57,6 +57,7 @@ class LocalSyncViewModel(
     val uiState: StateFlow<PairedDevicesUiState> = _uiState.asStateFlow()
 
     init {
+        orchestrator.startServer()
         viewModelScope.launch {
             val deviceId = deviceKeyStore.getCurrentDeviceId()
             val encKey = deviceKeyStore.getCurrentDeviceEncKey()
@@ -86,6 +87,11 @@ class LocalSyncViewModel(
                 }
             }
         }
+    }
+
+    override fun onCleared() {
+        orchestrator.stopServerIfNoPairedDevices()
+        super.onCleared()
     }
 
     private var deepLinkHandled = false

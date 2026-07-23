@@ -19,10 +19,12 @@ import com.mhss.app.data.tools.NoteIdResult
 import com.mhss.app.data.tools.NoteIdsResult
 import com.mhss.app.data.tools.SEARCH_EVENTS_BY_NAME_WITHIN_RANGE_TOOL
 import com.mhss.app.data.tools.SEARCH_NOTES_TOOL
+import com.mhss.app.data.tools.UPDATE_TASK_COMPLETED_TOOL
 import com.mhss.app.data.tools.SearchEventsResult
 import com.mhss.app.data.tools.SearchNotesResult
 import com.mhss.app.data.tools.TaskIdResult
 import com.mhss.app.data.tools.TaskIdsResult
+import com.mhss.app.data.tools.TaskResult
 import com.mhss.app.domain.model.AiMessage
 import com.mhss.app.domain.model.ToolCallResultObject
 import com.mhss.app.domain.use_case.GetCalendarEventByIdUseCase
@@ -99,6 +101,13 @@ class AiToolExecutor(
                 val createResult = json.decodeFromString<TaskIdsResult>(resultJson)
                 val tasks = createResult.createdTaskIds.mapNotNull { getTaskById(it) }
                 if (tasks.isNotEmpty()) ToolCallResultObject.Tasks(tasks) else null
+            }
+
+            UPDATE_TASK_COMPLETED_TOOL -> {
+                val updateResult = json.decodeFromString<TaskResult>(resultJson)
+                updateResult.task?.let {
+                    ToolCallResultObject.Tasks(listOf(it))
+                }
             }
 
             CREATE_EVENT_TOOL -> {

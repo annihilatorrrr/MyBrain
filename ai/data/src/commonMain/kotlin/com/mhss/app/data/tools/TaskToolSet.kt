@@ -73,9 +73,10 @@ class TaskToolSet(
     suspend fun updateTaskCompleted(
         id: String,
         completed: Boolean
-    ) {
+    ): TaskResult {
         val task = getTask(id) ?: throw IllegalArgumentException("Task with id $id not found. The operation did not proceed.")
         updateTaskCompletedUseCase(task, completed)
+        return TaskResult(getTask(id))
     }
 
     @Tool(CREATE_MULTIPLE_TASKS_TOOL)

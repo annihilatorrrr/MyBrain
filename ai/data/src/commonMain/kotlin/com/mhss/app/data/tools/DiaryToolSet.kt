@@ -1,8 +1,8 @@
 package com.mhss.app.data.tools
 
-import ai.koog.agents.core.tools.annotations.LLMDescription
-import ai.koog.agents.core.tools.annotations.Tool
-import ai.koog.agents.core.tools.reflect.ToolSet
+import ai.koog.agents.core.tools.Tool
+import ai.koog.agents.core.tools.ToolBase
+import ai.koog.serialization.typeToken
 import com.mhss.app.data.nowMillis
 import com.mhss.app.domain.model.DiaryEntry
 import com.mhss.app.domain.model.Mood
@@ -19,40 +19,67 @@ class DiaryToolSet(
     private val addDiaryEntry: AddDiaryEntryUseCase,
     private val searchEntries: SearchEntriesUseCase,
     private val getDiaryEntry: GetDiaryEntryUseCase
-) : ToolSet {
-
-    @Tool(CREATE_DIARY_ENTRY_TOOL)
-    @LLMDescription("Create diary entry. Returns ID.")
-    suspend fun createDiaryEntry(
-        title: String,
-        content: String,
-        mood: Mood
-    ): DiaryEntryIdResult {
-        val id = Uuid.generateV7().toString()
-        val entry = DiaryEntry(
-            title = title,
-            content = content,
-            createdDate = nowMillis(),
-            updatedDate = nowMillis(),
-            mood = mood,
-            id = id
-        )
-        addDiaryEntry(entry)
-        return DiaryEntryIdResult(createdDiaryEntryId = id)
+) {
+    private val createDiaryEntryTool = object : Tool<CreateDiaryEntryArgs, DiaryEntryIdResult>(
+        argsType = typeToken<CreateDiaryEntryArgs>(),
+        resultType = typeToken<DiaryEntryIdResult>(),
+        name = CREATE_DIARY_ENTRY_TOOL,
+        description = "Create diary entry. Returns ID."
+    ) {
+        override suspend fun execute(args: CreateDiaryEntryArgs): DiaryEntryIdResult {
+            val id = Uuid.generateV7().toString()
+            val entry = DiaryEntry(
+                title = args.title,
+                content = args.content,
+                createdDate = nowMillis(),
+                updatedDate = nowMillis(),
+                mood = args.mood,
+                id = id
+            )
+            addDiaryEntry(entry)
+            return DiaryEntryIdResult(createdDiaryEntryId = id)
+        }
     }
 
-    @Tool(SEARCH_DIARY_ENTRIES_TOOL)
-    @LLMDescription("Search diary entries by title/content (partial match, content truncated to 100 chars). If the user asks about the date of an entry, use $FORMAT_DATE_TOOL to get accurate dates from the result.")
-    suspend fun searchDiaryEntries(
-        query: String
-    ): SearchDiaryEntriesResult = SearchDiaryEntriesResult(searchEntries(query))
+    private val searchDiaryEntriesTool = object : Tool<SearchDiaryEntriesArgs, SearchDiaryEntriesResult>(
+        argsType = typeToken<SearchDiaryEntriesArgs>(),
+        resultType = typeToken<SearchDiaryEntriesResult>(),
+        name = SEARCH_DIARY_ENTRIES_TOOL,
+        description = "Search diary entries by title/content (partial match, content truncated to 100 chars). If the user asks about the date of an entry, use $FORMAT_DATE_TOOL to get accurate dates from the result."
+    ) {
+        override suspend fun execute(args: SearchDiaryEntriesArgs): SearchDiaryEntriesResult =
+            SearchDiaryEntriesResult(searchEntries(args.query))
+    }
 
-    @Tool(GET_DIARY_ENTRY_TOOL)
-    @LLMDescription("Get diary entry by ID. If the user asks about the date of an entry, use $FORMAT_DATE_TOOL to get accurate dates from the result.")
-    suspend fun getDiaryEntry(
-        id: String
-    ): DiaryEntryResult = DiaryEntryResult(getDiaryEntry.invoke(id))
+    private val getDiaryEntryTool = object : Tool<GetDiaryEntryArgs, DiaryEntryResult>(
+        argsType = typeToken<GetDiaryEntryArgs>(),
+        resultType = typeToken<DiaryEntryResult>(),
+        name = GET_DIARY_ENTRY_TOOL,
+        description = "Get diary entry by ID. If the user asks about the date of an entry, use $FORMAT_DATE_TOOL to get accurate dates from the result."
+    ) {
+        override suspend fun execute(args: GetDiaryEntryArgs): DiaryEntryResult =
+            DiaryEntryResult(getDiaryEntry.invoke(args.id))
+    }
+
+    val tools: List<ToolBase<*, *>> = listOf(
+        createDiaryEntryTool,
+        searchDiaryEntriesTool,
+        getDiaryEntryTool
+    )
 }
+
+@Serializable
+data class CreateDiaryEntryArgs(
+    val title: String,
+    val content: String,
+    val mood: Mood
+)
+
+@Serializable
+data class SearchDiaryEntriesArgs(val query: String)
+
+@Serializable
+data class GetDiaryEntryArgs(val id: String)
 
 @Serializable
 data class DiaryEntryIdResult(val createdDiaryEntryId: String)

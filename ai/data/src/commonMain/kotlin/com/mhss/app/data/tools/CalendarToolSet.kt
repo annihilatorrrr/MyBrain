@@ -1,8 +1,9 @@
 package com.mhss.app.data.tools
 
+import ai.koog.agents.core.tools.Tool
+import ai.koog.agents.core.tools.ToolBase
 import ai.koog.agents.core.tools.annotations.LLMDescription
-import ai.koog.agents.core.tools.annotations.Tool
-import ai.koog.agents.core.tools.reflect.ToolSet
+import ai.koog.serialization.typeToken
 import com.mhss.app.data.llmDateTimeFormatUnicode
 import com.mhss.app.data.parseDateTimeFromLLM
 import com.mhss.app.domain.model.Calendar
@@ -28,112 +29,127 @@ class CalendarToolSet(
     private val addCalendarEvent: AddCalendarEventUseCase,
     private val getAllCalendarsUseCase: GetAllCalendarsUseCase,
     private val getPreference: GetPreferenceUseCase
-) : ToolSet {
-
-    @Tool(GET_EVENTS_WITHIN_RANGE_TOOL)
-    @LLMDescription("Get events within date range. If the user asks about the date/time of an event, use $FORMAT_DATE_TOOL to get accurate dates from the result.")
-    suspend fun getEventsWithinRange(
-        @LLMDescription("Format: $llmDateTimeFormatUnicode") startDateTime: String,
-        @LLMDescription("Format: $llmDateTimeFormatUnicode") endDateTime: String
-    ): GetEventsResult {
-        val startMillis = startDateTime.parseDateTimeFromLLM()
-            ?: throw IllegalArgumentException("Invalid start date format. The operation did not proceed.")
-        val endMillis = endDateTime.parseDateTimeFromLLM()
-            ?: throw IllegalArgumentException("Invalid end date format. The operation did not proceed.")
-        return GetEventsResult(getEventsWithinRangeUseCase(startMillis, endMillis, getExcludedCalendars()))
+) {
+    private val getEventsWithinRangeTool = object : Tool<GetEventsWithinRangeArgs, GetEventsResult>(
+        argsType = typeToken<GetEventsWithinRangeArgs>(),
+        resultType = typeToken<GetEventsResult>(),
+        name = GET_EVENTS_WITHIN_RANGE_TOOL,
+        description = "Get events within date range. If the user asks about the date/time of an event, use $FORMAT_DATE_TOOL to get accurate dates from the result."
+    ) {
+        override suspend fun execute(args: GetEventsWithinRangeArgs): GetEventsResult {
+            val startMillis = args.startDateTime.parseDateTimeFromLLM()
+                ?: throw IllegalArgumentException("Invalid start date format. The operation did not proceed.")
+            val endMillis = args.endDateTime.parseDateTimeFromLLM()
+                ?: throw IllegalArgumentException("Invalid end date format. The operation did not proceed.")
+            return GetEventsResult(getEventsWithinRangeUseCase(startMillis, endMillis, getExcludedCalendars()))
+        }
     }
 
-    @Tool(SEARCH_EVENTS_BY_NAME_WITHIN_RANGE_TOOL)
-    @LLMDescription("Search for an event name within a date range. Useful for finding an event while using a large range comfortably (e.g 3 months) without needing to call getEventsWithinRange and polluting the results with unnecessary unrelated events. If the user asks about the date/time of an event, use $FORMAT_DATE_TOOL to get accurate dates from the result.")
-    suspend fun searchEventsByNameWithinRange(
-        @LLMDescription("Event name (or partial name) to search for.") eventName: String,
-        @LLMDescription("Format: $llmDateTimeFormatUnicode") startDateTime: String,
-        @LLMDescription("Format: $llmDateTimeFormatUnicode") endDateTime: String
-    ): SearchEventsResult {
-        val query = eventName.trim()
-        if (query.isBlank()) throw IllegalArgumentException("Invalid event name. The operation did not proceed.")
+    private val searchEventsByNameWithinRangeTool =
+        object : Tool<SearchEventsByNameWithinRangeArgs, SearchEventsResult>(
+            argsType = typeToken<SearchEventsByNameWithinRangeArgs>(),
+            resultType = typeToken<SearchEventsResult>(),
+            name = SEARCH_EVENTS_BY_NAME_WITHIN_RANGE_TOOL,
+            description = "Search for an event name within a date range. Useful for finding an event while using a large range comfortably (e.g 3 months) without needing to call getEventsWithinRange and polluting the results with unnecessary unrelated events. If the user asks about the date/time of an event, use $FORMAT_DATE_TOOL to get accurate dates from the result."
+        ) {
+            override suspend fun execute(args: SearchEventsByNameWithinRangeArgs): SearchEventsResult {
+                val query = args.eventName.trim()
+                if (query.isBlank()) throw IllegalArgumentException("Invalid event name. The operation did not proceed.")
 
-        val startMillis = startDateTime.parseDateTimeFromLLM()
-            ?: throw IllegalArgumentException("Invalid start date format. The operation did not proceed.")
-        val endMillis = endDateTime.parseDateTimeFromLLM()
-            ?: throw IllegalArgumentException("Invalid end date format. The operation did not proceed.")
+                val startMillis = args.startDateTime.parseDateTimeFromLLM()
+                    ?: throw IllegalArgumentException("Invalid start date format. The operation did not proceed.")
+                val endMillis = args.endDateTime.parseDateTimeFromLLM()
+                    ?: throw IllegalArgumentException("Invalid end date format. The operation did not proceed.")
 
-        return SearchEventsResult(searchEventsByTitleWithinRangeUseCase(
-            startMillis = startMillis,
-            endMillis = endMillis,
-            titleQuery = query,
-            excludedCalendars = getExcludedCalendars()
-        ))
-    }
+                return SearchEventsResult(
+                    searchEventsByTitleWithinRangeUseCase(
+                        startMillis = startMillis,
+                        endMillis = endMillis,
+                        titleQuery = query,
+                        excludedCalendars = getExcludedCalendars()
+                    )
+                )
+            }
+        }
 
-    @Tool(CREATE_EVENT_TOOL)
-    @LLMDescription("Create event. Returns ID.")
-    suspend fun createEvent(
-        title: String,
-        @LLMDescription("Format: $llmDateTimeFormatUnicode") start: String,
-        @LLMDescription("Format: $llmDateTimeFormatUnicode") end: String,
-        @LLMDescription("Use getAllCalendars to get ID") calendarId: Long,
-        description: String? = null,
-        location: String? = null,
-        allDay: Boolean = false,
-        recurring: Boolean = false,
-        frequency: CalendarEventFrequency = CalendarEventFrequency.NEVER,
-        @LLMDescription("Repeat interval. Minimum value is 1.") interval: Int = 1,
-        @LLMDescription("Only for weekly repeats. Use weekday names or RFC codes such as MONDAY or MO.") weekDays: List<String> = emptyList()
-    ): CalendarEventIdResult {
-        val startMillis = start.parseDateTimeFromLLM()
-            ?: throw IllegalArgumentException("Invalid start date format. The event was not created.")
-        val endMillis = end.parseDateTimeFromLLM()
-            ?: throw IllegalArgumentException("Invalid end date format. The event was not created.")
-        val event = CalendarEvent(
-            id = 0,
-            title = title,
-            description = description,
-            start = startMillis,
-            end = endMillis,
-            location = location,
-            allDay = allDay,
-            calendarId = calendarId,
-            recurring = recurring,
-            frequency = frequency,
-            interval = interval.coerceAtLeast(1),
-            weekDays = weekDays.mapNotNull { it.toDayOfWeekOrNull() }.toHashSet()
-        )
-        return CalendarEventIdResult(createdEventId = addCalendarEvent(event))
-    }
-
-    @Tool(CREATE_EVENTS_TOOL)
-    @LLMDescription("Create multiple events. Returns IDs.")
-    suspend fun createEvents(
-        events: List<CalendarEventInput>
-    ): CalendarEventIdsResult {
-        val ids = events.map { input ->
-            val startMillis = input.start.parseDateTimeFromLLM()
-                ?: throw IllegalArgumentException("Invalid start date format for event: ${input.title}. The events were not created.")
-            val endMillis = input.end.parseDateTimeFromLLM()
-                ?: throw IllegalArgumentException("Invalid end date format for event: ${input.title}. The events were not created.")
+    private val createEventTool = object : Tool<CreateEventArgs, CalendarEventIdResult>(
+        argsType = typeToken<CreateEventArgs>(),
+        resultType = typeToken<CalendarEventIdResult>(),
+        name = CREATE_EVENT_TOOL,
+        description = "Create event. Returns ID."
+    ) {
+        override suspend fun execute(args: CreateEventArgs): CalendarEventIdResult {
+            val startMillis = args.start.parseDateTimeFromLLM()
+                ?: throw IllegalArgumentException("Invalid start date format. The event was not created.")
+            val endMillis = args.end.parseDateTimeFromLLM()
+                ?: throw IllegalArgumentException("Invalid end date format. The event was not created.")
             val event = CalendarEvent(
                 id = 0,
-                title = input.title,
-                description = input.description,
+                title = args.title,
+                description = args.description,
                 start = startMillis,
                 end = endMillis,
-                location = input.location,
-                allDay = input.allDay,
-                calendarId = input.calendarId,
-                recurring = input.recurring,
-                frequency = input.frequency,
-                interval = input.interval.coerceAtLeast(1),
-                weekDays = input.weekDays.mapNotNull { it.toDayOfWeekOrNull() }.toHashSet()
+                location = args.location,
+                allDay = args.allDay,
+                calendarId = args.calendarId,
+                recurring = args.recurring,
+                frequency = args.frequency,
+                interval = args.interval.coerceAtLeast(1),
+                weekDays = args.weekDays.mapNotNull { it.toDayOfWeekOrNull() }.toHashSet()
             )
-            addCalendarEvent(event)
+            return CalendarEventIdResult(createdEventId = addCalendarEvent(event))
         }
-        return CalendarEventIdsResult(createdEventIds = ids)
     }
 
-    @Tool(GET_ALL_CALENDARS_TOOL)
-    @LLMDescription("Get all calendars (grouped by account).")
-    suspend fun getAllCalendars() = GetCalendarsResult(getAllCalendarsUseCase(getExcludedCalendars()))
+    private val createEventsTool = object : Tool<CreateEventsArgs, CalendarEventIdsResult>(
+        argsType = typeToken<CreateEventsArgs>(),
+        resultType = typeToken<CalendarEventIdsResult>(),
+        name = CREATE_EVENTS_TOOL,
+        description = "Create multiple events. Returns IDs."
+    ) {
+        override suspend fun execute(args: CreateEventsArgs): CalendarEventIdsResult {
+            val ids = args.events.map { input ->
+                val startMillis = input.start.parseDateTimeFromLLM()
+                    ?: throw IllegalArgumentException("Invalid start date format for event: ${input.title}. The events were not created.")
+                val endMillis = input.end.parseDateTimeFromLLM()
+                    ?: throw IllegalArgumentException("Invalid end date format for event: ${input.title}. The events were not created.")
+                val event = CalendarEvent(
+                    id = 0,
+                    title = input.title,
+                    description = input.description,
+                    start = startMillis,
+                    end = endMillis,
+                    location = input.location,
+                    allDay = input.allDay,
+                    calendarId = input.calendarId,
+                    recurring = input.recurring,
+                    frequency = input.frequency,
+                    interval = input.interval.coerceAtLeast(1),
+                    weekDays = input.weekDays.mapNotNull { it.toDayOfWeekOrNull() }.toHashSet()
+                )
+                addCalendarEvent(event)
+            }
+            return CalendarEventIdsResult(createdEventIds = ids)
+        }
+    }
+
+    private val getAllCalendarsTool = object : Tool<GetAllCalendarsArgs, GetCalendarsResult>(
+        argsType = typeToken<GetAllCalendarsArgs>(),
+        resultType = typeToken<GetCalendarsResult>(),
+        name = GET_ALL_CALENDARS_TOOL,
+        description = "Get all calendars (grouped by account)."
+    ) {
+        override suspend fun execute(args: GetAllCalendarsArgs): GetCalendarsResult =
+            GetCalendarsResult(getAllCalendarsUseCase(getExcludedCalendars()))
+    }
+
+    val tools: List<ToolBase<*, *>> = listOf(
+        getEventsWithinRangeTool,
+        searchEventsByNameWithinRangeTool,
+        createEventTool,
+        createEventsTool,
+        getAllCalendarsTool
+    )
 
     private suspend fun getExcludedCalendars(): List<Int> {
         return getPreference(
@@ -142,6 +158,40 @@ class CalendarToolSet(
         ).firstOrNull().orEmpty().mapNotNull { it.toIntOrNull() }
     }
 }
+
+@Serializable
+data class GetEventsWithinRangeArgs(
+    @property:LLMDescription("Format: $llmDateTimeFormatUnicode") val startDateTime: String,
+    @property:LLMDescription("Format: $llmDateTimeFormatUnicode") val endDateTime: String
+)
+
+@Serializable
+data class SearchEventsByNameWithinRangeArgs(
+    @property:LLMDescription("Event name (or partial name) to search for.") val eventName: String,
+    @property:LLMDescription("Format: $llmDateTimeFormatUnicode") val startDateTime: String,
+    @property:LLMDescription("Format: $llmDateTimeFormatUnicode") val endDateTime: String
+)
+
+@Serializable
+data class CreateEventArgs(
+    val title: String,
+    @property:LLMDescription("Format: $llmDateTimeFormatUnicode") val start: String,
+    @property:LLMDescription("Format: $llmDateTimeFormatUnicode") val end: String,
+    @property:LLMDescription("Use getAllCalendars to get ID") val calendarId: Long,
+    val description: String? = null,
+    val location: String? = null,
+    val allDay: Boolean = false,
+    val recurring: Boolean = false,
+    val frequency: CalendarEventFrequency = CalendarEventFrequency.NEVER,
+    @property:LLMDescription("Repeat interval. Minimum value is 1.") val interval: Int = 1,
+    @property:LLMDescription("Only for weekly repeats. Use weekday names or RFC codes such as MONDAY or MO.") val weekDays: List<String> = emptyList()
+)
+
+@Serializable
+data class CreateEventsArgs(val events: List<CalendarEventInput>)
+
+@Serializable
+class GetAllCalendarsArgs
 
 private fun String.toDayOfWeekOrNull(): DayOfWeek? {
     return when (trim().uppercase(Locale.US)) {
@@ -159,8 +209,8 @@ private fun String.toDayOfWeekOrNull(): DayOfWeek? {
 @Serializable
 data class CalendarEventInput(
     val title: String,
-    @param:LLMDescription("Format: $llmDateTimeFormatUnicode") val start: String,
-    @param:LLMDescription("Format: $llmDateTimeFormatUnicode") val end: String,
+    @property:LLMDescription("Format: $llmDateTimeFormatUnicode") val start: String,
+    @property:LLMDescription("Format: $llmDateTimeFormatUnicode") val end: String,
     val calendarId: Long,
     val description: String? = null,
     val location: String? = null,

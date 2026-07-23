@@ -1,8 +1,9 @@
 package com.mhss.app.data.tools
 
+import ai.koog.agents.core.tools.Tool
+import ai.koog.agents.core.tools.ToolBase
 import ai.koog.agents.core.tools.annotations.LLMDescription
-import ai.koog.agents.core.tools.annotations.Tool
-import ai.koog.agents.core.tools.reflect.ToolSet
+import ai.koog.serialization.typeToken
 import com.mhss.app.data.llmDateTimeFormatUnicode
 import com.mhss.app.data.nowMillis
 import com.mhss.app.data.parseDateTimeFromLLM
@@ -28,91 +29,129 @@ class TaskToolSet(
     private val searchTasksByName: SearchTasksUseCase,
     private val getTask: GetTaskByIdUseCase,
     private val updateTaskCompletedUseCase: UpdateTaskCompletedUseCase
-) : ToolSet {
-
-    @Tool(SEARCH_TASKS_TOOL)
-    @LLMDescription("Search tasks by title (partial match). If the query is empty, returns all tasks. If the user asks about the due date, use $FORMAT_DATE_TOOL to get accurate dates from the result.")
-    suspend fun searchTasks(
-        query: String
-    ): SearchTasksResult = SearchTasksResult(searchTasksByName(query).first())
-
-    @Tool(CREATE_TASK_TOOL)
-    @LLMDescription("Create a task. `isCompleted` = false initially. Returns ID.")
-    suspend fun createTask(
-        title: String,
-        description: String = "",
-        priority: Priority = Priority.LOW,
-        @LLMDescription("Format: $llmDateTimeFormatUnicode") dueDate: String? = null,
-        subTasks: List<SubTaskInput>? = null,
-        recurring: Boolean = false,
-        frequency: TaskFrequency = TaskFrequency.DAILY,
-        frequencyAmount: Int = 1
-    ): TaskIdResult {
-        val id = Uuid.generateV7().toString()
-        val task = Task(
-            title = title,
-            description = description,
-            priority = priority,
-            dueDate = if (dueDate != null) {
-                dueDate.parseDateTimeFromLLM() ?: throw IllegalArgumentException("Invalid due date format for date: $dueDate. The task was not created.")
-            } else 0L,
-            subTasks = subTasks?.map { SubTask(it.title, it.isCompleted) } ?: emptyList(),
-            recurring = recurring,
-            frequency = frequency,
-            frequencyAmount = frequencyAmount,
-            createdDate = nowMillis(),
-            updatedDate = nowMillis(),
-            id = id
-        )
-        upsertTask(task)
-        return TaskIdResult(createdTaskId = id)
+) {
+    private val searchTasksTool = object : Tool<SearchTasksArgs, SearchTasksResult>(
+        argsType = typeToken<SearchTasksArgs>(),
+        resultType = typeToken<SearchTasksResult>(),
+        name = SEARCH_TASKS_TOOL,
+        description = "Search tasks by title (partial match). If the query is empty, returns all tasks. If the user asks about the due date, use $FORMAT_DATE_TOOL to get accurate dates from the result."
+    ) {
+        override suspend fun execute(args: SearchTasksArgs): SearchTasksResult =
+            SearchTasksResult(searchTasksByName(args.query).first())
     }
 
-    @Tool(UPDATE_TASK_COMPLETED_TOOL)
-    @LLMDescription("Update task completed status.")
-    suspend fun updateTaskCompleted(
-        id: String,
-        completed: Boolean
-    ): TaskResult {
-        val task = getTask(id) ?: throw IllegalArgumentException("Task with id $id not found. The operation did not proceed.")
-        updateTaskCompletedUseCase(task, completed)
-        return TaskResult(getTask(id))
-    }
-
-    @Tool(CREATE_MULTIPLE_TASKS_TOOL)
-    @LLMDescription("Create multiple tasks. Returns IDs.")
-    suspend fun createMultipleTasks(
-        tasks: List<TaskInput>
-    ): TaskIdsResult {
-        val taskModels = tasks.map { input ->
+    private val createTaskTool = object : Tool<CreateTaskArgs, TaskIdResult>(
+        argsType = typeToken<CreateTaskArgs>(),
+        resultType = typeToken<TaskIdResult>(),
+        name = CREATE_TASK_TOOL,
+        description = "Create a task. `isCompleted` = false initially. Returns ID."
+    ) {
+        override suspend fun execute(args: CreateTaskArgs): TaskIdResult {
             val id = Uuid.generateV7().toString()
-            Task(
-                title = input.title,
-                description = input.description,
-                priority = input.priority,
-                dueDate = input.dueDate?.let {
-                    it.parseDateTimeFromLLM() ?: throw IllegalArgumentException("Invalid date format for task: ${input.title}. The tasks were not created.")
-                } ?: 0L,
-                subTasks = input.subTasks?.map { SubTask(it.title, it.isCompleted) } ?: emptyList(),
-                recurring = input.recurring,
-                frequency = input.frequency,
-                frequencyAmount = input.frequencyAmount,
+            val task = Task(
+                title = args.title,
+                description = args.description,
+                priority = args.priority,
+                dueDate = if (args.dueDate != null) {
+                    args.dueDate.parseDateTimeFromLLM()
+                        ?: throw IllegalArgumentException("Invalid due date format for date: ${args.dueDate}. The task was not created.")
+                } else 0L,
+                subTasks = args.subTasks?.map { SubTask(it.title, it.isCompleted) } ?: emptyList(),
+                recurring = args.recurring,
+                frequency = args.frequency,
+                frequencyAmount = args.frequencyAmount,
                 createdDate = nowMillis(),
                 updatedDate = nowMillis(),
                 id = id
             )
+            upsertTask(task)
+            return TaskIdResult(createdTaskId = id)
         }
-        upsertTasks(taskModels)
-        return TaskIdsResult(createdTaskIds = taskModels.map { it.id })
     }
+
+    private val updateTaskCompletedTool = object : Tool<UpdateTaskCompletedArgs, TaskResult>(
+        argsType = typeToken<UpdateTaskCompletedArgs>(),
+        resultType = typeToken<TaskResult>(),
+        name = UPDATE_TASK_COMPLETED_TOOL,
+        description = "Update task completed status."
+    ) {
+        override suspend fun execute(args: UpdateTaskCompletedArgs): TaskResult {
+            val task = getTask(args.id)
+                ?: throw IllegalArgumentException("Task with id ${args.id} not found. The operation did not proceed.")
+            updateTaskCompletedUseCase(task, args.completed)
+            return TaskResult(getTask(args.id))
+        }
+    }
+
+    private val createMultipleTasksTool = object : Tool<CreateMultipleTasksArgs, TaskIdsResult>(
+        argsType = typeToken<CreateMultipleTasksArgs>(),
+        resultType = typeToken<TaskIdsResult>(),
+        name = CREATE_MULTIPLE_TASKS_TOOL,
+        description = "Create multiple tasks. Returns IDs."
+    ) {
+        override suspend fun execute(args: CreateMultipleTasksArgs): TaskIdsResult {
+            val taskModels = args.tasks.map { input ->
+                val id = Uuid.generateV7().toString()
+                Task(
+                    title = input.title,
+                    description = input.description,
+                    priority = input.priority,
+                    dueDate = input.dueDate?.let {
+                        it.parseDateTimeFromLLM()
+                            ?: throw IllegalArgumentException("Invalid date format for task: ${input.title}. The tasks were not created.")
+                    } ?: 0L,
+                    subTasks = input.subTasks?.map { SubTask(it.title, it.isCompleted) } ?: emptyList(),
+                    recurring = input.recurring,
+                    frequency = input.frequency,
+                    frequencyAmount = input.frequencyAmount,
+                    createdDate = nowMillis(),
+                    updatedDate = nowMillis(),
+                    id = id
+                )
+            }
+            upsertTasks(taskModels)
+            return TaskIdsResult(createdTaskIds = taskModels.map { it.id })
+        }
+    }
+
+    val tools: List<ToolBase<*, *>> = listOf(
+        searchTasksTool,
+        createTaskTool,
+        updateTaskCompletedTool,
+        createMultipleTasksTool
+    )
 }
+
+@Serializable
+data class SearchTasksArgs(val query: String)
+
+@Serializable
+data class CreateTaskArgs(
+    val title: String,
+    val description: String = "",
+    val priority: Priority = Priority.LOW,
+    @property:LLMDescription("Format: $llmDateTimeFormatUnicode") val dueDate: String? = null,
+    val subTasks: List<SubTaskInput>? = null,
+    val recurring: Boolean = false,
+    val frequency: TaskFrequency = TaskFrequency.DAILY,
+    val frequencyAmount: Int = 1
+)
+
+@Serializable
+data class UpdateTaskCompletedArgs(
+    val id: String,
+    val completed: Boolean
+)
+
+@Serializable
+data class CreateMultipleTasksArgs(val tasks: List<TaskInput>)
 
 @Serializable
 data class TaskInput(
     val title: String,
     val description: String = "",
     val priority: Priority = Priority.LOW,
-    @param:LLMDescription("Format: $llmDateTimeFormatUnicode") val dueDate: String? = null,
+    @property:LLMDescription("Format: $llmDateTimeFormatUnicode") val dueDate: String? = null,
     val subTasks: List<SubTaskInput>? = null,
     val recurring: Boolean = false,
     val frequency: TaskFrequency = TaskFrequency.DAILY,

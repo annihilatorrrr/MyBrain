@@ -78,12 +78,12 @@ class AiRepositoryImpl(
     private val geminiNanoService: GeminiNanoService
 ) : AiRepository {
     private val toolRegistry = ToolRegistry {
-        tools(noteToolSet)
-        tools(taskToolSet)
-        tools(calendarToolSet)
-        tools(diaryToolSet)
-        tools(bookmarkToolSet)
-        tools(utilToolSet)
+        tools(noteToolSet.tools)
+        tools(taskToolSet.tools)
+        tools(calendarToolSet.tools)
+        tools(diaryToolSet.tools)
+        tools(bookmarkToolSet.tools)
+        tools(utilToolSet.tools)
     }
     private val toolDescriptors = toolRegistry.tools.map { it.descriptor }
     private var chatSystemMessage = ""

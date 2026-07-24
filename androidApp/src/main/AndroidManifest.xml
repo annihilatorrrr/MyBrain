@@ -84,7 +84,7 @@
         </activity>
 
         <receiver
-            android:name=".notification.BootBroadcastReceiver"
+            android:name="com.mhss.app.notification.BootBroadcastReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -92,10 +92,10 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".notification.AlarmReceiver"
+            android:name="com.mhss.app.notification.AlarmReceiver"
             android:enabled="true" />
         <receiver
-            android:name=".notification.TaskActionButtonBroadcastReceiver"
+            android:name="com.mhss.app.notification.TaskActionButtonBroadcastReceiver"
             android:enabled="true" />
 
         <activity

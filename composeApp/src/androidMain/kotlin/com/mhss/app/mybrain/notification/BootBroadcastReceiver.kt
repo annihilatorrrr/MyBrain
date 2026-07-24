@@ -1,4 +1,4 @@
-package com.mhss.app.mybrain.notification
+package com.mhss.app.notification
 
 import android.content.BroadcastReceiver
 import android.content.Context

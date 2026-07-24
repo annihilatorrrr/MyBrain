@@ -8,8 +8,8 @@ import android.os.Build
 import androidx.core.app.AlarmManagerCompat
 import com.mhss.app.alarm.model.Alarm
 import com.mhss.app.alarm.repository.AlarmScheduler
-import com.mhss.app.mybrain.notification.AlarmReceiver
 import com.mhss.app.mybrain.notification.NotificationConstants
+import com.mhss.app.notification.AlarmReceiver
 import org.koin.core.annotation.Factory
 
 @Factory
@@ -46,4 +46,3 @@ class AlarmSchedulerImpl(
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms()
     }
 }
-

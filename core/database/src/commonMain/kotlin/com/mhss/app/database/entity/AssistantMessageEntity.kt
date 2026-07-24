@@ -34,7 +34,8 @@ data class AssistantMessageEntity(
 data class AssistantMessageMetadata(
     @SerialName("attachmentsText") val attachmentsText: String? = null,
     @SerialName("toolCall") val toolCall: ToolCallMetadata? = null,
-    @SerialName("attachments") val attachments: List<AssistantAttachmentDto>? = null
+    @SerialName("attachments") val attachments: List<AssistantAttachmentDto>? = null,
+    @SerialName("toolPreviews") val toolPreviews: List<ToolPreview>? = null
 )
 
 @Serializable
@@ -62,3 +63,41 @@ data class ToolCallMetadata(
     @SerialName("isFailed") val isFailed: Boolean = false,
     @SerialName("thoughtSignature") val thoughtSignature: String? = null
 )
+
+@Serializable
+sealed interface ToolPreview {
+    @Serializable
+    @SerialName("note")
+    data class Note(
+        val id: String,
+        val title: String,
+        val content: String,
+        val updatedDate: Long,
+        val folderId: String?
+    ) : ToolPreview
+
+    @Serializable
+    @SerialName("task")
+    data class Task(
+        val id: String,
+        val title: String,
+        val isCompleted: Boolean,
+        val priority: String,
+        val dueDate: Long,
+        val completedSubTasks: Int,
+        val totalSubTasks: Int
+    ) : ToolPreview
+
+    @Serializable
+    @SerialName("calendarEvent")
+    data class CalendarEvent(
+        val id: Long,
+        val title: String,
+        val start: Long,
+        val end: Long,
+        val location: String?,
+        val allDay: Boolean,
+        val color: Int,
+        val calendarId: Long
+    ) : ToolPreview
+}

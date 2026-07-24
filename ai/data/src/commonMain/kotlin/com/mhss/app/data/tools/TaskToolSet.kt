@@ -18,6 +18,7 @@ import com.mhss.app.domain.use_case.UpsertTaskUseCase
 import com.mhss.app.domain.use_case.UpsertTasksUseCase
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
@@ -34,10 +35,15 @@ class TaskToolSet(
         argsType = typeToken<SearchTasksArgs>(),
         resultType = typeToken<SearchTasksResult>(),
         name = SEARCH_TASKS_TOOL,
-        description = "Search tasks by title (partial match). If the query is empty, returns all tasks. If the user asks about the due date, use $FORMAT_DATE_TOOL to get accurate dates from the result."
+        description = "Search tasks by title (partial match). If the query is empty, returns all tasks."
     ) {
-        override suspend fun execute(args: SearchTasksArgs): SearchTasksResult =
-            SearchTasksResult(searchTasksByName(args.query).first())
+        override suspend fun execute(args: SearchTasksArgs): SearchTasksResult {
+            val matchedTasks = searchTasksByName(args.query).first()
+            return SearchTasksResult(
+                tasks = matchedTasks.map { it.toToolResult() },
+                sourceTasks = matchedTasks
+            )
+        }
     }
 
     private val createTaskTool = object : Tool<CreateTaskArgs, TaskIdResult>(
@@ -79,7 +85,7 @@ class TaskToolSet(
             val task = getTask(args.id)
                 ?: throw IllegalArgumentException("Task with id ${args.id} not found. The operation did not proceed.")
             updateTaskCompletedUseCase(task, args.completed)
-            return TaskResult(getTask(args.id))
+            return TaskResult(getTask(args.id)?.toToolResult())
         }
     }
 
@@ -165,13 +171,16 @@ data class SubTaskInput(
 )
 
 @Serializable
-data class SearchTasksResult(val tasks: List<Task>)
+data class SearchTasksResult(
+    val tasks: List<TaskToolResult>,
+    @Transient val sourceTasks: List<Task> = emptyList()
+)
 
 @Serializable
 data class TaskIdResult(val createdTaskId: String)
 
 @Serializable
-data class TaskResult(val task: Task?)
+data class TaskResult(val task: TaskToolResult?)
 
 @Serializable
 data class TaskIdsResult(val createdTaskIds: List<String>)

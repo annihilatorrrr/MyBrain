@@ -6,7 +6,6 @@ import ai.koog.agents.core.tools.annotations.LLMDescription
 import ai.koog.serialization.typeToken
 import com.mhss.app.data.nowMillis
 import com.mhss.app.domain.model.Note
-import com.mhss.app.domain.model.NoteFolder
 import com.mhss.app.domain.use_case.CreateNoteFolderUseCase
 import com.mhss.app.domain.use_case.GetNoteFolderUseCase
 import com.mhss.app.domain.use_case.GetNoteUseCase
@@ -34,7 +33,7 @@ class NoteToolSet(
         description = "Search notes by title/content (partial match, content truncated to 100 chars). If the query is empty, returns all notes."
     ) {
         override suspend fun execute(args: SearchNotesArgs): SearchNotesResult =
-            SearchNotesResult(searchNotesByName(args.query))
+            SearchNotesResult(searchNotesByName(args.query).map { it.toToolResult() })
     }
 
     private val createNoteTool = object : Tool<CreateNoteArgs, NoteIdResult>(
@@ -94,7 +93,10 @@ class NoteToolSet(
         description = "Get full note by ID."
     ) {
         override suspend fun execute(args: GetNoteByIdArgs): NoteResult {
-            return NoteResult(getNote(args.id) ?: throw IllegalArgumentException("No note found with ID: '${args.id}'. id must be a valid ID. If you only have the note title, use the $SEARCH_NOTES_TOOL tool to find the note's ID first. The operation did not proceed."))
+            return NoteResult(
+                getNote(args.id)?.toToolResult()
+                    ?: throw IllegalArgumentException("No note found with ID: '${args.id}'. id must be a valid ID. If you only have the title, use the $SEARCH_NOTES_TOOL tool first to find the ID. The operation did not proceed.")
+            )
         }
     }
 
@@ -105,7 +107,7 @@ class NoteToolSet(
         description = "Search folders by name (partial match). Returns folder IDs."
     ) {
         override suspend fun execute(args: SearchFoldersArgs): SearchNoteFoldersResult =
-            SearchNoteFoldersResult(searchNoteFoldersByName(args.name))
+            SearchNoteFoldersResult(searchNoteFoldersByName(args.name).map { it.toToolResult() })
     }
 
     private val createFolderTool = object : Tool<CreateFolderArgs, CreateNoteFolderResult>(
@@ -166,10 +168,10 @@ data class NoteInput(
 )
 
 @Serializable
-data class SearchNoteFoldersResult(val folders: List<NoteFolder>)
+data class SearchNoteFoldersResult(val folders: List<NoteFolderToolResult>)
 
 @Serializable
-data class SearchNotesResult(val notes: List<Note>)
+data class SearchNotesResult(val notes: List<NoteToolResult>)
 
 @Serializable
 data class NoteIdResult(val createdNoteId: String)
@@ -178,7 +180,7 @@ data class NoteIdResult(val createdNoteId: String)
 data class NoteIdsResult(val createdNoteIds: List<String>)
 
 @Serializable
-data class NoteResult(val note: Note)
+data class NoteResult(val note: NoteToolResult)
 
 @Serializable
 data class CreateNoteFolderResult(val folderId: String)

@@ -45,7 +45,7 @@ class BookmarkToolSet(
         description = "Search bookmarks by title/description/URL (partial match)."
     ) {
         override suspend fun execute(args: SearchBookmarksArgs): SearchBookmarksResult =
-            SearchBookmarksResult(searchBookmarksUseCase(args.query))
+            SearchBookmarksResult(searchBookmarksUseCase(args.query).map { it.toToolResult() })
     }
 
     val tools: List<ToolBase<*, *>> = listOf(createBookmarkTool, searchBookmarksTool)
@@ -65,4 +65,4 @@ data class SearchBookmarksArgs(val query: String)
 data class BookmarkIdResult(val createdBookmarkId: String)
 
 @Serializable
-data class SearchBookmarksResult(val bookmarks: List<Bookmark>)
+data class SearchBookmarksResult(val bookmarks: List<BookmarkToolResult>)

@@ -6,7 +6,6 @@ import ai.koog.agents.core.tools.annotations.LLMDescription
 import ai.koog.serialization.typeToken
 import com.mhss.app.data.llmDateTimeFormatUnicode
 import com.mhss.app.data.parseDateTimeFromLLM
-import com.mhss.app.domain.model.Calendar
 import com.mhss.app.domain.model.CalendarEvent
 import com.mhss.app.domain.model.CalendarEventFrequency
 import com.mhss.app.domain.use_case.AddCalendarEventUseCase
@@ -19,6 +18,7 @@ import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.datetime.DayOfWeek
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import org.koin.core.annotation.Factory
 import java.util.Locale
 
@@ -34,14 +34,19 @@ class CalendarToolSet(
         argsType = typeToken<GetEventsWithinRangeArgs>(),
         resultType = typeToken<GetEventsResult>(),
         name = GET_EVENTS_WITHIN_RANGE_TOOL,
-        description = "Get events within date range. If the user asks about the date/time of an event, use $FORMAT_DATE_TOOL to get accurate dates from the result."
+        description = "Get events within a date range."
     ) {
         override suspend fun execute(args: GetEventsWithinRangeArgs): GetEventsResult {
             val startMillis = args.startDateTime.parseDateTimeFromLLM()
                 ?: throw IllegalArgumentException("Invalid start date format. The operation did not proceed.")
             val endMillis = args.endDateTime.parseDateTimeFromLLM()
                 ?: throw IllegalArgumentException("Invalid end date format. The operation did not proceed.")
-            return GetEventsResult(getEventsWithinRangeUseCase(startMillis, endMillis, getExcludedCalendars()))
+            val matchedEvents =
+                getEventsWithinRangeUseCase(startMillis, endMillis, getExcludedCalendars())
+            return GetEventsResult(
+                events = matchedEvents.map { it.toToolResult() },
+                sourceEvents = matchedEvents
+            )
         }
     }
 
@@ -50,7 +55,7 @@ class CalendarToolSet(
             argsType = typeToken<SearchEventsByNameWithinRangeArgs>(),
             resultType = typeToken<SearchEventsResult>(),
             name = SEARCH_EVENTS_BY_NAME_WITHIN_RANGE_TOOL,
-            description = "Search for an event name within a date range. Useful for finding an event while using a large range comfortably (e.g 3 months) without needing to call getEventsWithinRange and polluting the results with unnecessary unrelated events. If the user asks about the date/time of an event, use $FORMAT_DATE_TOOL to get accurate dates from the result."
+            description = "Search for an event name within a date range. Useful for finding an event over a range without returning unrelated events."
         ) {
             override suspend fun execute(args: SearchEventsByNameWithinRangeArgs): SearchEventsResult {
                 val query = args.eventName.trim()
@@ -61,13 +66,15 @@ class CalendarToolSet(
                 val endMillis = args.endDateTime.parseDateTimeFromLLM()
                     ?: throw IllegalArgumentException("Invalid end date format. The operation did not proceed.")
 
+                val matchedEvents = searchEventsByTitleWithinRangeUseCase(
+                    startMillis = startMillis,
+                    endMillis = endMillis,
+                    titleQuery = query,
+                    excludedCalendars = getExcludedCalendars()
+                )
                 return SearchEventsResult(
-                    searchEventsByTitleWithinRangeUseCase(
-                        startMillis = startMillis,
-                        endMillis = endMillis,
-                        titleQuery = query,
-                        excludedCalendars = getExcludedCalendars()
-                    )
+                    events = matchedEvents.map { it.toToolResult() },
+                    sourceEvents = matchedEvents
                 )
             }
         }
@@ -140,7 +147,12 @@ class CalendarToolSet(
         description = "Get all calendars (grouped by account)."
     ) {
         override suspend fun execute(args: GetAllCalendarsArgs): GetCalendarsResult =
-            GetCalendarsResult(getAllCalendarsUseCase(getExcludedCalendars()))
+            GetCalendarsResult(
+                getAllCalendarsUseCase(getExcludedCalendars())
+                    .values
+                    .flatten()
+                    .map { it.toToolResult() }
+            )
     }
 
     val tools: List<ToolBase<*, *>> = listOf(
@@ -222,13 +234,19 @@ data class CalendarEventInput(
 )
 
 @Serializable
-data class GetEventsResult(val events: List<CalendarEvent>)
+data class GetEventsResult(
+    val events: List<CalendarEventToolResult>,
+    @Transient val sourceEvents: List<CalendarEvent> = emptyList()
+)
 
 @Serializable
-data class SearchEventsResult(val events: List<CalendarEvent>)
+data class SearchEventsResult(
+    val events: List<CalendarEventToolResult>,
+    @Transient val sourceEvents: List<CalendarEvent> = emptyList()
+)
 
 @Serializable
-data class GetCalendarsResult(val calendars: Map<String, List<Calendar>>)
+data class GetCalendarsResult(val calendars: List<CalendarToolResult>)
 
 @Serializable
 data class CalendarEventIdResult(val createdEventId: Long?)

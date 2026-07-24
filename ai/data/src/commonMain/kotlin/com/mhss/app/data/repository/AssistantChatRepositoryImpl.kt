@@ -31,7 +31,6 @@ class AssistantChatRepositoryImpl(
     private val syncDao: SyncDao,
     private val changeObserver: LocalChangeObserver,
     private val transactionProvider: DatabaseTransactionProvider,
-    private val toolExecutor: AiToolExecutor,
     @Named("ioDispatcher") private val ioDispatcher: CoroutineDispatcher,
     @Named("defaultDispatcher") private val defaultDispatcher: CoroutineDispatcher,
 ) : AssistantChatRepository {
@@ -87,7 +86,7 @@ class AssistantChatRepositoryImpl(
     override fun getMessages(threadId: String): Flow<List<AiMessage>> {
         return assistantDao.getMessagesByThreadId(threadId).map { entities ->
             withContext(defaultDispatcher) {
-                entities.mapNotNullTo(ArrayList(entities.size)) { it.toAiMessage(toolExecutor) }
+                entities.mapNotNullTo(ArrayList(entities.size)) { it.toAiMessage() }
             }
         }.flowOn(ioDispatcher)
     }

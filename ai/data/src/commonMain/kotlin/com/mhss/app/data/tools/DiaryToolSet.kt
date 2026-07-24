@@ -45,20 +45,20 @@ class DiaryToolSet(
         argsType = typeToken<SearchDiaryEntriesArgs>(),
         resultType = typeToken<SearchDiaryEntriesResult>(),
         name = SEARCH_DIARY_ENTRIES_TOOL,
-        description = "Search diary entries by title/content (partial match, content truncated to 100 chars). If the user asks about the date of an entry, use $FORMAT_DATE_TOOL to get accurate dates from the result."
+        description = "Search diary entries by title/content (partial match, content truncated to 100 chars)."
     ) {
         override suspend fun execute(args: SearchDiaryEntriesArgs): SearchDiaryEntriesResult =
-            SearchDiaryEntriesResult(searchEntries(args.query))
+            SearchDiaryEntriesResult(searchEntries(args.query).map { it.toToolResult() })
     }
 
     private val getDiaryEntryTool = object : Tool<GetDiaryEntryArgs, DiaryEntryResult>(
         argsType = typeToken<GetDiaryEntryArgs>(),
         resultType = typeToken<DiaryEntryResult>(),
         name = GET_DIARY_ENTRY_TOOL,
-        description = "Get diary entry by ID. If the user asks about the date of an entry, use $FORMAT_DATE_TOOL to get accurate dates from the result."
+        description = "Get diary entry by ID."
     ) {
         override suspend fun execute(args: GetDiaryEntryArgs): DiaryEntryResult =
-            DiaryEntryResult(getDiaryEntry.invoke(args.id))
+            DiaryEntryResult(getDiaryEntry.invoke(args.id)?.toToolResult())
     }
 
     val tools: List<ToolBase<*, *>> = listOf(
@@ -85,7 +85,7 @@ data class GetDiaryEntryArgs(val id: String)
 data class DiaryEntryIdResult(val createdDiaryEntryId: String)
 
 @Serializable
-data class SearchDiaryEntriesResult(val entries: List<DiaryEntry>)
+data class SearchDiaryEntriesResult(val entries: List<DiaryEntryToolResult>)
 
 @Serializable
-data class DiaryEntryResult(val entry: DiaryEntry?)
+data class DiaryEntryResult(val entry: DiaryEntryToolResult?)

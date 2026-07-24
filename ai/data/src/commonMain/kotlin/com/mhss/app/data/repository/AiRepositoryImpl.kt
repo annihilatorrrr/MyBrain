@@ -32,7 +32,6 @@ import com.mhss.app.data.tools.CalendarToolSet
 import com.mhss.app.data.tools.DiaryToolSet
 import com.mhss.app.data.tools.NoteToolSet
 import com.mhss.app.data.tools.TaskToolSet
-import com.mhss.app.data.tools.UtilToolSet
 import com.mhss.app.domain.MAX_CONSECUTIVE_TOOL_CALLS
 import com.mhss.app.domain.gemininano.GeminiNanoService
 import com.mhss.app.domain.gemininano.toGeminiNanoMode
@@ -73,7 +72,6 @@ class AiRepositoryImpl(
     private val calendarToolSet: CalendarToolSet,
     private val diaryToolSet: DiaryToolSet,
     private val bookmarkToolSet: BookmarkToolSet,
-    private val utilToolSet: UtilToolSet,
     private val toolExecutor: AiToolExecutor,
     private val geminiNanoService: GeminiNanoService
 ) : AiRepository {
@@ -83,7 +81,6 @@ class AiRepositoryImpl(
         tools(calendarToolSet.tools)
         tools(diaryToolSet.tools)
         tools(bookmarkToolSet.tools)
-        tools(utilToolSet.tools)
     }
     private val toolDescriptors = toolRegistry.tools.map { it.descriptor }
     private var chatSystemMessage = ""

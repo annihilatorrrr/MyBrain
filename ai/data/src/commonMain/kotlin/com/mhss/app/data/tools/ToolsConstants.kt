@@ -30,6 +30,3 @@ const val GET_DIARY_ENTRY_TOOL = "getDiaryEntry"
 // BookmarkToolSet
 const val CREATE_BOOKMARK_TOOL = "createBookmark"
 const val SEARCH_BOOKMARKS_TOOL = "searchBookmarks"
-
-// UtilToolSet
-const val FORMAT_DATE_TOOL = "formatDate"

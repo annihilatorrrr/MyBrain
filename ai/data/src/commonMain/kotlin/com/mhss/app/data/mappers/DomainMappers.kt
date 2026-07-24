@@ -1,13 +1,19 @@
 package com.mhss.app.data.mappers
 
-import com.mhss.app.data.repository.AiToolExecutor
 import com.mhss.app.database.entity.AssistantAttachmentDto
 import com.mhss.app.database.entity.AssistantMessageEntity
 import com.mhss.app.database.entity.AssistantMessageMetadata
+import com.mhss.app.database.entity.ToolPreview
 import com.mhss.app.database.entity.ToolCallMetadata
 import com.mhss.app.domain.model.AiMessage
 import com.mhss.app.domain.model.AiMessageAttachment
 import com.mhss.app.domain.model.AiMessageType
+import com.mhss.app.domain.model.CalendarEvent
+import com.mhss.app.domain.model.Note
+import com.mhss.app.domain.model.Priority
+import com.mhss.app.domain.model.SubTask
+import com.mhss.app.domain.model.Task
+import com.mhss.app.domain.model.ToolCallResultObject
 
 fun AiMessage.toAssistantMessageEntity(threadId: String, syncSeq: Long = 0L): AssistantMessageEntity {
         return when (this) {
@@ -52,7 +58,8 @@ fun AiMessage.toAssistantMessageEntity(threadId: String, syncSeq: Long = 0L): As
                             resultRawContent = resultRawContent,
                             isFailed = isFailed,
                             thoughtSignature = thoughtSignature
-                        )
+                        ),
+                        toolPreviews = resultObject?.toToolPreviews()
                     ),
                     syncSeq = syncSeq
                 )
@@ -60,7 +67,7 @@ fun AiMessage.toAssistantMessageEntity(threadId: String, syncSeq: Long = 0L): As
         }
     }
 
-suspend fun AssistantMessageEntity.toAiMessage(toolExecutor: AiToolExecutor): AiMessage? =
+fun AssistantMessageEntity.toAiMessage(): AiMessage? =
     when (type) {
         AiMessageType.USER.key -> {
             AiMessage.UserMessage(
@@ -82,8 +89,6 @@ suspend fun AssistantMessageEntity.toAiMessage(toolExecutor: AiToolExecutor): Ai
 
         AiMessageType.TOOL_CALL.key -> {
             val tc = metadata?.toolCall ?: return null
-            val resultObject =
-                toolExecutor.extractResultObject(tc.name, tc.resultRawContent)
             AiMessage.ToolCall(
                 uuid = id,
                 id = tc.id,
@@ -93,7 +98,7 @@ suspend fun AssistantMessageEntity.toAiMessage(toolExecutor: AiToolExecutor): Ai
                 time = createdAt,
                 isFailed = tc.isFailed,
                 thoughtSignature = tc.thoughtSignature,
-                resultObject = resultObject
+                resultObject = metadata?.toolPreviews.orEmpty().toResultObject()
             )
         }
 
@@ -112,3 +117,90 @@ private fun AssistantAttachmentDto.toDomain(): AiMessageAttachment = when (this)
     is AssistantAttachmentDto.Task -> AiMessageAttachment.Task(task)
     AssistantAttachmentDto.CalendarEvents -> AiMessageAttachment.CalenderEvents
 }
+
+private fun ToolCallResultObject.toToolPreviews(): List<ToolPreview> = when (this) {
+    is ToolCallResultObject.Notes -> notes.take(MAX_TOOL_PREVIEWS).map {
+        ToolPreview.Note(
+            id = it.id,
+            title = it.title,
+            content = it.content.take(NOTE_PREVIEW_CONTENT_LIMIT + 1),
+            updatedDate = it.updatedDate,
+            folderId = it.folderId
+        )
+    }
+
+    is ToolCallResultObject.Tasks -> tasks.take(MAX_TOOL_PREVIEWS).map {
+        ToolPreview.Task(
+            id = it.id,
+            title = it.title,
+            isCompleted = it.isCompleted,
+            priority = it.priority.name,
+            dueDate = it.dueDate,
+            completedSubTasks = it.subTasks.count { subTask -> subTask.isCompleted },
+            totalSubTasks = it.subTasks.size
+        )
+    }
+
+    is ToolCallResultObject.CalendarEvents -> events.take(MAX_TOOL_PREVIEWS).map {
+        ToolPreview.CalendarEvent(
+            id = it.id,
+            title = it.title,
+            start = it.start,
+            end = it.end,
+            location = it.location,
+            allDay = it.allDay,
+            color = it.color,
+            calendarId = it.calendarId
+        )
+    }
+}
+
+private fun List<ToolPreview>.toResultObject(): ToolCallResultObject? = when (firstOrNull()) {
+    is ToolPreview.Note -> ToolCallResultObject.Notes(
+        filterIsInstance<ToolPreview.Note>().map {
+            Note(
+                id = it.id,
+                title = it.title,
+                content = it.content,
+                updatedDate = it.updatedDate,
+                folderId = it.folderId
+            )
+        }
+    )
+
+    is ToolPreview.Task -> ToolCallResultObject.Tasks(
+        filterIsInstance<ToolPreview.Task>().map {
+            Task(
+                id = it.id,
+                title = it.title,
+                isCompleted = it.isCompleted,
+                priority = Priority.entries.firstOrNull { priority -> priority.name == it.priority }
+                    ?: Priority.LOW,
+                dueDate = it.dueDate,
+                subTasks = List(it.totalSubTasks) { index ->
+                    SubTask(isCompleted = index < it.completedSubTasks)
+                }
+            )
+        }
+    )
+
+    is ToolPreview.CalendarEvent -> ToolCallResultObject.CalendarEvents(
+        filterIsInstance<ToolPreview.CalendarEvent>().map {
+            CalendarEvent(
+                id = it.id,
+                title = it.title,
+                start = it.start,
+                end = it.end,
+                location = it.location,
+                allDay = it.allDay,
+                color = it.color,
+                calendarId = it.calendarId
+            )
+        }
+    )
+
+    null -> null
+}
+
+private const val MAX_TOOL_PREVIEWS = 5
+private const val NOTE_PREVIEW_CONTENT_LIMIT = 60

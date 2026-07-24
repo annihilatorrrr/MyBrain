@@ -13,15 +13,19 @@ import com.mhss.app.data.tools.CREATE_MULTIPLE_NOTES_TOOL
 import com.mhss.app.data.tools.CREATE_MULTIPLE_TASKS_TOOL
 import com.mhss.app.data.tools.CREATE_NOTE_TOOL
 import com.mhss.app.data.tools.CREATE_TASK_TOOL
+import com.mhss.app.data.tools.GET_EVENTS_WITHIN_RANGE_TOOL
 import com.mhss.app.data.tools.CalendarEventIdResult
 import com.mhss.app.data.tools.CalendarEventIdsResult
+import com.mhss.app.data.tools.GetEventsResult
 import com.mhss.app.data.tools.NoteIdResult
 import com.mhss.app.data.tools.NoteIdsResult
 import com.mhss.app.data.tools.SEARCH_EVENTS_BY_NAME_WITHIN_RANGE_TOOL
 import com.mhss.app.data.tools.SEARCH_NOTES_TOOL
+import com.mhss.app.data.tools.SEARCH_TASKS_TOOL
 import com.mhss.app.data.tools.UPDATE_TASK_COMPLETED_TOOL
 import com.mhss.app.data.tools.SearchEventsResult
 import com.mhss.app.data.tools.SearchNotesResult
+import com.mhss.app.data.tools.SearchTasksResult
 import com.mhss.app.data.tools.TaskIdResult
 import com.mhss.app.data.tools.TaskIdsResult
 import com.mhss.app.data.tools.TaskResult
@@ -55,7 +59,7 @@ class AiToolExecutor(
         )
         val toolResult = (tool as Tool<Any?, Any?>).execute(args)
         val resultJson = tool.encodeResultToStringUnsafe(toolResult, koogSerializer)
-        val resultObject = extractResultObject(tool.name, resultJson)
+        val resultObject = extractResultObject(tool.name, resultJson, toolResult)
         AiMessage.ToolCall(
             uuid = Uuid.generateV7().toString(),
             id = toolCall.id,
@@ -69,12 +73,19 @@ class AiToolExecutor(
 
     internal suspend fun extractResultObject(
         toolName: String,
-        resultJson: String
+        resultJson: String,
+        toolResult: Any?
     ): ToolCallResultObject? = runCatching {
         when (toolName) {
             SEARCH_NOTES_TOOL ->  {
                 val searchResult = json.decodeFromString<SearchNotesResult>(resultJson)
-                if (searchResult.notes.size == 1) ToolCallResultObject.Notes(searchResult.notes) else null
+                if (searchResult.notes.size == 1) {
+                    getNote(searchResult.notes.single().id)?.let {
+                        ToolCallResultObject.Notes(listOf(it))
+                    }
+                } else {
+                    null
+                }
             }
 
             CREATE_NOTE_TOOL -> {
@@ -86,7 +97,9 @@ class AiToolExecutor(
 
             CREATE_MULTIPLE_NOTES_TOOL -> {
                 val createResult = json.decodeFromString<NoteIdsResult>(resultJson)
-                val notes = createResult.createdNoteIds.mapNotNull { getNote(it) }
+                val notes = createResult.createdNoteIds
+                    .take(MAX_TOOL_PREVIEWS)
+                    .mapNotNull { getNote(it) }
                 if (notes.isNotEmpty()) ToolCallResultObject.Notes(notes) else null
             }
 
@@ -99,14 +112,26 @@ class AiToolExecutor(
 
             CREATE_MULTIPLE_TASKS_TOOL -> {
                 val createResult = json.decodeFromString<TaskIdsResult>(resultJson)
-                val tasks = createResult.createdTaskIds.mapNotNull { getTaskById(it) }
+                val tasks = createResult.createdTaskIds
+                    .take(MAX_TOOL_PREVIEWS)
+                    .mapNotNull { getTaskById(it) }
+                if (tasks.isNotEmpty()) ToolCallResultObject.Tasks(tasks) else null
+            }
+
+            SEARCH_TASKS_TOOL -> {
+                val tasks = (toolResult as? SearchTasksResult)
+                    ?.sourceTasks
+                    .orEmpty()
+                    .take(MAX_TOOL_PREVIEWS)
                 if (tasks.isNotEmpty()) ToolCallResultObject.Tasks(tasks) else null
             }
 
             UPDATE_TASK_COMPLETED_TOOL -> {
                 val updateResult = json.decodeFromString<TaskResult>(resultJson)
-                updateResult.task?.let {
-                    ToolCallResultObject.Tasks(listOf(it))
+                updateResult.task?.let { task ->
+                    getTaskById(task.id)?.let {
+                        ToolCallResultObject.Tasks(listOf(it))
+                    }
                 }
             }
 
@@ -121,15 +146,26 @@ class AiToolExecutor(
 
             CREATE_EVENTS_TOOL -> {
                 val createResult = json.decodeFromString<CalendarEventIdsResult>(resultJson)
-                val events = createResult.createdEventIds.mapNotNull { id ->
-                    id?.let { getCalendarEventById(it) }
-                }
+                val events = createResult.createdEventIds
+                    .take(MAX_TOOL_PREVIEWS)
+                    .mapNotNull { id -> id?.let { getCalendarEventById(it) } }
+                if (events.isNotEmpty()) ToolCallResultObject.CalendarEvents(events) else null
+            }
+
+            GET_EVENTS_WITHIN_RANGE_TOOL -> {
+                val events = (toolResult as? GetEventsResult)
+                    ?.sourceEvents
+                    .orEmpty()
+                    .take(MAX_TOOL_PREVIEWS)
                 if (events.isNotEmpty()) ToolCallResultObject.CalendarEvents(events) else null
             }
 
             SEARCH_EVENTS_BY_NAME_WITHIN_RANGE_TOOL -> {
-                val searchResult = json.decodeFromString<SearchEventsResult>(resultJson)
-                if (searchResult.events.size == 1) ToolCallResultObject.CalendarEvents(searchResult.events) else null
+                val events = (toolResult as? SearchEventsResult)
+                    ?.sourceEvents
+                    .orEmpty()
+                    .take(MAX_TOOL_PREVIEWS)
+                if (events.isNotEmpty()) ToolCallResultObject.CalendarEvents(events) else null
             }
 
             else -> null
@@ -153,3 +189,5 @@ class AiToolExecutor(
     }
 
 }
+
+private const val MAX_TOOL_PREVIEWS = 5

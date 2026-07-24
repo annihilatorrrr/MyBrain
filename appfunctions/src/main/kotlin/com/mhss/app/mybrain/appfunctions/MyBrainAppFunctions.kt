@@ -25,6 +25,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import org.koin.core.context.GlobalContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -74,7 +77,7 @@ abstract class MyBrainAppFunctions : AppFunctionService() {
             title = title,
             content = content,
             pinned = false,
-            createdDate = now
+            createdAt = now.toReadableDate()
         )
     }
 
@@ -96,7 +99,7 @@ abstract class MyBrainAppFunctions : AppFunctionService() {
                 title = note.title,
                 content = note.content,
                 pinned = note.pinned,
-                createdDate = note.createdDate
+                createdAt = note.createdDate.toReadableDate()
             )
         }
     }
@@ -118,7 +121,7 @@ abstract class MyBrainAppFunctions : AppFunctionService() {
                 title = note.title,
                 content = note.content,
                 pinned = note.pinned,
-                createdDate = note.createdDate
+                createdAt = note.createdDate.toReadableDate()
             )
         }
     }
@@ -129,7 +132,7 @@ abstract class MyBrainAppFunctions : AppFunctionService() {
      * @param title The title of the task.
      * @param description The optional detailed description of the task.
      * @param priority The priority of the task. Allowed values: "LOW", "MEDIUM", "HIGH". Defaults to "LOW".
-     * @param dueDate The optional due date timestamp for the task. Defaults to 0 (no due date).
+     * @param dueDate The optional local due date and time in "HH:mm dd-MM-yyyy" format.
      * @return The created [AppTask] object including its generated ID.
      */
     @OptIn(ExperimentalUuidApi::class)
@@ -138,11 +141,12 @@ abstract class MyBrainAppFunctions : AppFunctionService() {
         title: String,
         description: String? = null,
         priority: String? = null,
-        dueDate: Long? = null
+        dueDate: String? = null
     ): AppTask = withContext(Dispatchers.IO) {
         val id = Uuid.generateV7().toString()
         val actualDescription = description ?: ""
-        val actualDueDate = dueDate ?: 0L
+        val actualDueDate = dueDate?.toDateMillis()
+            ?: if (dueDate == null) 0L else throw IllegalArgumentException("Invalid due date. Expected format: HH:mm dd-MM-yyyy")
         val actualPriority = when (priority?.uppercase()) {
             Priority.HIGH.name -> Priority.HIGH
             Priority.MEDIUM.name -> Priority.MEDIUM
@@ -165,7 +169,7 @@ abstract class MyBrainAppFunctions : AppFunctionService() {
             description = actualDescription,
             isCompleted = false,
             priority = actualPriority.name,
-            dueDate = actualDueDate
+            dueAt = actualDueDate.takeIf { it > 0 }?.toReadableDate()
         )
     }
 
@@ -186,7 +190,7 @@ abstract class MyBrainAppFunctions : AppFunctionService() {
                 description = task.description,
                 isCompleted = task.isCompleted,
                 priority = task.priority.name,
-                dueDate = task.dueDate
+                dueAt = task.dueDate.takeIf { it > 0 }?.toReadableDate()
             )
         }
     }
@@ -246,7 +250,7 @@ abstract class MyBrainAppFunctions : AppFunctionService() {
             title = title,
             content = content,
             mood = actualMood.name,
-            createdDate = now
+            createdAt = now.toReadableDate()
         )
     }
 
@@ -266,7 +270,7 @@ abstract class MyBrainAppFunctions : AppFunctionService() {
                 title = entry.title,
                 content = entry.content,
                 mood = entry.mood.name,
-                createdDate = entry.createdDate
+                createdAt = entry.createdDate.toReadableDate()
             )
         }
     }
@@ -304,7 +308,7 @@ abstract class MyBrainAppFunctions : AppFunctionService() {
             url = url,
             title = actualTitle,
             description = actualDescription,
-            createdDate = now
+            createdAt = now.toReadableDate()
         )
     }
 
@@ -324,8 +328,21 @@ abstract class MyBrainAppFunctions : AppFunctionService() {
                 url = bookmark.url,
                 title = bookmark.title,
                 description = bookmark.description,
-                createdDate = bookmark.createdDate
+                createdAt = bookmark.createdDate.toReadableDate()
             )
         }
     }
 }
+
+private const val APP_FUNCTION_DATE_INPUT_PATTERN = "HH:mm dd-MM-yyyy"
+private const val APP_FUNCTION_DATE_OUTPUT_PATTERN = "HH:mm EEEE dd-MM-yyyy"
+
+private fun Long.toReadableDate(): String =
+    SimpleDateFormat(APP_FUNCTION_DATE_OUTPUT_PATTERN, Locale.US).format(Date(this))
+
+private fun String.toDateMillis(): Long? = runCatching {
+    SimpleDateFormat(APP_FUNCTION_DATE_INPUT_PATTERN, Locale.US)
+        .apply { isLenient = false }
+        .parse(this)
+        ?.time
+}.getOrNull()

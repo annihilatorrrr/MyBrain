@@ -21,6 +21,7 @@ import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.Json
 import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -145,6 +146,10 @@ internal val llmDateTimeFormat = LocalDateTime.Format {
 internal fun String.parseDateTimeFromLLM() = runCatching {
     LocalDateTime.parse(this, llmDateTimeFormat).toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
 }.getOrNull()
+internal fun Long.formatDateTimeForLLM() =
+    Instant.fromEpochMilliseconds(this)
+        .toLocalDateTime(currentTimeZone)
+        .format(llmDateTimeWithDayNameFormat)
 
 fun buildChatSystemMessage(toolsEnabled: Boolean) = buildString {
     appendLine(baseChatSystemMessage)

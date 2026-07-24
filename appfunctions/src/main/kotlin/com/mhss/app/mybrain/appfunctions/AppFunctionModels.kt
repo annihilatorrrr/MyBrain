@@ -15,8 +15,8 @@ data class AppNote(
     val content: String,
     /** Whether the note is pinned */
     val pinned: Boolean,
-    /** The timestamp when the note was created */
-    val createdDate: Long
+    /** The local date and time when the note was created */
+    val createdAt: String
 )
 
 /**
@@ -34,8 +34,8 @@ data class AppTask(
     val isCompleted: Boolean,
     /** The task's priority level (LOW, MEDIUM, or HIGH) */
     val priority: String,
-    /** The task's due date timestamp */
-    val dueDate: Long
+    /** The task's local due date and time, or null when it has no due date */
+    val dueAt: String?
 )
 
 /**
@@ -51,8 +51,8 @@ data class AppDiaryEntry(
     val content: String,
     /** The user's mood for this entry (AWESOME, GOOD, OKAY, BAD, or TERRIBLE) */
     val mood: String,
-    /** The timestamp when the diary entry was created */
-    val createdDate: Long
+    /** The local date and time when the entry was created */
+    val createdAt: String
 )
 
 /**
@@ -68,6 +68,6 @@ data class AppBookmark(
     val title: String,
     /** The description of the bookmark or site */
     val description: String,
-    /** The timestamp when the bookmark was created */
-    val createdDate: Long
+    /** The local date and time when the bookmark was created */
+    val createdAt: String
 )

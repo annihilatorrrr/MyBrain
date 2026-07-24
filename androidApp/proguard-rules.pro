@@ -131,3 +131,5 @@
 -dontwarn jdk.jfr.Label
 -dontwarn jdk.jfr.MemoryAddress
 -dontwarn jdk.jfr.Name
+-dontwarn java.lang.management.ManagementFactory
+-dontwarn java.lang.management.RuntimeMXBean

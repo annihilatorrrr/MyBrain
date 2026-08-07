@@ -15,14 +15,13 @@ import com.mhss.app.mybrain.sync.domain.UpdateDeviceNameUseCase
 import com.mhss.app.mybrain.sync.model.PairedDevice
 import com.mhss.app.mybrain.sync.repository.DeviceKeyStore
 import com.mhss.app.mybrain.sync.repository.PairedDevicesRepository
+import com.mhss.app.mybrain.sync.repository.PairingInviteStore
 import com.mhss.app.mybrain.sync.util.SYNC_DEEP_LINK_BASE_URI
 import com.mhss.app.ui.Res
 import com.mhss.app.ui.clipboard_empty_or_invalid
-import com.mhss.app.ui.encryption_key_reset_success
 import com.mhss.app.ui.error_with_message
 import com.mhss.app.ui.invalid_pairing_format
 import com.mhss.app.ui.invalid_pairing_link_format
-import com.mhss.app.ui.pairing_offline_success
 import com.mhss.app.ui.pairing_success
 import com.mhss.app.ui.qr_decode_failed
 import com.mhss.app.ui.snackbar.showErrorSnackbar
@@ -30,9 +29,11 @@ import com.mhss.app.ui.snackbar.showSuccessSnackbar
 import com.mhss.app.ui.sync_failed
 import com.mhss.app.ui.sync_failed_with_error
 import com.mhss.app.ui.sync_success_with_device
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
@@ -46,6 +47,7 @@ class LocalSyncViewModel(
     private val deletePairedDeviceUseCase: DeletePairedDeviceUseCase,
     private val networkHelper: NetworkHelper,
     private val pairedDevicesRepository: PairedDevicesRepository,
+    private val pairingInviteStore: PairingInviteStore,
     private val pairDeviceUseCase: PairDeviceUseCase,
     private val getOwnQrContentUseCase: GetOwnQrContentUseCase,
     private val updateDeviceNameUseCase: UpdateDeviceNameUseCase,
@@ -55,19 +57,19 @@ class LocalSyncViewModel(
 
     private val _uiState = MutableStateFlow(PairedDevicesUiState())
     val uiState: StateFlow<PairedDevicesUiState> = _uiState.asStateFlow()
+    private val _effects = Channel<PairedDevicesEffect>(Channel.BUFFERED)
+    val effects = _effects.receiveAsFlow()
 
     init {
         orchestrator.startServer()
         viewModelScope.launch {
             val deviceId = deviceKeyStore.getCurrentDeviceId()
-            val encKey = deviceKeyStore.getCurrentDeviceEncKey()
             getPairedDevicesFlow().collect { devices ->
                 val deviceName = deviceKeyStore.getCurrentDeviceName()
                 _uiState.update {
                     it.copy(
                         ownDeviceId = deviceId,
                         ownDeviceName = deviceName,
-                        ownDeviceEncKey = encKey,
                         pairedDevices = devices
                     )
                 }
@@ -76,13 +78,9 @@ class LocalSyncViewModel(
         viewModelScope.launch {
             networkHelper.observeNetworkChanges().collect { ips ->
                 val currentLocalIp = ips.firstOrNull() ?: "Unknown IP"
-                val qrContent = getOwnQrContentUseCase()
-                val qrBitmap = qrCodeUtils.generateQrCode(qrContent)
                 _uiState.update {
                     it.copy(
-                        ownIpAddress = currentLocalIp,
-                        ownQrContent = qrContent,
-                        ownQrBitmap = qrBitmap
+                        ownIpAddress = currentLocalIp
                     )
                 }
             }
@@ -103,12 +101,15 @@ class LocalSyncViewModel(
                 deepLinkHandled = true
                 viewModelScope.launch {
                     _uiState.update { it.copy(isLoading = true) }
-                    when (val result = pairDeviceUseCase(event.deviceId, event.ips, event.port, event.encKey)) {
+                    when (val result = pairDeviceUseCase(
+                        event.deviceId,
+                        event.ips,
+                        event.port,
+                        event.inviteId,
+                        event.inviteSecret
+                    )) {
                         is PairResult.Success -> {
                             showSuccessSnackbar(Res.string.pairing_success)
-                        }
-                        is PairResult.OfflineSuccess -> {
-                            showSuccessSnackbar(Res.string.pairing_offline_success)
                         }
                         is PairResult.Error -> {
                             showErrorSnackbar(
@@ -134,9 +135,6 @@ class LocalSyncViewModel(
                     when (val result = pairDeviceFromQrData(qrText)) {
                         is PairResult.Success -> {
                             showSuccessSnackbar(Res.string.pairing_success)
-                        }
-                        is PairResult.OfflineSuccess -> {
-                            showSuccessSnackbar(Res.string.pairing_offline_success)
                         }
                         is PairResult.Error -> {
                             showErrorSnackbar(
@@ -187,13 +185,11 @@ class LocalSyncViewModel(
                     _uiState.update { it.copy(isLoading = true) }
                     updateDeviceNameUseCase(event.name, _uiState.value.pairedDevices)
                     val deviceId = deviceKeyStore.getCurrentDeviceId()
-                    val encKey = deviceKeyStore.getCurrentDeviceEncKey()
                     val localIp = networkHelper.getPrimaryLocalIpAddress() ?: "Unknown IP"
                     _uiState.update {
                         it.copy(
                             ownDeviceName = event.name,
                             ownDeviceId = deviceId,
-                            ownDeviceEncKey = encKey,
                             ownIpAddress = localIp,
                             isLoading = false
                         )
@@ -246,9 +242,6 @@ class LocalSyncViewModel(
                         is PairResult.Success -> {
                             showSuccessSnackbar(Res.string.pairing_success)
                         }
-                        is PairResult.OfflineSuccess -> {
-                            showSuccessSnackbar(Res.string.pairing_offline_success)
-                        }
                         is PairResult.Error -> {
                             showErrorSnackbar(
                                 Res.string.invalid_pairing_format,
@@ -260,36 +253,39 @@ class LocalSyncViewModel(
                 }
             }
 
-            PairedDevicesEvent.ResetEncryptionKey -> {
+            PairedDevicesEvent.ShowPairingQr -> {
                 viewModelScope.launch {
-                    _uiState.update { it.copy(isLoading = true) }
-                    try {
-                        _uiState.value.pairedDevices.forEach { device ->
-                            orchestrator.disconnectDevice(device.deviceId)
-                            deletePairedDeviceUseCase(device.deviceId)
-                        }
-                        val encKey = deviceKeyStore.resetCurrentDeviceEncKey()
-                        val qrContent = getOwnQrContentUseCase()
-                        val qrBitmap = qrCodeUtils.generateQrCode(qrContent)
-                        _uiState.update {
-                            it.copy(
-                                ownDeviceEncKey = encKey,
-                                ownQrContent = qrContent,
-                                ownQrBitmap = qrBitmap
-                            )
-                        }
-                        showSuccessSnackbar(Res.string.encryption_key_reset_success)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        showErrorSnackbar(
-                            Res.string.error_with_message,
-                            formatArgs = listOf(e.message ?: "")
+                    _uiState.update {
+                        it.copy(
+                            isPairingQrVisible = true,
+                            ownQrBitmap = null
                         )
-                    } finally {
-                        _uiState.update { it.copy(isLoading = false) }
+                    }
+                    val qrContent = getOwnQrContentUseCase()
+                    val qrBitmap = qrCodeUtils.generateQrCode(qrContent)
+                    _uiState.update { it.copy(ownQrBitmap = qrBitmap) }
+                }
+            }
+
+            PairedDevicesEvent.CopyPairingLink -> {
+                viewModelScope.launch {
+                    val pairingLink = getOwnQrContentUseCase()
+                    _effects.send(PairedDevicesEffect.CopyPairingLink(pairingLink))
+                }
+            }
+
+            PairedDevicesEvent.DismissPairingQr -> {
+                viewModelScope.launch {
+                    pairingInviteStore.invalidate()
+                    _uiState.update {
+                        it.copy(
+                            isPairingQrVisible = false,
+                            ownQrBitmap = null
+                        )
                     }
                 }
             }
+
         }
     }
 
@@ -317,10 +313,9 @@ class LocalSyncViewModel(
 data class PairedDevicesUiState(
     val ownDeviceId: String = "",
     val ownDeviceName: String = "",
-    val ownDeviceEncKey: String = "",
     val ownIpAddress: String = "",
-    val ownQrContent: String = "",
     val ownQrBitmap: KmpBitmap? = null,
+    val isPairingQrVisible: Boolean = false,
     val pairedDevices: List<PairedDevice> = emptyList(),
     val isLoading: Boolean = false,
     val snackbarHostState: SnackbarHostState = SnackbarHostState()

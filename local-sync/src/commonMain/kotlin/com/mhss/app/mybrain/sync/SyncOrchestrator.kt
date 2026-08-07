@@ -19,6 +19,7 @@ import com.mhss.app.mybrain.sync.repository.DeviceKeyStore
 import com.mhss.app.mybrain.sync.repository.PairedDevicesRepository
 import com.mhss.app.mybrain.sync.repository.SyncRepository
 import com.mhss.app.mybrain.sync.server.LocalSyncServer
+import com.mhss.app.mybrain.sync.server.PairRouteHandler
 import com.mhss.app.mybrain.sync.server.PingRouteHandler
 import com.mhss.app.mybrain.sync.server.SyncWebSocketHandler
 import com.mhss.app.mybrain.sync.util.CompressionManager
@@ -64,6 +65,7 @@ class SyncOrchestrator(
     private val transactionProvider: DatabaseTransactionProvider,
     private val server: LocalSyncServer,
     private val client: LocalSyncClient,
+    private val pairRouteHandler: PairRouteHandler,
     private val pingRouteHandler: PingRouteHandler,
     private val syncWebSocketHandler: SyncWebSocketHandler,
     private val mergePayload: MergePayloadUseCase,
@@ -111,6 +113,9 @@ class SyncOrchestrator(
                 connectWebSocket(peerDeviceId)
                 syncDevice(peerDeviceId)
             }
+        }
+        pairRouteHandler.onPairingAccepted = { peerDeviceId ->
+            disconnectSessions(peerDeviceId)
         }
         syncWebSocketHandler.onMessageReceived = { peerDeviceId, message, session ->
             scope.launch {
@@ -164,13 +169,10 @@ class SyncOrchestrator(
         val pairedDevice = pairedDevicesRepository.getPairedDevice(device.deviceId) ?: return
         if (pairedDevice.ipAddress == device.ipAddress) return
 
-        val deviceKey = deviceKeyStore.getDeviceKey(pairedDevice.deviceId) ?: return
         val pingSuccess = client.ping(
             device.ipAddress,
             pairedDevice.port,
-            pairedDevice.deviceId,
-            deviceKey,
-            isPairing = false
+            pairedDevice.deviceId
         )
         if (pingSuccess) {
             connectWebSocket(pairedDevice.deviceId)
@@ -218,7 +220,6 @@ class SyncOrchestrator(
         val pairedDevices = pairedDevicesRepository.getPairedDevices()
         val peer = pairedDevices.firstOrNull { it.deviceId == deviceId } ?: return@withContext false
         try {
-            val currentKey = deviceKeyStore.getDeviceKey(deviceId) ?: return@withContext false
             val reachableIp = networkHelper.findReachableIp(peer) ?: peer.ipAddress
 
             if (reachableIp != peer.ipAddress) {
@@ -232,9 +233,7 @@ class SyncOrchestrator(
             val pingSuccess = client.ping(
                 reachableIp,
                 peer.port,
-                deviceId,
-                currentKey,
-                isPairing = false
+                deviceId
             )
             if (pingSuccess) {
                 connectWebSocket(deviceId)
@@ -311,7 +310,6 @@ class SyncOrchestrator(
         val currentDeviceId = deviceKeyStore.getCurrentDeviceId()
         try {
             val peerKey = deviceKeyStore.getDeviceKey(peer.deviceId)
-            val ownKey = deviceKeyStore.getCurrentDeviceEncKey()
             if (peerKey != null) {
                 client.connectWebSocket(peer.ipAddress, peer.port, currentDeviceId) {
                     val session = this
@@ -345,7 +343,7 @@ class SyncOrchestrator(
 
                         while (true) {
                             val message =
-                                receiveEncrypted(encryptionManager, ownKey, compressor, json)
+                                receiveEncrypted(encryptionManager, peerKey, compressor, json)
                             handleSocketMessage(peer.deviceId, message, this)
                         }
                     } finally {
@@ -622,14 +620,11 @@ class SyncOrchestrator(
                 activePeerJobs[peer.deviceId]?.cancel()
                 launch {
                     try {
-                        val currentKey = deviceKeyStore.getDeviceKey(peer.deviceId) ?: return@launch
                         val reachableIp = networkHelper.findReachableIp(peer) ?: peer.ipAddress
                         client.ping(
                             reachableIp,
                             peer.port,
-                            peer.deviceId,
-                            currentKey,
-                            isPairing = false
+                            peer.deviceId
                         )
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -644,14 +639,16 @@ class SyncOrchestrator(
     }
 
     fun disconnectDevice(deviceId: String) {
+        scope.launch { disconnectSessions(deviceId) }
+    }
+
+    private suspend fun disconnectSessions(deviceId: String) {
         activePeerJobs.remove(deviceId)?.cancel()
-        scope.launch {
-            deviceKeyStore.getDeviceKey(deviceId)?.let(encryptionManager::removeKey)
-            val clientSession = clientConnectionsMutex.withLock {
-                activeClientConnections.remove(deviceId)
-            }
-            clientSession?.close()
-            syncWebSocketHandler.closeSession(deviceId)
+        deviceKeyStore.getDeviceKey(deviceId)?.let(encryptionManager::removeKey)
+        val clientSession = clientConnectionsMutex.withLock {
+            activeClientConnections.remove(deviceId)
         }
+        clientSession?.close()
+        syncWebSocketHandler.closeSession(deviceId)
     }
 }

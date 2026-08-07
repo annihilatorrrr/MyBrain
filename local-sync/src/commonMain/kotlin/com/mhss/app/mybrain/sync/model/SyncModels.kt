@@ -47,9 +47,7 @@ data class PingPayload(
     @SerialName("sourceDeviceName") val sourceDeviceName: String,
     @SerialName("sourceIps") val sourceIps: List<String>,
     @SerialName("sourcePort") val sourcePort: Int,
-    @SerialName("sourceEncKey") val sourceEncKey: String,
     @SerialName("targetDeviceId") val targetDeviceId: String,
-    @SerialName("isPairing") val isPairing: Boolean,
     @SerialName("deviceVersion") val deviceVersion: Int = 1
 )
 
@@ -67,7 +65,27 @@ data class QrPayload(
     @SerialName("deviceId") val deviceId: String,
     @SerialName("ips") val ips: List<String>,
     @SerialName("port") val port: Int,
-    @SerialName("encKey") val encKey: String
+    @SerialName("inviteId") val inviteId: String,
+    @SerialName("inviteSecret") val inviteSecret: String
+)
+
+@Serializable
+data class PairRequest(
+    @SerialName("sourceDeviceId") val sourceDeviceId: String,
+    @SerialName("sourceDeviceName") val sourceDeviceName: String,
+    @SerialName("sourceIps") val sourceIps: List<String>,
+    @SerialName("sourcePort") val sourcePort: Int,
+    @SerialName("targetDeviceId") val targetDeviceId: String,
+    @SerialName("sharedKey") val sharedKey: String,
+    @SerialName("deviceVersion") val deviceVersion: Int = 1
+)
+
+@Serializable
+data class PairResponse(
+    @SerialName("targetDeviceId") val targetDeviceId: String,
+    @SerialName("targetDeviceName") val targetDeviceName: String,
+    @SerialName("targetIps") val targetIps: List<String>,
+    @SerialName("deviceVersion") val deviceVersion: Int = 1
 )
 
 @Serializable

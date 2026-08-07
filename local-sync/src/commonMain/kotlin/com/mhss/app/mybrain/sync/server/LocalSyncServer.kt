@@ -2,6 +2,7 @@ package com.mhss.app.mybrain.sync.server
 
 import com.mhss.app.mybrain.sync.repository.DeviceKeyStore
 import com.mhss.app.mybrain.sync.util.DEFAULT_SYNC_PORT
+import com.mhss.app.mybrain.sync.util.ROUTE_PAIR
 import com.mhss.app.mybrain.sync.util.ROUTE_PING
 import com.mhss.app.mybrain.sync.util.ROUTE_SYNC
 import io.ktor.server.application.install
@@ -23,6 +24,7 @@ import org.koin.core.annotation.Single
 @Single
 class LocalSyncServer(
     private val deviceKeyStore: DeviceKeyStore,
+    private val pairRouteHandler: PairRouteHandler,
     private val pingRouteHandler: PingRouteHandler,
     private val syncWebSocketHandler: SyncWebSocketHandler
 ) {
@@ -47,6 +49,9 @@ class LocalSyncServer(
                     timeoutMillis = 10000L
                 }
                 routing {
+                    post(ROUTE_PAIR) {
+                        pairRouteHandler.handle(call, currentDeviceId)
+                    }
                     post(ROUTE_PING) {
                         pingRouteHandler.handle(call, currentDeviceId)
                     }

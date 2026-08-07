@@ -85,7 +85,6 @@ class MyBrainApplication : Application() {
 
         appScope.launch {
             deviceKeyStore.getCurrentDeviceId()
-            deviceKeyStore.getCurrentDeviceEncKey()
             if (pairedDevicesRepository.getPairedDevices().isNotEmpty()) {
                 syncOrchestrator.startServer()
             }

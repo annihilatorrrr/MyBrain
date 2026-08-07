@@ -26,16 +26,12 @@ class AndroidDeviceKeyStore(
 ) : DeviceKeyStore {
 
     private val deviceIdKey = stringPreferencesKey("sync_device_id")
-    private val deviceEncKey = stringPreferencesKey("sync_device_enc_key")
     private val deviceCustomNameKey = stringPreferencesKey("sync_custom_device_name")
     private val deviceIdMutex = Mutex()
-    private val deviceEncKeyMutex = Mutex()
 
     override suspend fun getCurrentDeviceId(): String {
         val current = getPreference(deviceIdKey, "").first()
-        if (current.isNotBlank()) {
-            return current
-        }
+        if (current.isNotBlank()) return current
         return deviceIdMutex.withLock {
             val existing = getPreference(deviceIdKey, "").first()
             if (existing.isNotBlank()) {
@@ -50,9 +46,7 @@ class AndroidDeviceKeyStore(
 
     override suspend fun getCurrentDeviceName(): String {
         val customName = getPreference(deviceCustomNameKey, "").first()
-        if (customName.isNotBlank()) {
-            return customName
-        }
+        if (customName.isNotBlank()) return customName
         return try {
             Settings.Global.getString(context.contentResolver, Settings.Global.DEVICE_NAME)
                 ?: Settings.Secure.getString(context.contentResolver, "bluetooth_name")
@@ -67,31 +61,9 @@ class AndroidDeviceKeyStore(
         savePreference(deviceCustomNameKey, name)
     }
 
-    override suspend fun getCurrentDeviceEncKey(): String {
-        val current = getPreference(deviceEncKey, "").first()
-        if (current.isNotBlank()) {
-            return current
-        }
-        return deviceEncKeyMutex.withLock {
-            val existing = getPreference(deviceEncKey, "").first()
-            if (existing.isNotBlank()) {
-                existing
-            } else {
-                val bytes = ByteArray(32).apply { SecureRandom().nextBytes(this) }
-                Base64.encodeToString(bytes, Base64.NO_WRAP).also {
-                    savePreference(deviceEncKey, it)
-                }
-            }
-        }
-    }
-
-    override suspend fun resetCurrentDeviceEncKey(): String {
-        return deviceEncKeyMutex.withLock {
-            val bytes = ByteArray(32).apply { SecureRandom().nextBytes(this) }
-            Base64.encodeToString(bytes, Base64.NO_WRAP).also {
-                savePreference(deviceEncKey, it)
-            }
-        }
+    override fun generateEncryptionKey(): String {
+        val bytes = ByteArray(32).apply { SecureRandom().nextBytes(this) }
+        return Base64.encodeToString(bytes, Base64.NO_WRAP)
     }
 
     override suspend fun getDeviceKey(deviceId: String): String? {

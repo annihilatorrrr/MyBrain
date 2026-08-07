@@ -46,20 +46,22 @@ class SyncWebSocketHandler(
             session.close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, "Missing device ID"))
             return
         }
-        if (deviceKeyStore.getDeviceKey(peerDeviceId) == null) {
+        val pairKey = deviceKeyStore.getDeviceKey(peerDeviceId)
+        if (pairKey == null) {
             session.close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, "Device not paired"))
             return
         }
-        val ownKey = deviceKeyStore.getCurrentDeviceEncKey()
-        val replacedSession = sessionsMutex.withLock {
-            activeIncomingSessions.put(peerDeviceId, session)
-        }
-        replacedSession?.close()
-        onPeerConnected?.invoke(peerDeviceId, session)
 
         try {
+            val firstMessage = session.receiveEncrypted(encryptionManager, pairKey, compressor, json)
+            val replacedSession = sessionsMutex.withLock {
+                activeIncomingSessions.put(peerDeviceId, session)
+            }
+            replacedSession?.close()
+            onPeerConnected?.invoke(peerDeviceId, session)
+            onMessageReceived?.invoke(peerDeviceId, firstMessage, session)
             while (true) {
-                val message = session.receiveEncrypted(encryptionManager, ownKey, compressor, json)
+                val message = session.receiveEncrypted(encryptionManager, pairKey, compressor, json)
                 onMessageReceived?.invoke(peerDeviceId, message, session)
             }
         } finally {

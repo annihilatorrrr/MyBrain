@@ -43,20 +43,19 @@ suspend inline fun <reified Req : Any, reified Resp : Any> HttpClient.postEncryp
     url: String,
     body: Req,
     encryptionManager: EncryptionManager,
-    sendKey: String,
-    receiveKey: String,
+    key: String,
     json: Json,
     compressor: CompressionManager
 ): Resp {
     val plainJson = json.encodeToString(body).encodeToByteArray()
     val compressed = compressor.compress(plainJson)
-    val encryptedReq = encryptionManager.encrypt(compressed, sendKey)
+    val encryptedReq = encryptionManager.encrypt(compressed, key)
 
     val responseBytes = post(url) {
         setBody(encryptedReq)
     }.bodyAsBytes()
 
-    val decrypted = encryptionManager.decrypt(responseBytes, receiveKey)
+    val decrypted = encryptionManager.decrypt(responseBytes, key)
     val decompressed = compressor.decompress(decrypted)
     return json.decodeFromString<Resp>(decompressed.decodeToString())
 }

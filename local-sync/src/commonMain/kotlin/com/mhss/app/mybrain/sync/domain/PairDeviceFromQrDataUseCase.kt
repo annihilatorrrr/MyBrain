@@ -2,7 +2,8 @@ package com.mhss.app.mybrain.sync.domain
 
 import com.mhss.app.mybrain.sync.util.DEFAULT_SYNC_PORT
 import com.mhss.app.mybrain.sync.util.PARAM_DEVICE_ID
-import com.mhss.app.mybrain.sync.util.PARAM_ENC_KEY
+import com.mhss.app.mybrain.sync.util.PARAM_INVITE_ID
+import com.mhss.app.mybrain.sync.util.PARAM_INVITE_SECRET
 import com.mhss.app.mybrain.sync.util.PARAM_IPS
 import com.mhss.app.mybrain.sync.util.PARAM_PORT
 import com.mhss.app.mybrain.sync.model.QrPayload
@@ -22,7 +23,8 @@ class PairDeviceFromQrDataUseCase(
                 deviceId = payload.deviceId,
                 ips = payload.ips,
                 port = payload.port,
-                encKey = payload.encKey
+                inviteId = payload.inviteId,
+                inviteSecret = payload.inviteSecret
             )
         } catch (e: Exception) {
             PairResult.Error(e.message ?: "Invalid QR format")
@@ -42,14 +44,17 @@ class PairDeviceFromQrDataUseCase(
         val deviceId = params[PARAM_DEVICE_ID] ?: throw IllegalArgumentException("Missing deviceId")
         val ipsParam = params[PARAM_IPS] ?: throw IllegalArgumentException("Missing ips")
         val ipsList = ipsParam.split(",").filter { it.isNotBlank() }
-        val encKey = params[PARAM_ENC_KEY] ?: throw IllegalArgumentException("Missing encKey")
+        val inviteId = params[PARAM_INVITE_ID] ?: throw IllegalArgumentException("Missing inviteId")
+        val inviteSecret = params[PARAM_INVITE_SECRET] ?: throw IllegalArgumentException("Missing inviteSecret")
         val port = params[PARAM_PORT]?.toIntOrNull() ?: DEFAULT_SYNC_PORT
+        if (ipsList.isEmpty()) throw IllegalArgumentException("Missing ips")
 
         return QrPayload(
             deviceId = deviceId,
             ips = ipsList,
             port = port,
-            encKey = encKey
+            inviteId = inviteId,
+            inviteSecret = inviteSecret
         )
     }
 

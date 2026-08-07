@@ -1,13 +1,13 @@
 package com.mhss.app.mybrain.sync.server
 
 import com.mhss.app.mybrain.sync.domain.NetworkHelper
-import com.mhss.app.mybrain.sync.model.PairedDevice
 import com.mhss.app.mybrain.sync.model.PingPayload
 import com.mhss.app.mybrain.sync.model.PingResponse
 import com.mhss.app.mybrain.sync.repository.DeviceKeyStore
 import com.mhss.app.mybrain.sync.repository.PairedDevicesRepository
 import com.mhss.app.mybrain.sync.util.CompressionManager
 import com.mhss.app.mybrain.sync.util.EncryptionManager
+import com.mhss.app.mybrain.sync.util.PARAM_DEVICE_ID
 import com.mhss.app.mybrain.sync.util.receiveEncrypted
 import com.mhss.app.mybrain.sync.util.respondEncrypted
 import io.ktor.http.HttpStatusCode
@@ -31,25 +31,25 @@ class PingRouteHandler(
         currentDeviceId: String
     ) {
         try {
-            val currentDeviceEncKey = deviceKeyStore.getCurrentDeviceEncKey()
+            val sourceDeviceId = call.request.queryParameters[PARAM_DEVICE_ID]
+            if (sourceDeviceId.isNullOrBlank()) {
+                call.respond(HttpStatusCode.BadRequest, "Missing device ID")
+                return
+            }
+            val existingPeer = pairedDevicesRepository.getPairedDevice(sourceDeviceId)
+            if (existingPeer == null) {
+                call.respond(HttpStatusCode.Unauthorized, "Device not paired")
+                return
+            }
             val payload = call.receiveEncrypted<PingPayload>(
                 encryptionManager,
-                currentDeviceEncKey,
+                existingPeer.encryptionKey,
                 json,
                 compressor
             )
 
-            if (payload.targetDeviceId != currentDeviceId) {
+            if (payload.targetDeviceId != currentDeviceId || payload.sourceDeviceId != sourceDeviceId) {
                 call.respond(HttpStatusCode.BadRequest, "Target device ID mismatch")
-                return
-            }
-            val existingPeer = pairedDevicesRepository.getPairedDevice(payload.sourceDeviceId)
-            if (existingPeer == null && !payload.isPairing) {
-                call.respond(HttpStatusCode.Unauthorized, "Device not paired")
-                return
-            }
-            if (existingPeer != null && existingPeer.encryptionKey != payload.sourceEncKey) {
-                call.respond(HttpStatusCode.Unauthorized, "Paired device key mismatch")
                 return
             }
 
@@ -58,12 +58,10 @@ class PingRouteHandler(
                 ?: payload.sourceIps.firstOrNull()
                 ?: ""
 
-            val peerDevice = PairedDevice(
-                deviceId = payload.sourceDeviceId,
+            val peerDevice = existingPeer.copy(
                 deviceName = payload.sourceDeviceName,
                 ipAddress = primaryIp,
                 port = payload.sourcePort,
-                encryptionKey = payload.sourceEncKey,
                 deviceVersion = payload.deviceVersion,
                 isConnected = true,
                 candidateIpAddresses = payload.sourceIps
@@ -79,7 +77,7 @@ class PingRouteHandler(
             call.respondEncrypted(
                 response,
                 encryptionManager,
-                payload.sourceEncKey,
+                existingPeer.encryptionKey,
                 json,
                 compressor
             )

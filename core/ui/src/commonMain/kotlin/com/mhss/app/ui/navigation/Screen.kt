@@ -88,7 +88,8 @@ sealed class Screen {
         val deviceId: String? = null,
         val ips: String? = null,
         val port: Int? = null,
-        val encKey: String? = null
+        val inviteId: String? = null,
+        val inviteSecret: String? = null
     ) : Screen()
 
     @Serializable

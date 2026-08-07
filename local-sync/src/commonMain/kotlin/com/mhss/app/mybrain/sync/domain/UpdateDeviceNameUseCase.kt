@@ -20,9 +20,7 @@ class UpdateDeviceNameUseCase(
                     client.ping(
                         ip = device.ipAddress,
                         port = device.port,
-                        targetDeviceId = device.deviceId,
-                        targetDeviceKey = device.encryptionKey,
-                        isPairing = false
+                        targetDeviceId = device.deviceId
                     )
                 } catch (e: Exception) {
                     e.printStackTrace()

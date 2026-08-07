@@ -7,7 +7,8 @@ sealed interface PairedDevicesEvent {
         val deviceId: String,
         val ips: List<String>,
         val port: Int,
-        val encKey: String
+        val inviteId: String,
+        val inviteSecret: String
     ) : PairedDevicesEvent
 
     data class DecodeAndPair(val bitmap: KmpBitmap) : PairedDevicesEvent
@@ -22,5 +23,13 @@ sealed interface PairedDevicesEvent {
 
     data class PairFromClipboard(val pairingLink: String?) : PairedDevicesEvent
 
-    data object ResetEncryptionKey : PairedDevicesEvent
+    data object ShowPairingQr : PairedDevicesEvent
+
+    data object CopyPairingLink : PairedDevicesEvent
+
+    data object DismissPairingQr : PairedDevicesEvent
+}
+
+sealed interface PairedDevicesEffect {
+    data class CopyPairingLink(val pairingLink: String) : PairedDevicesEffect
 }

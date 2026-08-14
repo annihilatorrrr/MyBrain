@@ -1,61 +1,51 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.kotlin.multiplatform.library)
+    alias(libs.plugins.koin.compiler)
     alias(libs.plugins.kotlinx.serialization)
 }
 
-android {
-    namespace = "com.mhss.app.data"
-    compileSdk = 36
-
-    defaultConfig {
-        minSdk = 26
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles("consumer-rules.pro")
-    }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+kotlin {
+    android {
+        namespace = "com.mhss.app.settings.data"
+        compileSdk {
+            version = release(libs.versions.compileSdk.get().toInt())
         }
+        minSdk = libs.versions.minSdk.get().toInt()
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-    kotlin {
-        compilerOptions {
-            jvmTarget = JvmTarget.JVM_1_8
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(projects.core.storage)
+                implementation(projects.core.preferences)
+                implementation(projects.settings.domain)
+                implementation(projects.notes.domain)
+                implementation(projects.tasks.domain)
+                implementation(projects.diary.domain)
+                implementation(projects.bookmarks.domain)
+
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.kotlinx.serialization.json)
+
+                implementation(project.dependencies.platform(libs.koin.bom))
+                implementation(libs.bundles.koin)
+            }
+        }
+
+        androidMain {
+            dependencies {
+                implementation(projects.core.database)
+
+                implementation(libs.koin.android.workmanager)
+
+                implementation(libs.androidx.work.runtime.ktx)
+            }
         }
     }
 }
 
-dependencies {
-    implementation(project(":core:database"))
-    implementation(project(":core:preferences"))
-    implementation(project(":settings:domain"))
-    implementation(project(":tasks:domain"))
-    implementation(project(":diary:domain"))
-
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-
-    implementation(platform(libs.koin.bom))
-    implementation(libs.bundles.koin)
-    implementation(libs.koin.android)
-    implementation(libs.koin.android.workmanager)
-    ksp(libs.koin.ksp.compiler)
-
-    implementation(libs.kotlinx.serialization.json)
-
-    implementation(libs.androidx.documentfile)
-    implementation(libs.androidx.work.runtime.ktx)
+koinCompiler {
+    compileSafety = false
 }

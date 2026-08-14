@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Allow cleartext for local/self-hosted AI servers such as Ollama and LM Studio. -->
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

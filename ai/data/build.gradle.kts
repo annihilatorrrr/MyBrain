@@ -1,28 +1,53 @@
 plugins {
-    alias(libs.plugins.jetbrains.kotlin.jvm)
-    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.kotlin.multiplatform.library)
+    alias(libs.plugins.koin.compiler)
     alias(libs.plugins.kotlinx.serialization)
 }
 
-dependencies {
-    implementation(project(":ai:domain"))
-    implementation(project(":core:preferences"))
+kotlin {
+    android {
+        namespace = "com.mhss.app.ai.data"
+        compileSdk {
+            version = release(libs.versions.compileSdk.get().toInt())
+        }
+        minSdk = libs.versions.minSdk.get().toInt()
+    }
 
-    implementation(project(":notes:domain"))
-    implementation(project(":tasks:domain"))
-    implementation(project(":calendar:domain"))
-    implementation(project(":diary:domain"))
-    implementation(project(":bookmarks:domain"))
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(projects.ai.domain)
+                implementation(projects.core.preferences)
+                implementation(projects.core.database)
+                implementation(projects.core.datetime)
+                implementation(projects.notes.domain)
+                implementation(projects.tasks.domain)
+                implementation(projects.calendar.domain)
+                implementation(projects.diary.domain)
+                implementation(projects.bookmarks.domain)
 
-    implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.kotlinx.datetime)
-    implementation(libs.ktor.cio)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.ktor.cio)
+                implementation(libs.kotlinx.serialization.json)
+                implementation(libs.koog.agents)
+                implementation(libs.koog.google.client)
+                implementation(libs.koog.http.client.ktor)
+                implementation(libs.koog.openrouter.client)
 
-    implementation(platform(libs.koin.bom))
-    implementation(libs.bundles.koin)
-    ksp(libs.koin.ksp.compiler)
+                implementation(project.dependencies.platform(libs.koin.bom))
+                implementation(libs.bundles.koin)
+            }
+        }
+        androidMain {
+            dependencies {
+                implementation(libs.mlkit.genai.prompt)
+            }
+        }
+    }
+}
 
-    implementation(libs.kotlinx.serialization.json)
-
-    implementation(libs.koog.agents)
+koinCompiler {
+    compileSafety = false
 }

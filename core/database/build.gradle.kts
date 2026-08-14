@@ -1,71 +1,56 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.koin.compiler)
     alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.room3)
 }
 
-android {
-    namespace = "com.mhss.app.database"
-    compileSdk = 36
-
-    defaultConfig {
-        minSdk = 26
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles("consumer-rules.pro")
-    }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+kotlin {
+    android {
+        namespace = "com.mhss.app.database"
+        compileSdk {
+            version = release(libs.versions.compileSdk.get().toInt())
         }
+        minSdk = libs.versions.minSdk.get().toInt()
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-    kotlin {
-        compilerOptions {
-            jvmTarget = JvmTarget.JVM_1_8
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(projects.tasks.domain)
+                implementation(projects.notes.domain)
+                implementation(projects.bookmarks.domain)
+                implementation(projects.diary.domain)
+                implementation(projects.core.alarm)
+
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.androidx.room3.runtime)
+                implementation(libs.androidx.sqlite.bundled)
+                implementation(libs.kotlinx.serialization.json)
+
+                implementation(project.dependencies.platform(libs.koin.bom))
+                implementation(libs.bundles.koin)
+            }
+        }
+
+        androidMain {
+            dependencies {
+                implementation(libs.koin.android)
+            }
         }
     }
 }
 
 dependencies {
-    implementation(project(":tasks:domain"))
-    implementation(project(":notes:domain"))
-    implementation(project(":bookmarks:domain"))
-    implementation(project(":diary:domain"))
-    implementation(project(":core:alarm"))
-
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-
-    implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.kotlinx.coroutines.android)
-
-    implementation(libs.androidx.room.runtime)
-    ksp(libs.androidx.room.compiler)
-    api(libs.androidx.room.ktx)
-
-    implementation(platform(libs.koin.bom))
-    implementation(libs.bundles.koin)
-    implementation(libs.koin.android)
-    ksp(libs.koin.ksp.compiler)
-
-    implementation(libs.kotlinx.serialization.json)
+    add("kspAndroid", libs.androidx.room3.compiler)
 }
 
-ksp {
-    arg("room.schemaLocation", "$projectDir/schemas")
+room3 {
+    schemaDirectory("$projectDir/schemas")
+}
+
+koinCompiler {
+    compileSafety = false
 }

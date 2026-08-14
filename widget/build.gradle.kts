@@ -2,18 +2,17 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.ksp)
+    alias(libs.plugins.koin.compiler)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.kotlin.compose.compiler)
 }
 
 android {
     namespace = "com.mhss.app.widget"
-    compileSdk = 36
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        minSdk = 26
+        minSdk = libs.versions.minSdk.get().toInt()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -29,12 +28,12 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlin {
         compilerOptions {
-            jvmTarget = JvmTarget.JVM_1_8
+            jvmTarget = JvmTarget.JVM_17
         }
     }
     buildFeatures {
@@ -46,18 +45,18 @@ android {
 }
 
 dependencies {
-    implementation(project(":tasks:domain"))
-    implementation(project(":calendar:domain"))
-    implementation(project(":notes:domain"))
-    implementation(project(":settings:domain"))
-    implementation(project(":core:preferences"))
+    implementation(projects.tasks.domain)
+    implementation(projects.calendar.domain)
+    implementation(projects.notes.domain)
+    implementation(projects.settings.domain)
+    implementation(projects.core.preferences)
     
-    implementation(project(":core:ui"))
-    implementation(project(":core:util"))
-    implementation(project(":core:widget"))
+    implementation(projects.core.ui)
+    implementation(projects.core.datetime)
+    implementation(projects.core.widget)
 
     implementation(platform(libs.compose.bom))
-    implementation(libs.compose.material)
+    implementation(libs.compose.material3)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -68,10 +67,12 @@ dependencies {
 
     implementation(platform(libs.koin.bom))
     implementation(libs.bundles.koin)
-    implementation(libs.koin.android)
-    ksp(libs.koin.ksp.compiler)
 
     implementation(libs.bundles.androidx.glance)
 
     implementation(libs.kotlinx.serialization.json)
+}
+
+koinCompiler {
+    compileSafety = false
 }

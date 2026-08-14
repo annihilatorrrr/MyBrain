@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">My Brain</string>
+    <string name="reminders_channel_description">任务提醒</string>
+    <string name="reminders_channel_name">提醒</string>
+    <string name="complete">完成</string>
+    <string name="notes">笔记</string>
+    <string name="tasks">待办事项</string>
+    <string name="calendar">日历</string>
+    <string name="due_date">截止日期</string>
+    <string name="error_empty_title">标题不能为空</string>
+    <string name="cancel">取消</string>
+    <string name="no_tasks_message">目前没有待办事项\n 点击+按钮创建待办事项\n 或使用快速设置菜单中的快捷方式</string>
+    <string name="no_notes_message">目前没有笔记\n 点击+按钮创建笔记</string>
+    <string name="bookmark_saved">书签已存储</string>
+    <string name="invalid_url">无效的网址</string>
+    <string name="no_read_calendar_permission_message">请允许日历访问权限以使用该功能</string>
+    <string name="go_to_settings">设置s</string>
+    <string name="added_task">添加到待办事项</string>
+    <string name="no_events">暂无事项</string>
+    <string name="loading">加载中…</string>
+    <string name="calendar_widget_refresh_message">获取权限后请点击刷新</string>
+    <string name="thursday_30_calendar_preview">星期四 30号</string>
+    <string name="sunday_5_calendar_preview">星期天 5号</string>
+    <string name="dinner_with_ali_calender_preview">与Ali共进晚餐</string>
+    <string name="cs_lecture_calender_preview">CS课程</string>
+    <string name="visit_dentist_tasks_preview">牙医诊所预约</string>
+    <string name="buy_groceries_tasks_preview">日常采购</string>
+    <string name="call_mom_tasks_preview">打电话给妈妈</string>
+    <string name="auth_title">Unlock to use the App</string>
+    <string name="added_note">Added to notes</string>
+    <string name="add_note">添加笔记</string>
+    <string name="save_bookmark">书签链接</string>
+    <string name="add_to_tasks">添加到待办事项</string>
+    <string name="add_task_to_my_brain">添加事项到My Brain</string>
+    <string name="exception_stack_trace_copied">Exception stack trace copied to clipboard</string>
+</resources>

@@ -1,5 +1,9 @@
 files:
-  - source: /core/ui/src/main/res/values/strings.xml
-    translation: /core/ui/src/main/res/values-%android_code%/%original_file_name%
+  - source: /core/ui/src/commonMain/composeResources/values/strings.xml
+    translation: /core/ui/src/commonMain/composeResources/values-%android_code%/%original_file_name%
+    translate_attributes: 0
+    content_segmentation: 0
+  - source: /core/ui/src/androidMain/res/values/strings.xml
+    translation: /core/ui/src/androidMain/res/values-%android_code%/%original_file_name%
     translate_attributes: 0
     content_segmentation: 0

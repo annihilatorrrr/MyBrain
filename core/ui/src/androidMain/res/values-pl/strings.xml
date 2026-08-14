@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">My Brain</string>
+    <string name="reminders_channel_description">Kanał powiadomień służący do wysyłania przypomnień wykonania zadań.</string>
+    <string name="reminders_channel_name">Przypomnienia</string>
+    <string name="complete">Ukończono</string>
+    <string name="notes">Notatki</string>
+    <string name="tasks">Zadania</string>
+    <string name="calendar">Kalendarz</string>
+    <string name="due_date">Data ukończenia</string>
+    <string name="error_empty_title">Tytuł nie może być pusty</string>
+    <string name="cancel">Anuluj</string>
+    <string name="no_tasks_message">Nie dodano żadnych zadań\n Aby dodać nowe Zadanie kliknij przycisk +\n lub \nużyj skrótu na pasku szybkich ustawień</string>
+    <string name="no_notes_message">Nie dodano żadnych notatek\n Aby dodać nową Notatkę kliknij przycisk +</string>
+    <string name="bookmark_saved">Pomyślnie zapisano zakładkę</string>
+    <string name="invalid_url">Nieprawidłowy adres URL</string>
+    <string name="no_read_calendar_permission_message">Aby ta funkcja działała poprawnie konieczne jest udzielenie zezwolenia na odczytywanie danych kalendarza.\nProsimy o udzielenie zezwolenia</string>
+    <string name="go_to_settings">Przejdź do ustawień</string>
+    <string name="added_task">Dodano do zadań</string>
+    <string name="no_events">Brak wydarzeń</string>
+    <string name="loading">Ładowanie…</string>
+    <string name="calendar_widget_refresh_message">Jeżeli udzieliłeś już zezwolenia kliknij przycisk Odśwież.</string>
+    <string name="thursday_30_calendar_preview">Czwartek 30</string>
+    <string name="sunday_5_calendar_preview">Niedziela 5</string>
+    <string name="dinner_with_ali_calender_preview">Kolacja z Alim</string>
+    <string name="cs_lecture_calender_preview">Wykład z informatyki</string>
+    <string name="visit_dentist_tasks_preview">Pójdź do dentysty</string>
+    <string name="buy_groceries_tasks_preview">Zrób zakupy</string>
+    <string name="call_mom_tasks_preview">Zadzwoń do mamy</string>
+    <string name="auth_title">Unlock to use the App</string>
+    <string name="added_note">Added to notes</string>
+    <string name="add_note">Dodaj notatkę</string>
+    <string name="save_bookmark">Zapisz zakładkę</string>
+    <string name="add_to_tasks">Dodaj zadanie</string>
+    <string name="add_task_to_my_brain">Dodaj zadanie do My Brain</string>
+    <string name="exception_stack_trace_copied">Exception stack trace copied to clipboard</string>
+</resources>

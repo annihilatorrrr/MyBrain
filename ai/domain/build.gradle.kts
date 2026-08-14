@@ -1,17 +1,35 @@
 plugins {
-    alias(libs.plugins.jetbrains.kotlin.jvm)
-    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.kotlin.multiplatform.library)
+    alias(libs.plugins.koin.compiler)
 }
 
-dependencies {
-    implementation(project(":core:preferences"))
-    implementation(project(":notes:domain"))
-    implementation(project(":tasks:domain"))
-    implementation(project(":calendar:domain"))
+kotlin {
+    android {
+        namespace = "com.mhss.app.ai.domain"
+        compileSdk {
+            version = release(libs.versions.compileSdk.get().toInt())
+        }
+        minSdk = libs.versions.minSdk.get().toInt()
+    }
 
-    implementation(libs.kotlinx.coroutines.core)
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(projects.core.preferences)
+                implementation(projects.notes.domain)
+                implementation(projects.tasks.domain)
+                implementation(projects.calendar.domain)
 
-    implementation(platform(libs.koin.bom))
-    implementation(libs.bundles.koin)
-    ksp(libs.koin.ksp.compiler)
+                implementation(libs.kotlinx.coroutines.core)
+
+                implementation(project.dependencies.platform(libs.koin.bom))
+                implementation(libs.bundles.koin)
+            }
+        }
+    }
+}
+
+koinCompiler {
+    compileSafety = false
 }

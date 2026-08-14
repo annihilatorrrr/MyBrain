@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">My Brain</string>
+    <string name="reminders_channel_description">Notification channel for sending tasks reminders notification</string>
+    <string name="reminders_channel_name">Reminders</string>
+    <string name="complete">Complete</string>
+    <string name="notes">Notes</string>
+    <string name="tasks">Tasks</string>
+    <string name="calendar">Calendar</string>
+    <string name="due_date">Due date</string>
+    <string name="error_empty_title">Title cannot be empty</string>
+    <string name="cancel">Cancel</string>
+    <string name="no_tasks_message">You don\'t have any tasks\n Click the + button to add a new Task\n or \nby using the shortcut in the quick settings menu</string>
+    <string name="no_notes_message">You don\'t have any notes\n Click the + button to add a new Note</string>
+    <string name="bookmark_saved">Bookmark saved successfully</string>
+    <string name="invalid_url">Invalid URL</string>
+    <string name="no_read_calendar_permission_message">Read Calendar permission required for this feature to be available.\nPlease grant the permission</string>
+    <string name="go_to_settings">Go to settings</string>
+    <string name="added_task">Added to tasks</string>
+    <string name="no_events">No events yet</string>
+    <string name="loading">Loading…</string>
+    <string name="calendar_widget_refresh_message">Click the refresh button if you already granted the permission</string>
+    <string name="thursday_30_calendar_preview">Thursday 30</string>
+    <string name="sunday_5_calendar_preview">Sunday 5</string>
+    <string name="dinner_with_ali_calender_preview">Dinner with Ali</string>
+    <string name="cs_lecture_calender_preview">CS lecture</string>
+    <string name="visit_dentist_tasks_preview">Visit dentist</string>
+    <string name="buy_groceries_tasks_preview">Buy groceries</string>
+    <string name="call_mom_tasks_preview">Call mom</string>
+    <string name="auth_title">Unlock to use the App</string>
+    <string name="added_note">Added to notes</string>
+    <string name="add_note">Add note</string>
+    <string name="save_bookmark">Bookmark link</string>
+    <string name="add_to_tasks">Add to tasks</string>
+    <string name="add_task_to_my_brain">Add task to My Brain</string>
+    <string name="exception_stack_trace_copied">Exception stack trace copied to clipboard</string>
+    <string name="app_visible_description">Manage notes, tasks, bookmarks, and diary.</string>
+</resources>

@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">My Brain</string>
+    <string name="reminders_channel_description">لإرسال الاشعارات المتعلقة بالمهام</string>
+    <string name="reminders_channel_name">التذكيرات</string>
+    <string name="complete">إكمال</string>
+    <string name="notes">الملاحظات</string>
+    <string name="tasks">المهام</string>
+    <string name="calendar">التقويم</string>
+    <string name="due_date">الوقت</string>
+    <string name="error_empty_title">العنوال لا يمكن أن يكون فارغ</string>
+    <string name="cancel">إلغاء</string>
+    <string name="no_tasks_message">ليس لديك أي مهام\n أظغط على زر + لإضافة مهام جديدة \n أو \n بواسطة الإختصار من قائمة الاعدادات السريعة بجهازك</string>
+    <string name="no_notes_message">ليس لديك أي ملاحظات.\n اضغط على + لإضافة ملاحظة جديدة</string>
+    <string name="bookmark_saved">تم الحفظ بنجاح</string>
+    <string name="invalid_url">رابط غير صالح</string>
+    <string name="no_read_calendar_permission_message">إذن قرائة التقويم مطلوب لهذه الميزة. \n الرجاء منح الإذن للإستخدام</string>
+    <string name="go_to_settings">الإنتقال الى الاعدادات</string>
+    <string name="added_task">تمت الإضافة الى المهام</string>
+    <string name="no_events">لا يوجد مواعيد بعد</string>
+    <string name="loading">جاري التحميل…</string>
+    <string name="calendar_widget_refresh_message">أضغط زر التحديث إذا كنت قد منحت الاذن بالفعل</string>
+    <string name="thursday_30_calendar_preview">الخميس 30</string>
+    <string name="sunday_5_calendar_preview">الأحد 5</string>
+    <string name="dinner_with_ali_calender_preview">العشاء مع علي</string>
+    <string name="cs_lecture_calender_preview">محاضرة علوم الحاسب</string>
+    <string name="visit_dentist_tasks_preview">زيارة طبيب الاسنان</string>
+    <string name="buy_groceries_tasks_preview">شراء الاحتياجات من البقالة</string>
+    <string name="call_mom_tasks_preview">الاتصال بأمي</string>
+    <string name="auth_title">فتح القفل لاستخدام التطبيق</string>
+    <string name="added_note">تمت الإضافة الى الملاحظات</string>
+    <string name="add_note">إضافة ملاحظة</string>
+    <string name="save_bookmark">رابط الإشارة المرجعية</string>
+    <string name="add_to_tasks">إضافة الى المهام</string>
+    <string name="add_task_to_my_brain">إضافة مهمة</string>
+    <string name="exception_stack_trace_copied">تم نسخ نص الخطأ في الحافظة</string>
+    <string name="app_visible_description">إدارة الملاحظات والمهام والإشارات المرجعية واليوميات.</string>
+</resources>

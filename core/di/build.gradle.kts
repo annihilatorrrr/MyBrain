@@ -1,13 +1,30 @@
 plugins {
-    alias(libs.plugins.jetbrains.kotlin.jvm)
-    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.kotlin.multiplatform.library)
+    alias(libs.plugins.koin.compiler)
 }
 
-dependencies {
-    implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.bundles.ktor.core)
+kotlin {
+    android {
+        namespace = "com.mhss.app.di"
+        compileSdk {
+            version = release(libs.versions.compileSdk.get().toInt())
+        }
+        minSdk = libs.versions.minSdk.get().toInt()
+    }
 
-    implementation(platform(libs.koin.bom))
-    implementation(libs.bundles.koin)
-    ksp(libs.koin.ksp.compiler)
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.bundles.ktor.core)
+                implementation(project.dependencies.platform(libs.koin.bom))
+                implementation(libs.bundles.koin)
+            }
+        }
+    }
+}
+
+koinCompiler {
+    compileSafety = false
 }

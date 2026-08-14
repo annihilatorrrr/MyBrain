@@ -19,12 +19,14 @@
 
 [screenshots made by previewed](https://previewed.app/template/00CBF3F6)
 
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
-    alt="Get it on F-Droid"
-    height="80">](https://f-droid.org/packages/com.mhss.app.mybrain)
+[<img src="https://github.com/ImranR98/Obtainium/blob/main/assets/graphics/badge_obtainium.png"
+alt="Get it on Obtainium"
+height="80">](https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/mhss1/MyBrain)
 [<img src="https://github.com/mhss1/MyBrain/assets/58703865/94cbf557-b1a9-4339-b6b4-def21dde3c11"
      alt="Get it on GitHub"
      height="80">](https://github.com/mhss1/MyBrain/releases/latest)
+
+> **F-Droid notice:** My Brain is being discontinued on F-Droid because future releases will introduce native dependencies that would add significant build and maintenance complexity, and may use proprietary components such as Google ML Kit that are incompatible with F-Droid's policy. If you currently use the F-Droid version, export your data first, then install the latest version from [GitHub Releases](https://github.com/mhss1/MyBrain/releases/latest) and import your data.
       
 ## Features
 - Local and Private with no data collection at all.

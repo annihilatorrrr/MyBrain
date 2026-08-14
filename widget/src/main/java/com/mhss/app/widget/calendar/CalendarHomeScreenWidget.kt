@@ -5,12 +5,28 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.glance.*
+import androidx.glance.Button
+import androidx.glance.ColorFilter
+import androidx.glance.GlanceModifier
+import androidx.glance.GlanceTheme
+import androidx.glance.Image
+import androidx.glance.ImageProvider
+import androidx.glance.LocalContext
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.items
-import androidx.glance.layout.*
+import androidx.glance.layout.Alignment
+import androidx.glance.layout.Box
+import androidx.glance.layout.Column
+import androidx.glance.layout.Row
+import androidx.glance.layout.Spacer
+import androidx.glance.layout.fillMaxSize
+import androidx.glance.layout.fillMaxWidth
+import androidx.glance.layout.height
+import androidx.glance.layout.padding
+import androidx.glance.layout.size
+import androidx.glance.layout.width
 import androidx.glance.material3.ColorProviders
 import androidx.glance.preview.ExperimentalGlancePreviewApi
 import androidx.glance.preview.Preview
@@ -18,9 +34,10 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
-import com.mhss.app.ui.R
+import com.mhss.app.datetime.now
 import com.mhss.app.domain.model.CalendarEvent
-import com.mhss.app.util.date.now
+import com.mhss.app.domain.use_case.CalendarEventsDay
+import com.mhss.app.ui.R
 import com.mhss.app.widget.WidgetTheme
 import com.mhss.app.widget.largeBackgroundBasedOnVersion
 import com.mhss.app.widget.largeInnerBackgroundBasedOnVersion
@@ -29,7 +46,7 @@ import kotlin.time.Duration.Companion.hours
 
 @Composable
 fun CalendarHomeScreenWidget(
-    events: Map<String, List<CalendarEvent>>,
+    events: List<CalendarEventsDay>,
     hasPermission: Boolean
 ) {
     val context = LocalContext.current
@@ -110,10 +127,10 @@ fun CalendarHomeScreenWidget(
                         }
                     }
                     item { Spacer(GlanceModifier.height(6.dp)) }
-                    events.forEach { (day, dayEvents) ->
+                    events.forEach { eventDay ->
                         item {
                             Text(
-                                text = day,
+                                text = eventDay.formattedDate.substringBefore(","),
                                 style = TextStyle(
                                     color = GlanceTheme.colors.secondary,
                                     fontWeight = FontWeight.Bold,
@@ -122,7 +139,7 @@ fun CalendarHomeScreenWidget(
                                 modifier = GlanceModifier.padding(bottom = 2.dp)
                             )
                         }
-                        items(dayEvents) { event ->
+                        items(eventDay.events) { event ->
                             CalendarEventWidgetItem(event = event)
                         }
                     }
@@ -165,8 +182,8 @@ fun CalendarHomeScreenWidget(
 private fun CalendarHomeScreenWidgetPreview() {
     WidgetTheme(ColorProviders(widgetDarkColorScheme)) {
         CalendarHomeScreenWidget(
-            mapOf(
-                "Monday 7, 2024" to listOf(
+            listOf(
+                CalendarEventsDay("Monday 7, 2024", listOf(
                     CalendarEvent(
                         id = 1,
                         title = "Event 1",
@@ -176,8 +193,8 @@ private fun CalendarHomeScreenWidgetPreview() {
                         location = "Location 1",
                         color = Color.Red.toArgb()
                     )
-                ),
-                "Tuesday 8, 2024" to listOf(
+                ), "October"),
+                CalendarEventsDay("Tuesday 8, 2024",listOf(
                     CalendarEvent(
                         id = 3,
                         title = "Event 2",
@@ -196,8 +213,10 @@ private fun CalendarHomeScreenWidgetPreview() {
                         location = "Location 3",
                         color = Color.Gray.toArgb()
                     )
-                )
-            ),
+                ),
+                "October"
+            )
+        ),
             true
         )
     }

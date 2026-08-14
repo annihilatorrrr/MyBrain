@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">My Brain</string>
+    <string name="reminders_channel_description">Benachrichtigungskanal zum Senden von Aufgabenerinnerungen</string>
+    <string name="reminders_channel_name">Erinnerungen</string>
+    <string name="complete">Fertig</string>
+    <string name="notes">Notizen</string>
+    <string name="tasks">Aufgaben</string>
+    <string name="calendar">Kalender</string>
+    <string name="due_date">Fälligkeitsdatum</string>
+    <string name="error_empty_title">Titel darf nicht leer sein</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="no_tasks_message">Du hast noch keine Aufgaben\n Klicke auf das + Symbol eine neue\n Aufgabe zu erstellen.\n Oder nutze den Shortcut in den\n Schnelleinstellungen</string>
+    <string name="no_notes_message">Du hast noch keine Notizen\n Klicke auf das + Symbol eine neue Notiz zu erstellen</string>
+    <string name="bookmark_saved">Lesezeichen erfolgreich gespeichert</string>
+    <string name="invalid_url">Ungültige URL</string>
+    <string name="no_read_calendar_permission_message">Dieses Feature benötigt Leserechte\n für deinen Kalender.\n Bitte erteile deine Erlaubnis</string>
+    <string name="go_to_settings">Gehe zu den Einstellungen</string>
+    <string name="added_task">Zu Aufgaben hinzugefügt</string>
+    <string name="no_events">Keine Ereignisse</string>
+    <string name="loading">Lade…</string>
+    <string name="calendar_widget_refresh_message">Drücke den Aktualisieren Button wenn du bereits die Erlaubnis erteilt hast</string>
+    <string name="thursday_30_calendar_preview">Donnerstag 30</string>
+    <string name="sunday_5_calendar_preview">Sonntag 5</string>
+    <string name="dinner_with_ali_calender_preview">Abendessen mit Ali</string>
+    <string name="cs_lecture_calender_preview">CS Vortrag</string>
+    <string name="visit_dentist_tasks_preview">Zahnarztbesuch</string>
+    <string name="buy_groceries_tasks_preview">Lebensmittel kaufen</string>
+    <string name="call_mom_tasks_preview">Mama anrufen</string>
+    <string name="auth_title">Entsperren um die App zu nutzen</string>
+    <string name="added_note">Zu Notizen hinzugefügt</string>
+    <string name="add_note">Notiz hinzufügen</string>
+    <string name="save_bookmark">Lesezeichen Link</string>
+    <string name="add_to_tasks">Zu Aufgaben hinzufügen</string>
+    <string name="add_task_to_my_brain">Aufgabe zu My Brain hinzufügen</string>
+    <string name="exception_stack_trace_copied">Stack-Fehlerverfolgung in Zwischenablage kopiert</string>
+</resources>

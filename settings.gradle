@@ -10,17 +10,22 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://jitpack.io' }
+        maven { url = uri("https://jitpack.io") }
     }
 }
-rootProject.name = "My Brain"
-include ':app'
-include ':core:util'
-include ':core:notification'
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+rootProject.name = "MyBrain"
+include ':composeApp'
+include ':androidApp'
+include ':appfunctions'
+include ':core:datetime'
 include ':tasks:domain'
 include ':core:alarm'
 include ':notes:domain'
 include ':core:preferences'
+include ':core:storage'
 include ':core:di'
 include ':core:widget'
 include ':calendar:domain'
@@ -45,3 +50,5 @@ include ':bookmarks:data'
 include ':ai:presentation'
 include ':ai:domain'
 include ':ai:data'
+include ':local-sync'
+

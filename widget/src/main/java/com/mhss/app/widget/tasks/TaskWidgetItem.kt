@@ -1,5 +1,7 @@
 package com.mhss.app.widget.tasks
 
+import com.mhss.app.datetime.LocalDateTimeFormatter
+
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -35,8 +37,7 @@ import com.mhss.app.domain.model.Priority
 import com.mhss.app.domain.model.Task
 import com.mhss.app.ui.R
 import com.mhss.app.ui.color
-import com.mhss.app.util.date.formatDateDependingOnDay
-import com.mhss.app.util.date.isDueDateOverdue
+import com.mhss.app.datetime.isDueDateOverdue
 import com.mhss.app.widget.smallBackgroundBasedOnVersion
 
 @SuppressLint("RestrictedApi")
@@ -146,7 +147,7 @@ fun TaskWidgetItem(
                         )
                         Spacer(GlanceModifier.width(3.dp))
                         Text(
-                            text = task.dueDate.formatDateDependingOnDay(context),
+                            text = LocalDateTimeFormatter.current.formatDateDependingOnDay(task.dueDate),
                             style = TextStyle(
                                 color = if (task.dueDate.isDueDateOverdue())
                                     ColorProvider(Color.Red)

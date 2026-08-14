@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">My Brain</string>
+    <string name="reminders_channel_description">Kênh thông báo để gửi thông báo nhắc nhở nhiệm vụ</string>
+    <string name="reminders_channel_name">Lời nhắc</string>
+    <string name="complete">Hoàn thành</string>
+    <string name="notes">Ghi chú</string>
+    <string name="tasks">Nhiệm vụ</string>
+    <string name="calendar">Lịch</string>
+    <string name="due_date">Ngày đáo hạn</string>
+    <string name="error_empty_title">Tiêu đề không được để trống</string>
+    <string name="cancel">Hủy</string>
+    <string name="no_tasks_message">Bạn không có nhiệm vụ nào\n Nhấp vào nút + để thêm Nhiệm vụ mới\n hoặc \nbằng cách sử dụng lối tắt trong menu cài đặt nhanh</string>
+    <string name="no_notes_message">Bạn không có ghi chú nào\n Nhấp vào nút + để thêm Ghi chú mới</string>
+    <string name="bookmark_saved">Đã lưu dấu trang thành công</string>
+    <string name="invalid_url">URL không hợp lệ</string>
+    <string name="no_read_calendar_permission_message">Cần có quyền đọc Lịch để sử dụng được tính năng này.\nVui lòng cấp quyền</string>
+    <string name="go_to_settings">Đi tới thiết đặt</string>
+    <string name="added_task">Đã thêm vào nhiệm vụ</string>
+    <string name="no_events">Chưa có sự kiện nào</string>
+    <string name="loading">Đang tải…</string>
+    <string name="calendar_widget_refresh_message">Nhấp vào nút làm mới nếu bạn đã cấp quyền</string>
+    <string name="thursday_30_calendar_preview">Thứ năm ngày 30</string>
+    <string name="sunday_5_calendar_preview">Chủ nhật ngày 5</string>
+    <string name="dinner_with_ali_calender_preview">Ăn tối với Ali</string>
+    <string name="cs_lecture_calender_preview">Bài giảng CS</string>
+    <string name="visit_dentist_tasks_preview">Thăm nha sĩ</string>
+    <string name="buy_groceries_tasks_preview">Mua đồ tạp hóa</string>
+    <string name="call_mom_tasks_preview">Gọi mẹ</string>
+    <string name="auth_title">Unlock to use the App</string>
+    <string name="added_note">Added to notes</string>
+    <string name="add_note">Thêm ghi chú</string>
+    <string name="save_bookmark">Liên kết dấu trang</string>
+    <string name="add_to_tasks">Thêm vào nhiệm vụ</string>
+    <string name="add_task_to_my_brain">Thêm nhiệm vụ vào My Brain</string>
+    <string name="exception_stack_trace_copied">Exception stack trace copied to clipboard</string>
+</resources>

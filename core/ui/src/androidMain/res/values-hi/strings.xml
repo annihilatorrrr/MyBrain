@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">My Brain</string>
+    <string name="reminders_channel_description">कार्य संबंधी सूचनाएं भेजने के लिए</string>
+    <string name="reminders_channel_name">रिमाइंडर्स</string>
+    <string name="complete">पूर्ण हुआ</string>
+    <string name="notes">टिप्पणियाँ</string>
+    <string name="tasks">कार्य</string>
+    <string name="calendar">कैलेंडर</string>
+    <string name="due_date">नियत तारीख</string>
+    <string name="error_empty_title">शीर्षक खाली नहीं रख सकते</string>
+    <string name="cancel">रद्द करे</string>
+    <string name="no_tasks_message">आपके पास कोई कार्य नहीं है। एक नया कार्य जोड़ें या क्विक सेटिंग मेनू में शॉर्टकट का उपयोग करके + बटन पर क्लिक करें</string>
+    <string name="no_notes_message">आपके पास कोई नोट नहीं है। नया नोट जोड़ने के लिए + बटन पर क्लिक करें</string>
+    <string name="bookmark_saved">बुकमार्क सफलतापूर्वक सहेजा गया</string>
+    <string name="invalid_url">अवैध यूआरएल</string>
+    <string name="no_read_calendar_permission_message">इस सुविधा के उपलब्ध होने के लिए आवश्यक कैलेंडर अनुमति दें। कृपया अनुमति प्रदान करें</string>
+    <string name="go_to_settings">सेटिंग्स में जाए</string>
+    <string name="added_task">कार्यों में जोड़ा गया</string>
+    <string name="no_events">अभी तक कोई ईवेंट नहीं</string>
+    <string name="loading">लोड हो रहा है…</string>
+    <string name="calendar_widget_refresh_message">यदि आपने पहले ही अनुमति दे दी है तो बटन पर क्लिक करके रिफ्रेश करे</string>
+    <string name="thursday_30_calendar_preview">गुरुवार 30</string>
+    <string name="sunday_5_calendar_preview">रविवार 5</string>
+    <string name="dinner_with_ali_calender_preview">अली के साथ डिनर</string>
+    <string name="cs_lecture_calender_preview">सीएस लेक्चर</string>
+    <string name="visit_dentist_tasks_preview">दंत चिकित्सा पर जाएँ</string>
+    <string name="buy_groceries_tasks_preview">किराने का सामान खरीदो</string>
+    <string name="call_mom_tasks_preview">कॉल माँ</string>
+    <string name="auth_title">Unlock to use the App</string>
+    <string name="added_note">Added to notes</string>
+    <string name="add_note">नोट जोड़े</string>
+    <string name="save_bookmark">बुकमार्क लिंक</string>
+    <string name="add_to_tasks">कार्यों में जोड़ें</string>
+    <string name="add_task_to_my_brain">माय ब्रेन मैं टास्क जोड़े</string>
+    <string name="exception_stack_trace_copied">Exception stack trace copied to clipboard</string>
+</resources>

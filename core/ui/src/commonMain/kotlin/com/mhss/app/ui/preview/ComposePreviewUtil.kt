@@ -80,11 +80,16 @@ private val previewDateTimeFormatter = object : DateTimeFormatter {
     override fun formatDateDependingOnDay(timestamp: Long): String {
         val localDT = timestamp.localDateTime
         val timePart = formatTimeInternal(localDT)
-        return if (localDT.isToday()) {
-            timePart
-        } else {
-            "${monthShortNames[localDT.month.number - 1]} %02d, ${localDT.year} $timePart"
-                .format(localDT.day)
+        return when {
+            localDT.isToday() -> timePart
+            localDT.isCurrentYear() -> {
+                "${monthShortNames[localDT.month.number - 1]} %02d, $timePart"
+                    .format(localDT.day)
+            }
+            else -> {
+                "${monthShortNames[localDT.month.number - 1]} %02d, ${localDT.year} $timePart"
+                    .format(localDT.day)
+            }
         }
     }
 

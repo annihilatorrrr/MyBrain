@@ -29,7 +29,11 @@ class AndroidDateTimeFormatter(private val context: Context) : DateTimeFormatter
     override fun formatDateDependingOnDay(timestamp: Long): String {
         val localDT = timestamp.localDateTime
         val hourPatternString = if (is24HourFormat) "H:mm" else "h:mm a"
-        val datePattern = if (localDT.isToday()) hourPatternString else "MMM dd, yyyy $hourPatternString"
+        val datePattern = when {
+            localDT.isToday() -> hourPatternString
+            localDT.isCurrentYear() -> "MMM dd, $hourPatternString"
+            else -> "MMM dd, yyyy $hourPatternString"
+        }
         return JavaDateTimeFormatter.ofPattern(datePattern, Locale.getDefault()).format(localDT.toJavaLocalDateTime())
     }
 

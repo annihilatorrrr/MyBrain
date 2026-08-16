@@ -4,11 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import com.mhss.app.domain.model.Task
 import com.mhss.app.ui.R
-import com.mhss.app.datetime.now
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import kotlin.uuid.Uuid
 
 class AddTaskFromShareActivity : ComponentActivity() {
 
@@ -21,14 +18,7 @@ class AddTaskFromShareActivity : ComponentActivity() {
                 val title = intent.getStringExtra(Intent.EXTRA_TEXT)
                 if (!title.isNullOrBlank()) {
                     viewModel.onEvent(
-                        TaskEvent.AddTask(
-                            Task(
-                                title = title,
-                                createdDate = now(),
-                                updatedDate = now(),
-                                id = Uuid.generateV7().toString()
-                            )
-                        )
+                        TaskEvent.AddTask(AddTaskInput(title))
                     )
                     Toast.makeText(this, getString(R.string.added_task), Toast.LENGTH_SHORT)
                         .show()

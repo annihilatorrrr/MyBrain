@@ -6,6 +6,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mhss.app.datetime.now
+import com.mhss.app.domain.model.SubTask
 import com.mhss.app.domain.model.Task
 import com.mhss.app.domain.use_case.GetAllTasksUseCase
 import com.mhss.app.domain.use_case.SearchTasksUseCase
@@ -31,7 +33,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 @KoinViewModel
 class TasksViewModel(
     private val addTask: UpsertTaskUseCase,
@@ -69,8 +74,20 @@ class TasksViewModel(
         when (event) {
             is TaskEvent.AddTask -> {
                 viewModelScope.launch {
-                    if (event.task.title.isNotBlank()) {
-                        val scheduleSuccess = addTask(event.task)
+                    if (event.input.title.isNotBlank()) {
+                        val timestamp = now()
+                        val task = Task(
+                            title = event.input.title.trim(),
+                            priority = event.input.priority,
+                            dueDate = event.input.dueDate,
+                            subTasks = event.input.subTasks.mapNotNull { title ->
+                                title.trim().takeIf(String::isNotBlank)?.let(::SubTask)
+                            },
+                            createdDate = timestamp,
+                            updatedDate = timestamp,
+                            id = Uuid.generateV7().toString()
+                        )
+                        val scheduleSuccess = addTask(task)
                         if (!scheduleSuccess) tasksUiState = tasksUiState.copy(alarmError = true)
                     } else {
                         tasksUiState.snackbarHostState.showSnackbar(Res.string.error_empty_title)

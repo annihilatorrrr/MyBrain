@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -48,8 +47,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -284,7 +281,6 @@ fun TaskDetailsContent(
     priorities: List<Priority>,
     formattedDate: String,
     formattedTime: String,
-    focusRequester: FocusRequester? = null,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
     onPriorityChange: (Priority) -> Unit,
@@ -294,7 +290,6 @@ fun TaskDetailsContent(
     onFrequencyChange: (TaskFrequency) -> Unit,
     onFrequencyAmountChange: (Int) -> Unit,
     onComplete: (Boolean) -> Unit,
-    optionalContent: @Composable ColumnScope.() -> Unit = {}
 ) {
     Column(
         modifier
@@ -318,16 +313,8 @@ fun TaskDetailsContent(
                 onValueChange = onTitleChange,
                 label = { Text(text = stringResource(Res.string.title)) },
                 shape = RoundedCornerShape(15.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .then(
-                        if (focusRequester != null) Modifier.focusRequester(focusRequester)
-                        else Modifier
-                    )
+                modifier = Modifier.fillMaxWidth()
             )
-            LaunchedEffect(focusRequester) {
-                focusRequester?.requestFocus()
-            }
         }
         Spacer(Modifier.height(12.dp))
         Column {
@@ -505,7 +492,6 @@ fun TaskDetailsContent(
             shape = RoundedCornerShape(15.dp),
             modifier = Modifier.fillMaxWidth()
         )
-        optionalContent()
     }
 }
 

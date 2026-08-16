@@ -12,6 +12,8 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.provideContent
 import androidx.glance.material3.ColorProviders
+import androidx.glance.currentState
+import androidx.datastore.preferences.core.Preferences
 import com.mhss.app.datetime.DateTimeFormatter
 import com.mhss.app.datetime.LocalDateTimeFormatter
 import com.mhss.app.domain.use_case.GetAllTasksUseCase
@@ -39,6 +41,8 @@ class TasksWidget : GlanceAppWidget(), KoinComponent {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
 
         provideContent {
+            val widgetPreferences = currentState<Preferences>()
+            val backgroundOpacity = TasksWidgetSettings.backgroundOpacity(widgetPreferences)
             val order by getSettings(
                 intPreferencesKey(PrefsConstants.TASKS_ORDER_KEY),
                 Order.DateModified(OrderType.ASC).toInt()
@@ -79,7 +83,8 @@ class TasksWidget : GlanceAppWidget(), KoinComponent {
 
                 ) {
                     TasksHomeScreenWidget(
-                        tasks
+                        tasks = tasks,
+                        backgroundOpacity = backgroundOpacity
                     )
                 }
             }

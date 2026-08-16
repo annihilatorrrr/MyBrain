@@ -6,6 +6,10 @@
     <string name="complete">إكمال</string>
     <string name="notes">الملاحظات</string>
     <string name="tasks">المهام</string>
+    <string name="tasks_widget_settings">إعدادات أداة المهام</string>
+    <string name="widget_background_opacity">عتامة الخلفية</string>
+    <string name="widget_background_opacity_description">تتيح العتامة المنخفضة ظهور خلفية جهازك من خلالها. وتطبّق أجهزة سامسونج المدعومة أيضًا تمويه أدوات One UI.</string>
+    <string name="save">حفظ</string>
     <string name="calendar">التقويم</string>
     <string name="due_date">الوقت</string>
     <string name="error_empty_title">العنوال لا يمكن أن يكون فارغ</string>

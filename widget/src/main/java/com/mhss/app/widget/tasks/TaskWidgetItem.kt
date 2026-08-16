@@ -2,7 +2,6 @@ package com.mhss.app.widget.tasks
 
 import com.mhss.app.datetime.LocalDateTimeFormatter
 
-import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
@@ -19,6 +18,7 @@ import androidx.glance.action.actionParametersOf
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.background
+import androidx.glance.color.ColorProvider
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
@@ -32,7 +32,6 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.ColorProvider
 import com.mhss.app.domain.model.Priority
 import com.mhss.app.domain.model.Task
 import com.mhss.app.ui.R
@@ -40,18 +39,17 @@ import com.mhss.app.ui.color
 import com.mhss.app.datetime.isDueDateOverdue
 import com.mhss.app.widget.smallBackgroundBasedOnVersion
 
-@SuppressLint("RestrictedApi")
 @Composable
 fun TaskWidgetItem(
-    task: Task
+    task: Task,
+    backgroundOpacity: Float
 ) {
-    val context = LocalContext.current
     Box(
         GlanceModifier.padding(bottom = 3.dp)
     ) {
         Column(
             GlanceModifier
-                .smallBackgroundBasedOnVersion()
+                .smallBackgroundBasedOnVersion(backgroundOpacity)
                 .padding(10.dp)
                 .clickable(
                     actionRunCallback<TaskWidgetItemClickAction>(
@@ -142,7 +140,11 @@ fun TaskWidgetItem(
                             provider = ImageProvider(R.drawable.ic_alarm),
                             contentDescription = "",
                             colorFilter = ColorFilter.tint(
-                                if (task.dueDate.isDueDateOverdue()) ColorProvider(Color.Red) else GlanceTheme.colors.onSecondaryContainer
+                                if (task.dueDate.isDueDateOverdue()) {
+                                    ColorProvider(day = Color.Red, night = Color.Red)
+                                } else {
+                                    GlanceTheme.colors.onSecondaryContainer
+                                }
                             )
                         )
                         Spacer(GlanceModifier.width(3.dp))
@@ -150,7 +152,7 @@ fun TaskWidgetItem(
                             text = LocalDateTimeFormatter.current.formatDateDependingOnDay(task.dueDate),
                             style = TextStyle(
                                 color = if (task.dueDate.isDueDateOverdue())
-                                    ColorProvider(Color.Red)
+                                    ColorProvider(day = Color.Red, night = Color.Red)
                                 else GlanceTheme.colors.onSecondaryContainer,
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 12.sp,

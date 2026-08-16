@@ -30,6 +30,11 @@
         android:theme="@style/Theme.MyBrain"
         tools:ignore="UnusedAttribute">
 
+        <!-- Enables One UI's extended widget handling, including native widget background blur. -->
+        <meta-data
+            android:name="SamsungBasicInteraction"
+            android:value="SEP10" />
+
         <property android:name="android.app.appfunctions.app_metadata"
                   android:resource="@xml/app_metadata" />
 
@@ -81,6 +86,16 @@
                 <data android:host="sync" />
             </intent-filter>
 
+        </activity>
+
+        <activity
+            android:name=".presentation.widget.TasksWidgetConfigurationActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:theme="@style/Theme.MyBrain">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
         </activity>
 
         <receiver

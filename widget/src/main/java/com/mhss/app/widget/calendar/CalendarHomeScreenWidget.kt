@@ -1,5 +1,6 @@
 package com.mhss.app.widget.calendar
 
+import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -14,6 +15,7 @@ import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
+import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.items
 import androidx.glance.layout.Alignment
@@ -47,13 +49,20 @@ import kotlin.time.Duration.Companion.hours
 @Composable
 fun CalendarHomeScreenWidget(
     events: List<CalendarEventsDay>,
-    hasPermission: Boolean
+    hasPermission: Boolean,
+    backgroundOpacity: Float
 ) {
     val context = LocalContext.current
+    val useSamsungWidgetBackground = Build.MANUFACTURER.equals("samsung", ignoreCase = true)
+    val effectiveBackgroundOpacity = backgroundOpacity.coerceIn(1f / 255f, 254f / 255f)
     Box(
         modifier = GlanceModifier
             .fillMaxWidth()
-            .largeBackgroundBasedOnVersion()
+            .largeBackgroundBasedOnVersion(
+                backgroundOpacity = effectiveBackgroundOpacity,
+                useHostCorners = useSamsungWidgetBackground
+            )
+            .appWidgetBackground()
     ) {
         Column(
             modifier = GlanceModifier
@@ -107,7 +116,7 @@ fun CalendarHomeScreenWidget(
                 LazyColumn(
                     modifier = GlanceModifier
                         .fillMaxSize()
-                        .largeInnerBackgroundBasedOnVersion()
+                        .largeInnerBackgroundBasedOnVersion(effectiveBackgroundOpacity)
                         .padding(horizontal = 6.dp),
                     horizontalAlignment = Alignment.Start
                 ) {
@@ -140,7 +149,10 @@ fun CalendarHomeScreenWidget(
                             )
                         }
                         items(eventDay.events) { event ->
-                            CalendarEventWidgetItem(event = event)
+                            CalendarEventWidgetItem(
+                                event = event,
+                                backgroundOpacity = effectiveBackgroundOpacity
+                            )
                         }
                     }
                 }
@@ -217,7 +229,8 @@ private fun CalendarHomeScreenWidgetPreview() {
                 "October"
             )
         ),
-            true
+            true,
+            1f
         )
     }
 }

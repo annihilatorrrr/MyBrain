@@ -1,4 +1,4 @@
-package com.mhss.app.widget.tasks
+package com.mhss.app.widget
 
 import android.content.Context
 import androidx.datastore.preferences.core.Preferences
@@ -8,7 +8,7 @@ import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
 
-object TasksWidgetSettings {
+object WidgetSettings {
     const val DEFAULT_BACKGROUND_OPACITY = 1f
 
     private val backgroundOpacityKey = floatPreferencesKey("background_opacity")

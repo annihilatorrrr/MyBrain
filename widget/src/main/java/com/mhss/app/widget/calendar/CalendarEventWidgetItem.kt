@@ -36,6 +36,7 @@ import com.mhss.app.widget.smallBackgroundBasedOnVersion
 @Composable
 fun CalendarEventWidgetItem(
     event: CalendarEvent,
+    backgroundOpacity: Float
 ) {
     val formatter = LocalDateTimeFormatter.current
     Box(
@@ -43,7 +44,7 @@ fun CalendarEventWidgetItem(
             .padding(vertical = 4.dp)
     ) {
         Box(
-            modifier = GlanceModifier.smallBackgroundBasedOnVersion()
+            modifier = GlanceModifier.smallBackgroundBasedOnVersion(backgroundOpacity)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,

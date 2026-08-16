@@ -32,14 +32,15 @@ import com.mhss.app.widget.smallBackgroundBasedOnVersion
 
 @Composable
 fun NoteWidgetItem(
-    note: Note
+    note: Note,
+    backgroundOpacity: Float
 ) {
     Box(
         GlanceModifier.padding(bottom = 3.dp)
     ) {
         Column(
             GlanceModifier
-                .smallBackgroundBasedOnVersion()
+                .smallBackgroundBasedOnVersion(backgroundOpacity)
                 .padding(10.dp)
                 .clickable(
                     actionRunCallback<NoteWidgetItemClickAction>(

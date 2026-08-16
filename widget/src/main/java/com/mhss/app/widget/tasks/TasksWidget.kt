@@ -26,6 +26,7 @@ import com.mhss.app.preferences.domain.model.toInt
 import com.mhss.app.preferences.domain.model.toOrder
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import com.mhss.app.ui.ThemeSettings
+import com.mhss.app.widget.WidgetSettings
 import com.mhss.app.widget.WidgetTheme
 import com.mhss.app.widget.widgetDarkColorScheme
 import com.mhss.app.widget.widgetLightColorScheme
@@ -42,7 +43,7 @@ class TasksWidget : GlanceAppWidget(), KoinComponent {
 
         provideContent {
             val widgetPreferences = currentState<Preferences>()
-            val backgroundOpacity = TasksWidgetSettings.backgroundOpacity(widgetPreferences)
+            val backgroundOpacity = WidgetSettings.backgroundOpacity(widgetPreferences)
             val order by getSettings(
                 intPreferencesKey(PrefsConstants.TASKS_ORDER_KEY),
                 Order.DateModified(OrderType.ASC).toInt()

@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -80,8 +81,8 @@ import org.jetbrains.compose.resources.stringResource as cmpStringResource
 fun AddTaskFloatingCard(
     onAddTask: (AddTaskInput) -> Unit,
     onDismiss: () -> Unit,
-    liquidState: LiquidState,
     modifier: Modifier = Modifier,
+    liquidState: LiquidState? = null,
 ) {
     var title by rememberSaveable { mutableStateOf("") }
     var priority by rememberSaveable { mutableStateOf(Priority.LOW) }
@@ -172,12 +173,21 @@ fun AddTaskFloatingCard(
                 spread = 7f
                 radius = 36f
             }
-            .frostedGlass(
-                liquidState = liquidState,
-                shape = RoundedCornerShape(24.dp),
-                refraction = 0.40f,
-                frost = 8.dp,
-                curve = 0.05f,
+            .then(
+                if (liquidState != null) {
+                    Modifier.frostedGlass(
+                        liquidState = liquidState,
+                        shape = RoundedCornerShape(24.dp),
+                        refraction = 0.40f,
+                        frost = 8.dp,
+                        curve = 0.05f,
+                    )
+                } else {
+                    Modifier.background(
+                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        shape = RoundedCornerShape(24.dp)
+                    )
+                }
             )
     ) {
         Column(

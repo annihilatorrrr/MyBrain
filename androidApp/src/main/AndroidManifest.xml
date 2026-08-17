@@ -84,6 +84,16 @@
         </activity>
 
         <activity
+            android:name="com.mhss.app.presentation.QuickAddTaskActivity"
+            android:autoRemoveFromRecents="true"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:taskAffinity="${applicationId}.quickadd"
+            android:theme="@style/Theme.MyBrain.QuickAdd"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
             android:name=".presentation.widget.TasksWidgetConfigurationActivity"
             android:excludeFromRecents="true"
             android:exported="true"

@@ -25,6 +25,7 @@ import com.mhss.app.preferences.domain.use_case.SavePreferenceUseCase
 import com.mhss.app.ui.Res
 import com.mhss.app.ui.error_empty_title
 import com.mhss.app.ui.snackbar.showSnackbar
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
@@ -33,6 +34,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
+import org.koin.core.annotation.Named
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -44,7 +46,8 @@ class TasksViewModel(
     private val completeTask: UpdateTaskCompletedUseCase,
     getPreference: GetPreferenceUseCase,
     private val savePreference: SavePreferenceUseCase,
-    private val searchTasksUseCase: SearchTasksUseCase
+    private val searchTasksUseCase: SearchTasksUseCase,
+    @Named("applicationScope") private val applicationScope: CoroutineScope,
 ) : ViewModel() {
 
     var tasksUiState by mutableStateOf(UiState())
@@ -73,7 +76,7 @@ class TasksViewModel(
     fun onEvent(event: TaskEvent) {
         when (event) {
             is TaskEvent.AddTask -> {
-                viewModelScope.launch {
+                applicationScope.launch {
                     if (event.input.title.isNotBlank()) {
                         val timestamp = now()
                         val task = Task(

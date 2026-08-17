@@ -161,8 +161,7 @@ fun MyBrainApp(
                     deepLinks =
                         listOf(
                             navDeepLink {
-                                uriPattern =
-                                    "${Constants.TASKS_SCREEN_URI}?${Constants.ADD_TASK_ARG}={${Constants.ADD_TASK_ARG}}"
+                                uriPattern = Constants.TASKS_SCREEN_URI
                             }
                         ),
                     enterTransition = { slideInTransition() },

@@ -45,6 +45,7 @@ android {
 }
 
 dependencies {
+    implementation(projects.tasks.presentation)
     implementation(projects.tasks.domain)
     implementation(projects.calendar.domain)
     implementation(projects.notes.domain)

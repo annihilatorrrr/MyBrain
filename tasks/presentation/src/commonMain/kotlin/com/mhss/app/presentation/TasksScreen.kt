@@ -7,6 +7,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -27,25 +29,20 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -77,7 +74,6 @@ import com.mhss.app.util.permissions.Permission
 import com.mhss.app.util.permissions.rememberPermissionState
 import io.github.fletchmckee.liquid.liquefiable
 import io.github.fletchmckee.liquid.rememberLiquidState
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -91,17 +87,12 @@ fun TasksScreen(
     viewModel: TasksViewModel = koinViewModel()
 ) {
     var orderSettingsVisible by remember { mutableStateOf(false) }
-    val focusRequester = remember { FocusRequester() }
     val uiState = viewModel.tasksUiState
     val snackbarHostState = remember { SnackbarHostState() }
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
-    )
-    var openSheet by rememberSaveable {
+    var showAddTaskCard by rememberSaveable {
         mutableStateOf(false)
     }
     val alarmPermissionState = rememberPermissionState(Permission.SCHEDULE_ALARMS)
-    val scope = rememberCoroutineScope()
     val liquidState = rememberLiquidState()
     Scaffold(
         snackbarHost = { LocalisedSnackbarHost(snackbarHostState) },
@@ -109,10 +100,10 @@ fun TasksScreen(
             MyBrainAppBar(stringResource(Res.string.tasks))
         },
         floatingActionButton = {
-            AnimatedVisibility(!sheetState.isVisible) {
+            AnimatedVisibility(!showAddTaskCard) {
                 LiquidFloatingActionButton(
                     onClick = {
-                        openSheet = true
+                        showAddTaskCard = true
                     },
                     iconPainter = painterResource(Res.drawable.ic_add),
                     contentDescription = stringResource(Res.string.add_task),
@@ -121,24 +112,6 @@ fun TasksScreen(
             }
         },
     ) { paddingValues ->
-        if (openSheet) ModalBottomSheet(
-            sheetState = sheetState,
-            onDismissRequest = { openSheet = false },
-            properties = ModalBottomSheetProperties(
-                shouldDismissOnBackPress = true
-            )
-        ) {
-            AddTaskBottomSheetContent(
-                onAddTask = {
-                    viewModel.onEvent(TaskEvent.AddTask(it))
-                    scope.launch { sheetState.hide() }.invokeOnCompletion {
-                        if (!sheetState.isVisible) { openSheet = false }
-                    }
-                    focusRequester.freeFocus()
-                },
-                focusRequester
-            )
-        }
         LaunchedEffect(uiState.alarmError) {
             if (uiState.alarmError) {
                 val snackbarResult = snackbarHostState.showSnackbar(Res.string.no_alarm_permission, Res.string.grant_permission)
@@ -150,82 +123,103 @@ fun TasksScreen(
         }
         LaunchedEffect(true) {
             if (addTask) {
-                openSheet = true
+                showAddTaskCard = true
             }
         }
-        if (uiState.tasks.isEmpty()) NoTasksMessage()
-        Column(
+        Box(
             Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .liquefiable(liquidState)
         ) {
+            if (uiState.tasks.isEmpty()) NoTasksMessage()
             Column(
-                Modifier.fillMaxWidth()
+                Modifier
+                    .fillMaxSize()
+                    .liquefiable(liquidState)
             ) {
-                Row(
-                    Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                Column(
+                    Modifier.fillMaxWidth()
                 ) {
-                    IconButton(onClick = { orderSettingsVisible = !orderSettingsVisible }) {
-                        Icon(
-                            modifier = Modifier.size(25.dp),
-                            painter = painterResource(Res.drawable.ic_settings_sliders),
-                            contentDescription = stringResource(Res.string.order_by)
-                        )
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        IconButton(onClick = { orderSettingsVisible = !orderSettingsVisible }) {
+                            Icon(
+                                modifier = Modifier.size(25.dp),
+                                painter = painterResource(Res.drawable.ic_settings_sliders),
+                                contentDescription = stringResource(Res.string.order_by)
+                            )
+                        }
+                        IconButton(onClick = {
+                            navController.navigate(Screen.TaskSearchScreen)
+                        }) {
+                            Icon(
+                                modifier = Modifier.size(25.dp),
+                                painter = painterResource(Res.drawable.ic_search),
+                                contentDescription = stringResource(Res.string.search)
+                            )
+                        }
                     }
-                    IconButton(onClick = {
-                        navController.navigate(Screen.TaskSearchScreen)
-                    }) {
-                        Icon(
-                            modifier = Modifier.size(25.dp),
-                            painter = painterResource(Res.drawable.ic_search),
-                            contentDescription = stringResource(Res.string.search)
+                    AnimatedVisibility(visible = orderSettingsVisible) {
+                        TasksSettingsSection(
+                            uiState.taskOrder,
+                            uiState.showCompletedTasks,
+                            onShowCompletedChange = {
+                                viewModel.onEvent(
+                                    TaskEvent.ShowCompletedTasks(
+                                        it
+                                    )
+                                )
+                            },
+                            onOrderChange = {
+                                viewModel.onEvent(TaskEvent.UpdateOrder(it))
+                            }
                         )
                     }
                 }
-                AnimatedVisibility(visible = orderSettingsVisible) {
-                    TasksSettingsSection(
-                        uiState.taskOrder,
-                        uiState.showCompletedTasks,
-                        onShowCompletedChange = {
-                            viewModel.onEvent(
-                                TaskEvent.ShowCompletedTasks(
-                                    it
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(vertical = 12.dp, horizontal = 4.dp)
+                ) {
+                    items(uiState.tasks, key = { it.id }) { task ->
+                        TaskCard(
+                            task = task,
+                            onComplete = {
+                                viewModel.onEvent(
+                                    TaskEvent.CompleteTask(
+                                        task,
+                                        !task.isCompleted
+                                    )
                                 )
-                            )
-                        },
-                        onOrderChange = {
-                            viewModel.onEvent(TaskEvent.UpdateOrder(it))
-                        }
-                    )
+                            },
+                            onClick = {
+                                navController.navigate(
+                                    Screen.TaskDetailScreen(
+                                        taskId = task.id
+                                    )
+                                )
+                            },
+                        )
+                    }
                 }
             }
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(vertical = 12.dp, horizontal = 4.dp)
+            AnimatedVisibility(
+                visible = showAddTaskCard,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .imePadding()
             ) {
-                items(uiState.tasks, key = { it.id }) { task ->
-                    TaskCard(
-                        task = task,
-                        onComplete = {
-                            viewModel.onEvent(
-                                TaskEvent.CompleteTask(
-                                    task,
-                                    !task.isCompleted
-                                )
-                            )
-                        },
-                        onClick = {
-                            navController.navigate(
-                                Screen.TaskDetailScreen(
-                                    taskId = task.id
-                                )
-                            )
-                        },
-                    )
-                }
+                AddTaskFloatingCard(
+                    onAddTask = {
+                        viewModel.onEvent(TaskEvent.AddTask(it))
+                    },
+                    onDismiss = {
+                        showAddTaskCard = false
+                    },
+                    liquidState = liquidState
+                )
             }
         }
     }

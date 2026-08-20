@@ -7,42 +7,80 @@ import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.ImageProvider
+import androidx.glance.LocalContext
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
+import androidx.glance.color.ColorProvider
 import com.mhss.app.ui.R
 
 @Composable
-fun GlanceModifier.largeBackgroundBasedOnVersion() =
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+fun GlanceModifier.largeBackgroundBasedOnVersion(
+    backgroundOpacity: Float = 1f,
+    useHostCorners: Boolean = false
+): GlanceModifier {
+    val context = LocalContext.current
+    val color = GlanceTheme.colors.secondaryContainer
+        .getColor(context)
+        .copy(alpha = backgroundOpacity.coerceIn(0f, 1f))
+    val backgroundColor = ColorProvider(
+        day = color,
+        night = color
+    )
+    return if (useHostCorners) {
+        background(backgroundColor)
+    } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
         background(
             ImageProvider(R.drawable.large_item_rounded_corner_shape),
-            colorFilter = ColorFilter.tint(GlanceTheme.colors.secondaryContainer)
+            colorFilter = ColorFilter.tint(backgroundColor)
         )
     } else {
-        background(GlanceTheme.colors.secondaryContainer)
+        background(backgroundColor)
             .cornerRadius(25.dp)
     }
+}
 
 @Composable
-fun GlanceModifier.largeInnerBackgroundBasedOnVersion() =
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+fun GlanceModifier.largeInnerBackgroundBasedOnVersion(
+    backgroundOpacity: Float = 1f
+): GlanceModifier {
+    val context = LocalContext.current
+    val color = GlanceTheme.colors.onSecondary
+        .getColor(context)
+        .copy(alpha = backgroundOpacity.coerceIn(0f, 1f))
+    val backgroundColor = ColorProvider(
+        day = color,
+        night = color
+    )
+    return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
         background(
             imageProvider = ImageProvider(R.drawable.large_inner_item_rounded_corner_shape),
-            colorFilter = ColorFilter.tint(GlanceTheme.colors.onSecondary)
+            colorFilter = ColorFilter.tint(backgroundColor)
         )
     } else {
-        background(GlanceTheme.colors.onSecondary)
+        background(backgroundColor)
             .cornerRadius(17.dp)
     }
+}
 
 @Composable
-fun GlanceModifier.smallBackgroundBasedOnVersion() =
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+fun GlanceModifier.smallBackgroundBasedOnVersion(
+    backgroundOpacity: Float = 1f
+): GlanceModifier {
+    val context = LocalContext.current
+    val color = GlanceTheme.colors.secondaryContainer
+        .getColor(context)
+        .copy(alpha = backgroundOpacity.coerceIn(0f, 1f))
+    val backgroundColor = ColorProvider(
+        day = color,
+        night = color
+    )
+    return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
         background(
             imageProvider = ImageProvider(R.drawable.small_item_rounded_corner_shape),
-            colorFilter = ColorFilter.tint(GlanceTheme.colors.secondaryContainer)
+            colorFilter = ColorFilter.tint(backgroundColor)
         )
     } else {
-        background(GlanceTheme.colors.secondaryContainer)
+        background(backgroundColor)
             .cornerRadius(16.dp)
     }
+}

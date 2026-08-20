@@ -1,5 +1,6 @@
 package com.mhss.app.widget.notes
 
+import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -11,6 +12,7 @@ import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
+import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.items
 import androidx.glance.layout.Alignment
@@ -34,13 +36,20 @@ import com.mhss.app.widget.largeInnerBackgroundBasedOnVersion
 
 @Composable
 fun NotesHomeScreenWidget(
-    notes: List<Note>
+    notes: List<Note>,
+    backgroundOpacity: Float
 ) {
     val context = LocalContext.current
+    val useSamsungWidgetBackground = Build.MANUFACTURER.equals("samsung", ignoreCase = true)
+    val effectiveBackgroundOpacity = backgroundOpacity.coerceIn(1f / 255f, 254f / 255f)
     Box(
         modifier = GlanceModifier
             .fillMaxWidth()
-            .largeBackgroundBasedOnVersion()
+            .largeBackgroundBasedOnVersion(
+                backgroundOpacity = effectiveBackgroundOpacity,
+                useHostCorners = useSamsungWidgetBackground
+            )
+            .appWidgetBackground()
     ) {
         Column(
             modifier = GlanceModifier.padding(8.dp)
@@ -84,7 +93,7 @@ fun NotesHomeScreenWidget(
                 modifier = GlanceModifier
                     .fillMaxSize()
                     .padding(horizontal = 6.dp)
-                    .largeInnerBackgroundBasedOnVersion(),
+                    .largeInnerBackgroundBasedOnVersion(effectiveBackgroundOpacity),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                     if (notes.isEmpty()) {
@@ -103,11 +112,13 @@ fun NotesHomeScreenWidget(
                     } else {
                         item { Spacer(GlanceModifier.height(6.dp)) }
                         items(notes) { note ->
-                            NoteWidgetItem(note)
+                            NoteWidgetItem(
+                                note = note,
+                                backgroundOpacity = effectiveBackgroundOpacity
+                            )
                         }
                     }
             }
         }
     }
 }
-

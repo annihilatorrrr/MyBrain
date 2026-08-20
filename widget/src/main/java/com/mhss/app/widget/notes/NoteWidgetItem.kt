@@ -1,6 +1,5 @@
 package com.mhss.app.widget.notes
 
-import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -12,6 +11,7 @@ import androidx.glance.ImageProvider
 import androidx.glance.action.actionParametersOf
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
+import androidx.glance.color.ColorProvider
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
@@ -25,23 +25,22 @@ import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.ColorProvider
 import com.mhss.app.domain.model.Note
 import com.mhss.app.ui.R
 import com.mhss.app.ui.theme.Orange
 import com.mhss.app.widget.smallBackgroundBasedOnVersion
 
-@SuppressLint("RestrictedApi")
 @Composable
 fun NoteWidgetItem(
-    note: Note
+    note: Note,
+    backgroundOpacity: Float
 ) {
     Box(
         GlanceModifier.padding(bottom = 3.dp)
     ) {
         Column(
             GlanceModifier
-                .smallBackgroundBasedOnVersion()
+                .smallBackgroundBasedOnVersion(backgroundOpacity)
                 .padding(10.dp)
                 .clickable(
                     actionRunCallback<NoteWidgetItemClickAction>(
@@ -68,7 +67,9 @@ fun NoteWidgetItem(
                         modifier = GlanceModifier.size(16.dp),
                         provider = ImageProvider(R.drawable.ic_pin_filled),
                         contentDescription = null,
-                        colorFilter = ColorFilter.tint(ColorProvider(Orange))
+                        colorFilter = ColorFilter.tint(
+                            ColorProvider(day = Orange, night = Orange)
+                        )
                     )
                     Spacer(GlanceModifier.width(6.dp))
                 }
@@ -98,4 +99,3 @@ fun NoteWidgetItem(
         }
     }
 }
-

@@ -6,14 +6,13 @@ import androidx.core.net.toUri
 import androidx.glance.GlanceId
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.action.ActionCallback
+import com.mhss.app.presentation.QuickAddTaskActivity
 import com.mhss.app.util.Constants
 
 class AddTaskAction : ActionCallback {
     override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
-        val intent = Intent(
-            Intent.ACTION_VIEW,
-            "${Constants.TASKS_SCREEN_URI}?${Constants.ADD_TASK_ARG}=true".toUri()
-        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val intent = Intent(context, QuickAddTaskActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         context.startActivity(intent)
     }
 }

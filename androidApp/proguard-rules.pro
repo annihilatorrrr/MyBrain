@@ -133,3 +133,7 @@
 -dontwarn jdk.jfr.Name
 -dontwarn java.lang.management.ManagementFactory
 -dontwarn java.lang.management.RuntimeMXBean
+
+-keep class * implements com.google.firebase.components.ComponentRegistrar {
+    public <init>();
+}
